@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+    <title>Interface</title>
+
+    <script>
+        function clipboard(el){
+            navigator.clipboard.writeText(el.innerText).then(function() {
+                console.log('Async: Copying to clipboard was successful!');
+            }, function(err) {
+                console.error('Async: Could not copy text: ', err);
+            });
+        }
+        function status(){
+
+        }
+        let cwd = "/";
+        const dirent_item = "dirent-item " 
+        //when the icons are ready, insert them here
+        function create_file_element(filename){
+            dirent = document.createElement("div");
+            dirent.setAttribute("class", "dirent");
+            {// file
+                let el = document.createElement("div");
+                let classes = dirent_item;
+    
+                let isDirectory = (filename[filename.length-1] == '/');
+                if (isDirectory) classes+="dirent-dir ";
+                
+                el.setAttribute("isDirectory", isDirectory);
+                el.setAttribute("class", classes)
+                el.appendChild(document.createTextNode(filename));
+                dirent.appendChild(el);
+            }
+            {//buttons
+                let classes = dirent_item + "dirent-image ";
+                {   //download
+                    let el = document.createElement("div");
+                    el.setAttribute("class", classes);
+                    el.appendChild(document.createTextNode("DW"));
+                    dirent.appendChild(el);
+                }
+                {   //print
+                    let el = document.createElement("div");
+                    el.setAttribute("class", classes);
+                    el.appendChild(document.createTextNode("PR"));
+                    dirent.appendChild(el);
+                }
+                {   //remove
+                    let el = document.createElement("div");
+                    el.setAttribute("class", classes);
+                    el.appendChild(document.createTextNode("RM"));
+                    dirent.appendChild(el);
+                }
+            }
+            return dirent;
+        }
+        const rotate_rps=0.5;
+        const rotate_ups=20;
+        function rotate_file_load_icon(){
+            let fsi_el = document.getElementById("file-sync-icon");
+            let angle = 25;
+            let increment = (360*rotate_rps)/rotate_ups;
+            return setInterval(()=>{
+                fsi_el.setAttribute("style", `transform: rotate(${angle}deg);`);
+                angle+=increment;
+            }, 1000/20)
+        }
+        function stop_file_load_icon(interval_id){
+            let fsi_el = document.getElementById("file-sync-icon");
+            fsi_el.setAttribute("style", '');
+            clearInterval(interval_id);
+        }
+
+        function files(){
+            let interval_id = rotate_file_load_icon();
+            fetch("/fm/ls/", {
+                method: "POST",
+                body: cwd
+            })
+            .then(JSON.parse)
+            .then(js => {
+                let files = [];
+                let df = document.getElementById("Directory Files");
+                js.forEach(element => {
+                    files.push(create_file_element(element));
+                });
+                stop_file_load_icon(interval_id);
+                df.replaceChildren(files); 
+            })
+            .catch(err => {
+                console.error("files::", err)
+                stop_file_load_icon(interval_id)
+            });
+        }
+    </script>
+</head>
+<body>
+    <!-- Progress etc. on the top as a bar -->
+    <div id="Status Bar" class="bar status-bar">Status Bar</div>
+    <div class="directory-setting-seperator">
+
+        <div id="Directory View" class="dir-view">
+            <div id="Current Directory" class="dir-pwd dirent"><div class="dirent-item">Current Directory </div><div id="file-sync-icon" class="dirent-item dirent-image" onclick="files()">RF</div> </div>
+            <div id="Directory Files" class="dir-files">
+                <div class="dirent">
+                    <div class="dirent-item dirent-dir">directory/</div>
+                    <div class="dirent-item dirent-image">DW</div>
+                    <div class="dirent-item dirent-image">PR</div>
+                    <div class="dirent-item dirent-image">RM</div>
+                </div>
+                <div class="dirent">
+                    <div class="dirent-item">filename</div>
+                    <div class="dirent-item dirent-image">DW</div>
+                    <div class="dirent-item dirent-image">PR</div>
+                    <div class="dirent-item dirent-image">RM</div>
+                </div>
+                <div class="dirent">
+                    <div class="dirent-item">filename</div>
+                    <div class="dirent-item dirent-image">DW</div>
+                    <div class="dirent-item dirent-image">PR</div>
+                    <div class="dirent-item dirent-image">RM</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hideable? wifi settings etc -->
+        <div id="Settings Column" class="bar settings-bar" >Settings Column</div>
+    </div>
+</body>
+</html>
