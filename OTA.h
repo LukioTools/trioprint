@@ -3,13 +3,13 @@
   Complete project details at https://randomnerdtutorials.com
   Arduino IDE example: Examples > Arduino OTA > BasicOTA.ino
 *********/
+#pragma once
 
-
-
-
+#include <ESP8266WiFi.h>
+#include <WiFiUdp.h>
+#include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 
-#include "./WIFI.h"
 #include "./config.h"
 
 namespace tri_OTA{

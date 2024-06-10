@@ -1,8 +1,12 @@
-#include <ESP8266WiFi.h>
-#include "./config.h"
-#include <WiFiUdp.h>
-#include <ESP8266mDNS.h>
+#pragma once
 
+
+#include "./config.h"
+
+
+#include <WiFiUdp.h>
+#include <ESP8266WiFi.h>
+#include <ESP8266mDNS.h>
 namespace tri_WiFi{
     void begin(){
         WiFi.mode(WIFI_STA);
