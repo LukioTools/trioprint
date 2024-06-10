@@ -9,6 +9,7 @@
 #include <ESP8266mDNS.h>
 namespace tri_WiFi{
     void begin(){
+        Serial.println("connection to WiFi");
         WiFi.mode(WIFI_STA);
         WiFi.begin(WIFI_SSID, WIFI_PWD);
 
