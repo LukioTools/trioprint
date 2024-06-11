@@ -12,7 +12,7 @@
 
 #include "./config.h"
 
-namespace tri_OTA{
+namespace OTAW{
   void begin() { 
     ArduinoOTA.onStart([]() {
       Serial.println("Start");
@@ -32,7 +32,7 @@ namespace tri_OTA{
     ArduinoOTA.begin();
     Serial.println("Ready");
     Serial.print("IP address: ");
-    Serial.println(tri_WiFi::localIP());
+    Serial.println(WiFiW::localIP());
   }
 
   void handle() {

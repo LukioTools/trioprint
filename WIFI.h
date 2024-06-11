@@ -7,7 +7,9 @@
 #include <WiFiUdp.h>
 #include <ESP8266WiFi.h>
 #include <ESP8266mDNS.h>
-namespace tri_WiFi{
+#include <WiFiClient.h>
+
+namespace WiFiW{
     void begin(){
         Serial.println("connection to WiFi");
         WiFi.mode(WIFI_STA);
@@ -17,6 +19,12 @@ namespace tri_WiFi{
             Serial.println("Connection Failed! Rebooting...");
             delay(5000);
             ESP.restart();
+        }
+
+        if (MDNS.begin(WEB_NAME)) {              // Start the mDNS responder for esp8266.local
+          Serial.println("mDNS responder started");
+        } else {
+          Serial.println("Error setting up MDNS responder!");
         }
     }
 
