@@ -56,7 +56,7 @@ namespace WebServerW {
   }
 
   void HandleRoot(){
-      server.send(200, "text/plain", GUI);   // Send HTTP status 200 (Ok) and send some text to the browser/client
+      server.send(200, "text/plain", "");   // Send HTTP status 200 (Ok) and send some text to the browser/client
   }
 
   void HandleNotFound(){
@@ -69,7 +69,6 @@ namespace WebServerW {
     responce += "\"freeSpace\":" + String(SDW::freeSize()) + ",";
     responce += "\"printting_status\":" + String(Target_device::isPrintting) + "";
     responce += "}";
-
     server.send(200, "text/plain", responce);
   }
   void HandlePrint(){}
@@ -78,7 +77,7 @@ namespace WebServerW {
   void HandleEmergencyStop(){}
 
   void HandleListFolder(){
-    
+
   }
   void HandleRemoveFile(){}
   void Handlemkdir(){}
