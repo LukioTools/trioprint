@@ -19,4 +19,7 @@ void loop(){
   delay(0);
   WebServerW::handle();
   delay(0);
+  delay(1000);
+  
 }
+

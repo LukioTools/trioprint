@@ -20,6 +20,7 @@ namespace WebServerW {
   void HandleListFolder();  // Gets folder
   void HandleRemoveFile();  // Gets file or folder name and removes it from the sd card
   void Handlemkdir();       // Adds folder by name
+  void HandleDownloadFile(); // Gives file to client
   void HandlePrintStatus();  // gives targer device status
 
   void HandleNotFound();
@@ -30,7 +31,7 @@ namespace WebServerW {
     cout << "starting web server" <<  "\n";
     
     server.on("/", HTTP_GET ,HandleRoot);
-    server.on("/server/status/", HTTP_GET ,HandleServerStatus);
+    server.on("/server/status/", HTTP_GET ,HandleRoot);
     
     server.on("/device/print/", HTTP_GET ,HandlePrint);
     server.on("/device/pause/", HTTP_GET ,HandlePause);
@@ -40,9 +41,10 @@ namespace WebServerW {
     server.on("/device/ls/", HTTP_GET ,HandlePrintStatus);
     server.on("/device/console", HTTP_GET ,HandlePrintStatus);
     
-    server.on("/fm/ls/", HTTP_GET ,HandleListFolder);
+    server.on("/fm/ls/", HTTP_POST ,HandleListFolder);
     server.on("/fm/remove/", HTTP_GET ,HandleRemoveFile);
     server.on("/fm/mkdir/", HTTP_GET ,Handlemkdir);
+    server.on("/fm/downloadFile/", HTTP_GET, HandleDownloadFile);
 
     server.onNotFound(HandleNotFound);
     
@@ -56,7 +58,18 @@ namespace WebServerW {
   }
 
   void HandleRoot(){
-      server.send(200, "text/plain", "");   // Send HTTP status 200 (Ok) and send some text to the browser/client
+      size_t fileSize = 0;
+      uint8_t* fileData = SDW::readFile("compiled.html.gz", fileSize);
+
+      if(fileData){
+          Serial.println("File loaded: "+ String(fileSize));
+          server.sendHeader("Content-Encoding", "gzip");
+          server.send(200, "text/html", fileData, fileSize);
+      }else{
+          Serial.println("failed to load");
+          server.send(500, "text/html", "Failed to load file from SD");
+      }
+    delete[] fileData;
   }
 
   void HandleNotFound(){
@@ -77,9 +90,27 @@ namespace WebServerW {
   void HandleEmergencyStop(){}
 
   void HandleListFolder(){
-
+    Serial.println(server.arg("plain"));
+    server.send(200, "application/json", SDW::listDir(server.arg("plain")).c_str());
   }
   void HandleRemoveFile(){}
   void Handlemkdir(){}
+  void HandleDownloadFile(){
+      /*uint8_t* fileData = nullptr;
+      size_t fileSize = 0;
+
+      String name = server.arg("plain");
+      Serial.println("name: " + String(name));
+
+      if(SDW::readFile(name.c_str(), fileData, fileSize)){
+          server.sendHeader("Content-Type", "application/octet-stream");
+          server.sendHeader("Content-Length", String(fileSize));
+          server.send(200, "application/zip", (const char*)fileData, fileSize);
+          delete[] fileData;
+      }else{
+        server.send(500, "text/plain", "Failed to load file from SD");
+      }*/
+
+  }
   void HandlePrintStatus(){}
 }

@@ -1,3 +1,4 @@
+#include "c_types.h"
 #pragma once
 
 #include <SdFat.h>
@@ -66,8 +67,37 @@ namespace WRAPPPER_NAMESPACE
         }
         file = folder.openNextFile();
       }
-      files.remove(files.length());
+      files.remove(files.length()-1);
       files += "]";
       return files;
     }
+
+    uint8_t* readFile(const char* filename, size_t& fileSize) {
+      FsFile file = SD.open(filename, O_READ);
+      if (!file){
+        return nullptr;
+      }
+
+      fileSize = file.fileSize();
+      auto fileData = new uint8_t[fileSize];
+      if (file.read(fileData, fileSize) != fileSize) {
+        Serial.println("Failed to read file into RAM");
+        delete[] fileData;
+        file.close();
+        return nullptr;
+      }
+
+      file.close();
+      return fileData;
+
+    }
+
+  void printFileToSerial(const uint8_t* fileData, size_t fileSize) {
+    Serial.println("Printing file content:");
+    for (size_t i = 0; i < fileSize; ++i) {
+      Serial.print((char)fileData[i]);
+    }
+    Serial.println("\nFile content printed");
+  }
+
 } // namespace WRAPPPER_NAMESPACE
