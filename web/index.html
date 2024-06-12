@@ -85,6 +85,17 @@
             fsi_el.setAttribute("style", '');
             clearInterval(interval_id);
         }
+        let wrong_timeout_id = null;
+        function set_wrong(){
+            const wrong_class = "file-sync-wrong";
+            let element = document.getElementById("file-sync-icon");
+            element.classList.add(wrong_class);
+            if(wrong_timeout_id != null){clearTimeout(wrong_timeout_id);wrong_timeout_id = null;}
+            wrong_timeout_id=setTimeout(()=>{
+                wrong_timeout_id = null;
+                element.classList.remove(wrong_class);
+            }, 5000)
+        }
         function files(){
             return new Promise((resolve, reject) => {
                 let interval_id = rotate_file_load_icon();
@@ -105,7 +116,9 @@
                 })
                 .catch(err => {
                     console.error(err);
+                    set_wrong();
                     stop_file_load_icon(interval_id);
+
                     reject(err);
                 });
             })
@@ -159,12 +172,167 @@
             //document.getElementById("drop-zone").setAttribute("")
         }
     </script>
+    <!--view resize handle-->
+    <script>
+
+
+        let dir_settings_percent = 80;
+        let dir_status_percent = 80;
+
+        function refresh_dir_status(){
+            let dv = document.getElementById("dir-set-sep");
+            let st = document.getElementById("Status Bar");
+            dv.setAttribute("style", `width: ${dir_status_percent}%;`);
+            st.setAttribute("style", `width: ${100-dir_status_percent}%;`);
+        }
+        function resize_dir_stat(ev){
+            function update(ev1){
+                dir_status_percent = 100*ev1.clientY/document.body.clientHeight;
+                if(dir_status_percent < 1){
+                    dir_status_percent = 1;
+                }
+                else if(dir_status_percent > 99){
+                    dir_status_percent = 99;
+                }
+                refresh_dir_status();
+            }
+            function updateFinal(ev1){
+                update(ev1);
+                document.removeEventListener("mouseup", updateFinal);
+                document.removeEventListener("mousemove", update);
+            }
+            document.addEventListener("mouseup", updateFinal);
+            document.addEventListener("mousemove", update);
+        }
+
+        function refresh_dir_set(){
+            let dv = document.getElementById("Directory View");
+            let sc = document.getElementById("Settings Column Resizer");
+            dv.setAttribute("style", `width: ${dir_settings_percent}%;`);
+            sc.setAttribute("style", `width: ${100-dir_settings_percent}%;`);
+        }
+        function resize_dir_set(ev){
+            let dss = document.getElementById("dir-set-sep");
+            function update(ev1){
+                dir_settings_percent = 100*ev1.clientX/dss.clientWidth;
+                if(dir_settings_percent < 1){
+                    dir_settings_percent = 1;
+                }
+                else if(dir_settings_percent > 99){
+                    dir_settings_percent = 99;
+                }
+                refresh_dir_set();
+            }
+            function updateFinal(ev1){
+                update(ev1);
+                document.removeEventListener("mouseup", updateFinal);
+                document.removeEventListener("mousemove", update);
+            }
+            document.addEventListener("mouseup", updateFinal);
+            document.addEventListener("mousemove", update);
+        }
+
+
+
+        let bars = []
+        window.addEventListener("load", ()=>{
+            console.log("loaded");
+            let sb = document.getElementById("Status Bar");
+            let width = sb.clientWidth;
+            let inc = width/sb.children.length;
+            console.log(width, inc, sb);
+            for (let index = 0; index < sb.children.length; index++) {
+                const element = sb.children[index];
+                element.setAttribute("style", `width: ${inc}px;`);
+                if(index != 0){bars.push(inc*index);}
+            }
+            refresh_dir_set();
+        })
+
+        function index_of_element(e){
+            const arr = e.parentElement.children;
+            for (let index = 0; index < arr.length; index++) {
+                if(arr[index] == e) return index;
+            }
+            return null;
+        }
+
+        function refresh_bars(){
+            let sb = document.getElementById("Status Bar");
+            let total = 0;
+            let last = 0;
+            for (let index = 0; index < bars.length; index++) {
+                const element = sb.children[index]; 
+                const bar = bars[index];
+                console.log("bar:", bar);
+                console.log("bar-style", `width: ${bar}px;`);
+                element.setAttribute("style", `width: ${bar-total}px;`);
+                total+=bar;
+                if(index == bars.length-1){
+                    last=bar;
+                }
+            }
+            sb.children[sb.children.length-1].setAttribute("style", `width: ${sb.clientWidth-last}px;`);
+        }
+
+        let bar_resize_ongoing = false;
+        function resize_vertical_bars(ev, index){
+            console.log(ev);
+            if(ev.clientX > bars[index]+32 || ev.clientX < bars[index]-32) return;
+
+            bar_resize_ongoing = true;
+            ev.preventDefault();
+            function resize_bar(cursor_x){
+                if(index+1 < bars.length && bars[index+1]-8 < cursor_x){
+                    cursor_x = bars[index+1]-8;
+                }
+                if(index >= 1 && bars[index - 1 ]+8 > cursor_x){
+                    cursor_x = bars[index - 1 ]+8;
+                }
+                let sbw = document.getElementById("Status Bar").clientWidth-8;
+                if(cursor_x > sbw){
+                    cursor_x = sbw;
+                }
+                if(cursor_x < 8){
+                    cursor_x = 8;
+                }
+                    //idk anymore
+                if((index+1 < bars.length && bars[index+1]-8 < cursor_x)|| index >= 1 && bars[index - 1 ]+8 > cursor_x){
+                    return;
+                }
+                bars[index] = cursor_x;
+            }
+            function intermission_reszie(ev1){
+                resize_bar(ev1.clientX);
+                refresh_bars();
+            }
+            function final_resize(ev1){
+                resize_bar(ev1.clientX);
+                refresh_bars();
+                document.removeEventListener("mouseup", final_resize);
+                document.removeEventListener("mousemove", intermission_reszie);
+                bar_resize_ongoing = false;
+            };
+            document.addEventListener("mouseup", final_resize);
+            document.addEventListener("mousemove", intermission_reszie);
+        }
+    </script>
 </head>
 <body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
     <!-- Progress etc. on the top as a bar -->
-    <div id="Status Bar" class="bar status-bar">Status Bar</div>
-    <div class="directory-setting-seperator">
+    <div id="Status Bar" class="bar status-bar">
+        <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
+            <div class="status-item" ><div>Disk Usage</div></div>
+        </div>
+        <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
+            <div class="status-item" ><div>Printer Status</div></div>
+        </div>
+        <div id="3" class="resize-handle">
+            <div class="status-item" ><div>Some other bullshit</div></div>
+        </div>
+    </div>
 
+    <div id="dir-set-sep" class="directory-setting-seperator">
         <div id="Directory View" class="dir-view">
             <div id="Current Directory" class="dir-pwd dirent"><div class="dirent-item">Current Directory </div><div id="file-sync-icon" class="dirent-item dirent-image" onclick="files()">RF</div> </div>
             <div id="Directory Files" class="dir-files">
@@ -188,9 +356,9 @@
                 </div>
             </div>
         </div>
-
-        <!-- Hideable? wifi settings etc -->
-        <div id="Settings Column" class="bar settings-bar" >Settings Column</div>
+        <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">
+            <div id="Settings Column" class="bar settings-bar" >Settings Column</div>
+        </div>
     </div>
 </body>
 </html>
