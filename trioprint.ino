@@ -6,21 +6,17 @@
 #include "log.h"
 
 void setup(){
+  ESP.wdtEnable(5000);
   Serial.begin(115200);
   WiFiW::begin();
   OTAW::begin();
-  SDW::init(15);
+  Serial.println(SDW::init(15));
   WebServerW::begin();
 }
 
-
-void loop(){
-  unsigned long startTime = millis();
-  
+void loop(){  
+  OTAW::handle();
+  delay(0);
   WebServerW::handle();
-  cout << SDW::cardSize() << "" << "\n";
-  cout << SDW::freeSize() << "\n";
-  cout << SDW::listDir("/")<<"\n";
-
-  delay(1000);
+  delay(0);
 }

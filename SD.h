@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SdFat.h>
+#include "log.h"
 
 #define WRAPPPER_NAMESPACE SDW
 
@@ -8,20 +9,17 @@
 
 namespace WRAPPPER_NAMESPACE
 {
-    namespace{
-      SdFs sd;
-      csd_t csd;
-    }
-    
+    SdFs SD;
+    csd_t csd;
     template<bool dont_repeat = false>
     inline static bool init(uint8 chip_select_pin = PIN_SPI_SS){
     label:
-        if (sd.begin(chip_select_pin, SPI_FULL_SPEED)) {
-          sd.card()->readCSD(&csd);
+        if (SD.begin(chip_select_pin, 100000000)) {
+          SD.card()->readCSD(&csd);
           return true;
         }
         else if(dont_repeat){
-            sd.initErrorHalt();
+            SD.initErrorHalt();
             Serial.println("Failed to initialize SD, NOT retrying....");
             return false;
         }
@@ -31,17 +29,18 @@ namespace WRAPPPER_NAMESPACE
     }
 
     float cardSize(){ // full size in megabytes
-      return 0.000512*csd.capacity(); // returns in MB (1,000,000 bytes)
+      return 0.000512*sdCardCapacity(&csd); // returns in MB (1,000,000 bytes)
     }
 
     float freeSize(){   //megabytes hopefully
-      long freeKB = sd.freeClusterCount();
-      freeKB *= sd.sectorsPerCluster()/2; 
-      return freeKB / 1000;
+      float freeKB = SD.freeClusterCount();
+      freeKB *= SD.sectorsPerCluster()/2; 
+      freeKB = freeKB/1000;
+      return freeKB;//freeKB / 1000;
     }
 
     String listDir(String path){
-      FsFile folder = sd.open(path);
+      FsFile folder = SD.open(path);
       if(!folder){
         return "Failed to open directory";
       }
@@ -54,6 +53,7 @@ namespace WRAPPPER_NAMESPACE
       String files = "[";
 
       while (file) {
+        yield();
         if (file.isDirectory()) {
           char name[15];
           file.getName(name, 15);
@@ -67,7 +67,7 @@ namespace WRAPPPER_NAMESPACE
         file = folder.openNextFile();
       }
       files.remove(files.length());
-      files += "]"
+      files += "]";
       return files;
     }
 } // namespace WRAPPPER_NAMESPACE
