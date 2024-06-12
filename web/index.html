@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="index.css">
     <title>Interface</title>
 
+    <!--file view & navigation-->
     <script>
-        //first comment
         function clipboard(el){
             navigator.clipboard.writeText(el.innerText).then(function() {
                 console.log('Async: Copying to clipboard was successful!');
@@ -85,9 +85,6 @@
             fsi_el.setAttribute("style", '');
             clearInterval(interval_id);
         }
-        /**
-         * @returns {Promise}
-        */
         function files(){
             return new Promise((resolve, reject) => {
                 let interval_id = rotate_file_load_icon();
@@ -112,16 +109,58 @@
                     reject(err);
                 });
             })
-            
         }
-
             ///status window shenanigans
         function status(){
 
         }
+
+
+    </script>
+    <!--file upload & drag 'n drop-->
+    <script>
+        /**
+         * @param file {Object}.
+         * @param file.lastModified {number}.
+         * @param file.name {string} The name of the file.
+         * @param file.size {number} The size of the file.
+         * @param file.type {string} The mimetype of the file.
+         * @param file.webkitRelativePath {string | ""} The rel-path of the file.
+         */
+        function upload_file(file){
+            console.log(`uploading file: ${file.name}`);
+            return fetch("/upload/"+file.name, {
+                method:"post",
+                body: file
+            });
+        }
+        function dropHandler(ev){
+            console.log("File(s) dropped", ev);
+            ev.preventDefault();
+            if (ev.dataTransfer.items) {
+                // Use DataTransferItemList interface to access the file(s)
+                [...ev.dataTransfer.items].forEach((item, i) => {
+                    // If dropped items aren't files, reject them
+                    if (item.kind === "file") {
+                        upload_file(item.getAsFile());
+                    }
+                });
+            } else {
+                // Use DataTransfer interface to access the file(s)
+                [...ev.dataTransfer.files].forEach((file, i) => {
+                    upload_file(file);
+                });
+            }
+        }
+        function dragOverHandler(ev) {
+            console.log("File(s) in drop zone", ev);
+            // Prevent default behavior (Prevent file from being opened)
+            ev.preventDefault();
+            //document.getElementById("drop-zone").setAttribute("")
+        }
     </script>
 </head>
-<body>
+<body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
     <!-- Progress etc. on the top as a bar -->
     <div id="Status Bar" class="bar status-bar">Status Bar</div>
     <div class="directory-setting-seperator">
