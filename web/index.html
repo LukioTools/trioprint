@@ -7,6 +7,7 @@
     <title>Interface</title>
 
     <script>
+        //first comment
         function clipboard(el){
             navigator.clipboard.writeText(el.innerText).then(function() {
                 console.log('Async: Copying to clipboard was successful!');
@@ -28,7 +29,7 @@
             else return clipboard(el);
         }
         let cwd = "/";
-        const dirent_item = "dirent-item " 
+        const dirent_item = "dirent-item ";
         //when the icons are ready, insert them here
         function create_file_element(filename){
             dirent = document.createElement("div");
@@ -41,7 +42,7 @@
                 if (isDirectory) classes+="dirent-dir ";
                 
                 el.setAttribute("isDirectory", isDirectory);
-                el.setAttribute("class", classes)
+                el.setAttribute("class", classes);
                 el.appendChild(document.createTextNode(filename));
                 dirent.appendChild(el);
             }
@@ -103,11 +104,11 @@
                     });
                     stop_file_load_icon(interval_id);
                     df.replaceChildren(files); 
-                    resolve()
+                    resolve();
                 })
                 .catch(err => {
-                    console.error(err)
-                    stop_file_load_icon(interval_id)
+                    console.error(err);
+                    stop_file_load_icon(interval_id);
                     reject(err);
                 });
             })
