@@ -7,7 +7,6 @@ namespace WebServerW {
   /*
   void HandleRoot();
   
-  
   void HandleServerStatus();// gives server status  
   void HandlePrint();       // Gets file name to print
   void HandlePause();       // Pauses print
