@@ -13,7 +13,7 @@
 #include "H-UploadFile.h"
 
 namespace WebServerW {
-    void handle(){server.handle();}
+    inline static void handle(){server.handle();}
     
     void begin(){
         server.on("/", HTTP_GET ,Handlers::Root);
