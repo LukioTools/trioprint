@@ -1,3 +1,5 @@
+#include "HardwareSerial.h"
+#include "FsLib/FsFile.h"
 #pragma once
 
 #include "WIFI.h"
@@ -6,6 +8,7 @@
 #include "target_device.h"
 
 #include <ESP8266WebServer.h>
+#include <cstdio>
 
 namespace WebServerW {
 
@@ -22,6 +25,7 @@ namespace WebServerW {
   void Handlemkdir();       // Adds folder by name
   void HandleDownloadFile(); // Gives file to client
   void HandlePrintStatus();  // gives targer device status
+  void HandleUpload();
 
   void HandleNotFound();
 
@@ -45,6 +49,7 @@ namespace WebServerW {
     server.on("/fm/remove/", HTTP_GET ,HandleRemoveFile);
     server.on("/fm/mkdir/", HTTP_GET ,Handlemkdir);
     server.on("/fm/downloadFile/", HTTP_GET, HandleDownloadFile);
+    server.on("/fm/upload/", HTTP_POST, HandleUpload);
 
     server.onNotFound(HandleNotFound);
     
@@ -110,7 +115,24 @@ namespace WebServerW {
       }else{
         server.send(500, "text/plain", "Failed to load file from SD");
       }*/
-
   }
+
+  FsFile upload_file;
+  void HandleUpload(){
+    const String& filepath = server.arg("path");
+    HTTPUpload& upload = server.upload();
+    if (upload.status == UPLOAD_FILE_START) {
+      upload_file = SDW::SD.open(filepath+upload.filename);
+    } else if (upload.status == UPLOAD_FILE_WRITE) {
+      Serial.printf(
+        "Wrote %i/%i to '%s'", 
+        upload_file.write(upload.buf, upload.currentSize), 
+        upload.currentSize, 
+        (filepath+upload.filename).c_str()
+      );
+    } else if (upload.status == UPLOAD_FILE_END) {
+      upload_file.close();
+    }    
+  };
   void HandlePrintStatus(){}
 }
