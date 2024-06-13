@@ -1,19 +1,4 @@
-//
-//void HandleRoot();//
 
-//void HandleServerStatus();// gives server status  
-//void HandlePrint();       // Gets file name to print
-//void HandlePause();       // Pauses print
-//void HandlesStop();       // ends the print
-//void HandleEmergencyStop();// handles emergy stop of 3d printter//
-
-//void HandleListFolder();  // Gets folder
-//void HandleRemoveFile();  // Gets file or folder name and removes it from the sd card
-//void Handlemkdir();       // Adds folder by name
-//void HandleDownloadFile(); // Gives file to client
-//void HandlePrintStatus();  // gives targer device status
-
-//void HandleUpload();//
 #include "H-DownloadFile.h"
 #include "H-ListFolder.h"
 #include "H-Mkdir.h"
@@ -26,8 +11,6 @@
 #include "H-ServerStatus.h"
 #include "H-Stop.h"
 #include "H-UploadFile.h"
-
-//void HandleNotFound();
 
 namespace WebServerW {
     

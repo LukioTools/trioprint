@@ -1,6 +1,5 @@
 #pragma once
 #include "SD.h"
-#include "../Server.h"
 namespace Handlers {
   FsFile upload_file;
   void UploadFile(){

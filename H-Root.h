@@ -1,6 +1,6 @@
 #pragma once
-#include "../Server.h"
-#include "../SD.h"
+#include "WebServer.h"
+#include "SD.h"
 #include <cstddef>
 namespace Handlers {
 

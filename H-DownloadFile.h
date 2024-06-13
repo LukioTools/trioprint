@@ -1,5 +1,5 @@
 #pragma once
-#include "../Server.h"
+#include "WebServer.h"
 namespace Handlers {
   void DownloadFile(){
     server.sendHeader("Content-Encoding", "application/octet-stream");
