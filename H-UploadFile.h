@@ -1,5 +1,7 @@
 #pragma once
 #include "SD.h"
+#include "WebServer.h"
+using namespace WebServerW;
 namespace Handlers {
   FsFile upload_file;
   void UploadFile(){
