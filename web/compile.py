@@ -6,7 +6,7 @@ import gzip;
 s = ""
 with open('index.html', 'r') as f:
     with open('index.css', 'r') as css:
-        s = f.read().replace('<link rel="stylesheet" href="index.css">', "<style>"+css.read().replace('\n', "").replace(' ', '')+"</style>")
+        s = f.read().replace('<link rel="stylesheet" href="index.css">', "<style>"+css.read()+"</style>")
 with open('compiled.html', 'w+') as um:
     um.write(s)
 with gzip.open('compiled.html.gz', 'wb') as f:
