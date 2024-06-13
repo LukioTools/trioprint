@@ -42,7 +42,9 @@
                 if (isDirectory) classes+="dirent-dir ";
                 
                 el.setAttribute("isDirectory", isDirectory);
+                el.setAttribute("onclick", "file_on_click(this)");
                 el.setAttribute("class", classes);
+
                 el.appendChild(document.createTextNode(filename));
                 dirent.appendChild(el);
             }
