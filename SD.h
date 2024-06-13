@@ -49,26 +49,18 @@ namespace WRAPPPER_NAMESPACE
           return "Not a directory";
       }
 
-      FsFile file = folder.openNextFile();
-
       String files = "[";
+      constexpr size_t filename_max = 32;
+      char name[filename_max];
 
-      while (file) {
-        yield();
-        if (file.isDirectory()) {
-          char name[15];
-          file.getName(name, 15);
-          files += String(name) + "/, ";
-        }
-        else {
-          char name[15];
-          file.getName(name, 15);
-          files += String(name) + "_" + String(file.size()) + ",";
-        }
-        file = folder.openNextFile();
+      while (FsFile file = folder.openNextFile()) {
+        file.getName(name, filename_max);
+        files += name;
+        if (file.isDirectory()) files += "/,";
+        else files += + '_' + String(file.size()) + ',';
       }
-      files.remove(files.length()-1);
-      files += "]";
+
+      files[files.length()-1]=']';
       return files;
     }
 
