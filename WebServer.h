@@ -30,35 +30,7 @@ namespace WebServerW {
 
   void HandleNotFound();
 
-  ESP8266WebServer server(80); 
-
-  void begin(){
-    
-    server.on("/", HTTP_GET ,HandleRoot);
-    server.on("/server/status/", HTTP_GET ,HandleRoot);
-    
-    server.on("/device/print/", HTTP_GET ,HandlePrint);
-    server.on("/device/pause/", HTTP_GET ,HandlePause);
-    server.on("/device/stop/", HTTP_GET ,HandlesStop);
-    server.on("/device/ems/", HTTP_GET ,HandleEmergencyStop);
-    server.on("/device/status/", HTTP_GET ,HandlePrintStatus);
-    server.on("/device/ls/", HTTP_GET ,HandlePrintStatus);
-    server.on("/device/console", HTTP_GET ,HandlePrintStatus);
-    
-    server.on("/fm/ls/", HTTP_POST ,HandleListFolder);
-    server.on("/fm/remove/", HTTP_GET ,HandleRemoveFile);
-    server.on("/fm/mkdir/", HTTP_GET ,Handlemkdir);
-    server.on("/fm/downloadFile/", HTTP_GET, HandleDownloadFile);
-    server.on("/fm/upload/", HTTP_POST, HandleUpload);
-
-    server.onNotFound(HandleNotFound);
-    
-    server.begin();
-  }
-
-  void handle(){
-    server.handleClient();
-  }
+  void handle(){server.handleClient();}
 
   void HandleRoot(){
       size_t fileSize = 0;
@@ -108,22 +80,6 @@ namespace WebServerW {
     Serial.println("Download completed");
   }
 
-  FsFile upload_file;
-  void HandleUpload(){
-    const String& filepath = server.arg("path");
-    HTTPUpload& upload = server.upload();
-    if (upload.status == UPLOAD_FILE_START) {
-      upload_file = SDW::SD.open(filepath+upload.filename);
-    } else if (upload.status == UPLOAD_FILE_WRITE) {
-      Serial.printf(
-        "Wrote %i/%i to '%s'", 
-        upload_file.write(upload.buf, upload.currentSize), 
-        upload.currentSize, 
-        (filepath+upload.filename).c_str()
-      );
-    } else if (upload.status == UPLOAD_FILE_END) {
-      upload_file.close();
-    }    
-  };
+  
   void HandlePrintStatus(){}
 }
