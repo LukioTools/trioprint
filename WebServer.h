@@ -30,6 +30,7 @@ namespace WebServerW {
 
   void HandleNotFound();
 
+  /*
   void handle(){server.handleClient();}
 
   void HandleRoot(){
@@ -79,6 +80,7 @@ namespace WebServerW {
     server.send(200, "application/octet-stream", (char *)filedata, filesize);
     Serial.println("Download completed");
   }
+  */
 
   
   void HandlePrintStatus(){}

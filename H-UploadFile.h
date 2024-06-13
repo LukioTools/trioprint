@@ -3,7 +3,7 @@
 #include "../Server.h"
 namespace Handlers {
   FsFile upload_file;
-  void Upload(){
+  void UploadFile(){
     const String& filepath = server.arg("path");
     HTTPUpload& upload = server.upload();
     if (upload.status == UPLOAD_FILE_START) {
