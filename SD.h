@@ -55,9 +55,9 @@ namespace WRAPPPER_NAMESPACE
 
       while (FsFile file = folder.openNextFile()) {
         file.getName(name, filename_max);
-        files += name;
-        if (file.isDirectory()) files += "/,";
-        else files += + '_' + String(file.size()) + ',';
+        (files += "\"") += name;
+        if (file.isDirectory()) files += "/\",";
+        else files += + '_' + String(file.size()) + "\",";
       }
 
       files[files.length()-1]=']';
