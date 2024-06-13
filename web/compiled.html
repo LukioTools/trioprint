@@ -96,6 +96,22 @@
                 element.classList.remove(wrong_class);
             }, 5000)
         }
+        const example_data = `["System Volume Information/",".Trash-1000/","compiled.html.gz_3964","lol/","lol.gcode_0","lol.txt_38"]`;
+        function refresh_files(js){
+            let df = document.getElementById("Directory Files");
+
+            console.log(js);
+
+            df.replaceChildren();
+            js.forEach(element => {
+                let e = create_file_element(element);
+                df.appendChild(e);
+            });
+
+            stop_file_load_icon(interval_id);
+            resolve();
+        }
+
         function files(){
             return new Promise((resolve, reject) => {
                 let interval_id = rotate_file_load_icon();
@@ -104,16 +120,7 @@
                     body: cwd
                 })
                 .then(r=>{return r.json();})
-                .then(js => {
-                    let files = [];
-                    let df = document.getElementById("Directory Files");
-                    js.forEach(element => {
-                        files.push(create_file_element(element));
-                    });
-                    stop_file_load_icon(interval_id);
-                    df.replaceChildren(files); 
-                    resolve();
-                })
+                .then(js => {return refresh_files(js)})
                 .catch(err => {
                     console.error(err);
                     set_wrong();
