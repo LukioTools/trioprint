@@ -1,9 +1,6 @@
-<<<<<<< HEAD
 #include <sys/_stdint.h>
-=======
 #include "HardwareSerial.h"
 #include "FsLib/FsFile.h"
->>>>>>> d4f4d57bc2e38e3201a417a5a1a2a81dc445916d
 #pragma once
 
 #include "WIFI.h"
@@ -102,7 +99,6 @@ namespace WebServerW {
   void HandleRemoveFile(){}
   void Handlemkdir(){}
   void HandleDownloadFile(){
-<<<<<<< HEAD
     server.sendHeader("Content-Encoding", "application/octet-stream");
     Serial.println("downloading file");
     size_t filesize = 0;
@@ -110,22 +106,6 @@ namespace WebServerW {
     uint8_t* filedata = SDW::readFile(name.c_str(), filesize);
     server.send(200, "application/octet-stream", (char *)filedata, filesize);
     Serial.println("Download completed");
-=======
-      /*uint8_t* fileData = nullptr;
-      size_t fileSize = 0;
-
-      String name = server.arg("plain");
-      Serial.println("name: " + String(name));
-
-      if(SDW::readFile(name.c_str(), fileData, fileSize)){
-          server.sendHeader("Content-Type", "application/octet-stream");
-          server.sendHeader("Content-Length", String(fileSize));
-          server.send(200, "application/zip", (const char*)fileData, fileSize);
-          delete[] fileData;
-      }else{
-        server.send(500, "text/plain", "Failed to load file from SD");
-      }*/
->>>>>>> d4f4d57bc2e38e3201a417a5a1a2a81dc445916d
   }
 
   FsFile upload_file;
