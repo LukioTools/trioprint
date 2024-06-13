@@ -76,7 +76,7 @@ namespace WRAPPPER_NAMESPACE
 
       fileSize = file.fileSize();
       auto fileData = new uint8_t[fileSize];
-      if (file.read(fileData, fileSize) != fileSize) {
+      if (file.read(fileData, fileSize) != (long) fileSize) {
         Serial.println("Failed to read file into RAM");
         delete[] fileData;
         file.close();
