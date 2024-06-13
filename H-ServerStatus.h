@@ -1,5 +1,5 @@
 #pragma once
-#include "../Server.h"
+#include "WebServer.h"
 namespace Handlers {
     void ServerStatus(){
         String responce = "{";
