@@ -12,7 +12,7 @@
 #include <cstdio>
 
 namespace WebServerW {
-
+  /*
   void HandleRoot();
   
   void HandleServerStatus();// gives server status  
@@ -30,25 +30,59 @@ namespace WebServerW {
 
   void HandleNotFound();
 
-  /*
-  void handle(){server.handleClient();}
+  void CacheIndexHtml();
+
+  ESP8266WebServer server(80); 
+
+  void begin(){
+    
+    server.on("/", HTTP_GET ,HandleRoot);
+    server.on("/server/status/", HTTP_GET ,HandleRoot);
+    
+    server.on("/device/print/", HTTP_GET ,HandlePrint);
+    server.on("/device/pause/", HTTP_GET ,HandlePause);
+    server.on("/device/stop/", HTTP_GET ,HandlesStop);
+    server.on("/device/ems/", HTTP_GET ,HandleEmergencyStop);
+    server.on("/device/status/", HTTP_GET ,HandlePrintStatus);
+    server.on("/device/ls/", HTTP_GET ,HandlePrintStatus);
+    server.on("/device/console", HTTP_GET ,HandlePrintStatus);
+    
+    server.on("/fm/ls/", HTTP_POST ,HandleListFolder);
+    server.on("/fm/remove/", HTTP_GET ,HandleRemoveFile);
+    server.on("/fm/mkdir/", HTTP_GET ,Handlemkdir);
+    server.on("/fm/downloadFile/", HTTP_GET, HandleDownloadFile);
+    server.on("/fm/upload/", HTTP_POST, HandleUpload);
+
+    server.onNotFound(HandleNotFound);
+
+    // chache shit
+    CacheIndexHtml();
+    
+    // start the server
+    server.begin();
+  }
+
+  void handle(){
+    server.handleClient();
+  }
+
+  uint8_t* IndexHtmlData;
+  size_t IndexHtmlfileSize = 0;
+  void CacheIndexHtml(){
+    IndexHtmlData = SDW::readFile("compiled.html.gz", IndexHtmlfileSize);
+  }
 
   void HandleRoot(){
-      size_t fileSize = 0;
-      uint8_t* fileData = SDW::readFile("compiled.html.gz", fileSize);
-
-      if(fileData){
-          Serial.println("File loaded: "+ String(fileSize));
+      if(IndexHtmlData){
           server.sendHeader("Content-Encoding", "gzip");
-          server.send(200, "text/html", fileData, fileSize);
+          server.send(200, "text/html", IndexHtmlData, IndexHtmlfileSize);
       }else{
-          Serial.println("failed to load");
           server.send(500, "text/html", "Failed to load file from SD");
       }
-    delete[] fileData;
   }
 
   void HandleNotFound(){
+    Serial.println("page not found");
     server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
   }
 
@@ -75,13 +109,14 @@ namespace WebServerW {
     server.sendHeader("Content-Encoding", "application/octet-stream");
     Serial.println("downloading file");
     size_t filesize = 0;
-    const String& name = server.arg("fileName");
+    const String& name = server.arg("filename");
     uint8_t* filedata = SDW::readFile(name.c_str(), filesize);
+    server.sendHeader("Content-Disposition", "inline; filename=\""+name+'"');
     server.send(200, "application/octet-stream", (char *)filedata, filesize);
     Serial.println("Download completed");
   }
-  */
 
   
   void HandlePrintStatus(){}
+  */
 }
