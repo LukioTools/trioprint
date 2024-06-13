@@ -1,3 +1,4 @@
+#include <sys/_stdint.h>
 #pragma once
 
 #include "WIFI.h"
@@ -28,7 +29,6 @@ namespace WebServerW {
   ESP8266WebServer server(80); 
 
   void begin(){
-    cout << "starting web server" <<  "\n";
     
     server.on("/", HTTP_GET ,HandleRoot);
     server.on("/server/status/", HTTP_GET ,HandleRoot);
@@ -49,8 +49,6 @@ namespace WebServerW {
     server.onNotFound(HandleNotFound);
     
     server.begin();
-    cout << "web server started" << "\n";
-
   }
 
   void handle(){
@@ -96,21 +94,13 @@ namespace WebServerW {
   void HandleRemoveFile(){}
   void Handlemkdir(){}
   void HandleDownloadFile(){
-      /*uint8_t* fileData = nullptr;
-      size_t fileSize = 0;
-
-      String name = server.arg("plain");
-      Serial.println("name: " + String(name));
-
-      if(SDW::readFile(name.c_str(), fileData, fileSize)){
-          server.sendHeader("Content-Type", "application/octet-stream");
-          server.sendHeader("Content-Length", String(fileSize));
-          server.send(200, "application/zip", (const char*)fileData, fileSize);
-          delete[] fileData;
-      }else{
-        server.send(500, "text/plain", "Failed to load file from SD");
-      }*/
-
+    server.sendHeader("Content-Encoding", "application/octet-stream");
+    Serial.println("downloading file");
+    size_t filesize = 0;
+    const String& name = server.arg("fileName");
+    uint8_t* filedata = SDW::readFile(name.c_str(), filesize);
+    server.send(200, "application/octet-stream", (char *)filedata, filesize);
+    Serial.println("Download completed");
   }
   void HandlePrintStatus(){}
 }

@@ -19,8 +19,6 @@ void loop(){
   OTAW::handle();
   delay(0);
   WebServerW::handle();
-  delay(0);
-  delay(1000);
-  
+  delay(0);  
 }
 

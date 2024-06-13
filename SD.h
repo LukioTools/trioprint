@@ -70,6 +70,10 @@ namespace WRAPPPER_NAMESPACE
         return nullptr;
       }
 
+      if (file.isDir()){
+        return nullptr;
+      }
+
       fileSize = file.fileSize();
       auto fileData = new uint8_t[fileSize];
       if (file.read(fileData, fileSize) != fileSize) {
@@ -84,12 +88,14 @@ namespace WRAPPPER_NAMESPACE
 
     }
 
-  void printFileToSerial(const uint8_t* fileData, size_t fileSize) {
-    Serial.println("Printing file content:");
-    for (size_t i = 0; i < fileSize; ++i) {
-      Serial.print((char)fileData[i]);
+    bool WriteFile(const char* name, const uint8_t* fileData, size_t size){
+      FsFile file = SD.open(name, O_WRITE | O_CREAT);
+      if(file.write(fileData, size) == size){
+        file.close();
+        return true;
+      }
+      file.close();
+      return false;
     }
-    Serial.println("\nFile content printed");
-  }
 
 } // namespace WRAPPPER_NAMESPACE
