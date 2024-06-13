@@ -103,7 +103,7 @@
                     method: "POST",
                     body: cwd
                 })
-                .then(JSON.parse)
+                .then(r=>{return r.json();})
                 .then(js => {
                     let files = [];
                     let df = document.getElementById("Directory Files");
