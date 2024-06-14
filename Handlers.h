@@ -27,7 +27,7 @@ namespace WebServerW {
         server.on("/device/ls/", HTTP_GET ,Handlers::NotFound);
         server.on("/device/console", HTTP_GET , Handlers::NotFound);
         
-        server.on("/fm/ls/", HTTP_POST , Handlers::ListFolder);
+        server.on("/fm/ls/", HTTP_GET , Handlers::ListFolder);
         server.on("/fm/remove/", HTTP_GET ,Handlers::Remove);
         server.on("/fm/mkdir/", HTTP_GET ,Handlers::Mkdir);
         server.on("/fm/downloadFile/", HTTP_GET, Handlers::DownloadFile);
