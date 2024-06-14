@@ -11,7 +11,7 @@ namespace Handlers {
   void RootPreload(){
     if(!root_cache_data) {
       root_cache_data = SDW::readFile("compiled.html.gz", root_cache_size);
-      Serial.println("root cached now!");
+      Serial.printf("root cached now (%p)[%i]!\n", root_cache_data, root_cache_size);
     }
   }
 
