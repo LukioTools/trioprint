@@ -5,9 +5,6 @@
 #include "log.h"
 
 #define WRAPPPER_NAMESPACE SDW
-
-
-
 namespace WRAPPPER_NAMESPACE
 {
     SdFs SD;
@@ -97,5 +94,7 @@ namespace WRAPPPER_NAMESPACE
       file.close();
       return false;
     }
+
+    bool
 
 } // namespace WRAPPPER_NAMESPACE
