@@ -99,6 +99,10 @@ namespace WRAPPPER_NAMESPACE
       return SD.open(name, O_WRITE | O_CREAT);
     }
 
+    FsFile openFile(const String& name){
+      return SD.open(name.c_str(), O_WRITE | O_CREAT);
+    }
+
     bool mkdir(const char* path){
       return SD.mkdir(path, true);
     }
