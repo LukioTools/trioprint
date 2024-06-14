@@ -14,13 +14,10 @@ void setup(){
   OTAW::begin();
   Serial.println(SDW::init(15));
   WebServerW::begin();
-  Serial.println("lol");
 }
 
 void loop(){  
   OTAW::handle();
-  delay(0);
   WebServerW::handle();
-  delay(0);  
 }
 

@@ -11,6 +11,7 @@
 #include "H-ServerStatus.h"
 #include "H-Stop.h"
 #include "H-UploadFile.h"
+#include "H-DevConsole.h"
 
 namespace WebServerW {
     inline static void handle(){server.handleClient();}
