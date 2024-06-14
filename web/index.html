@@ -60,9 +60,10 @@
             {//buttons
                 let classes = dirent_item + "dirent-image ";
                 if(!isDirectory){   //download
-                    let el = document.createElement("div");
+                    let el = document.createElement("a");
                     el.setAttribute("class", classes);
-                    el.setAttribute("onclick", `download("${filename}")`);
+                    //el.setAttribute("onclick", `download("${filename}")`);
+                    el.setAttribute("href", `/fm/downloadFile/?filename=${filename}`);
                     el.appendChild(document.createTextNode("DW"));
                     dirent.appendChild(el);
                 }
@@ -195,9 +196,6 @@
     </script>
     <!--file dowmload-->
     <script>
-        function download(filename) {
-            return fetch("/fm/downloadFile/?filename="+filename);
-        }
     </script>
     <!--view resize handle-->
     
