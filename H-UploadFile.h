@@ -9,12 +9,16 @@ namespace Handlers {
     const char* filepathp;
     if(filepath == "") filepathp = "/";
     else filepathp = filepath.c_str();
-    
+
     HTTPUpload& upload = server.upload();
+      Serial.print("Status: ");
+      Serial.println(upload.status);
 
     if (upload.status == UPLOAD_FILE_START) {
+      Serial.println("Opening file:" + upload.filename " ...");
       upload_file = SDW::SD.open(filepath+upload.filename);
     } else if (upload.status == UPLOAD_FILE_WRITE) {
+      Serial.println("Writing...");
       Serial.printf(
         "Wrote %i/%i to '%s'", 
         upload_file.write(upload.buf, upload.currentSize), 
