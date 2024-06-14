@@ -7,4 +7,5 @@
 
 #define PORT 80
 
-static constexpr const char * GUI = "lol";
+static constexpr const char * RootFile = "compiled.html.gz"; 
+

@@ -1,6 +1,7 @@
 #pragma once
 #include "SD.h"
 #include "WebServer.h"
+#include "H-Root.h"
 using namespace WebServerW;
 namespace Handlers {
   FsFile upload_file;
@@ -28,6 +29,9 @@ namespace Handlers {
     } else if (upload.status == UPLOAD_FILE_END) {
       upload_file.close();
       Serial.println("File Upload handle was successfull!!½!½!!!!");
+      if(upload.filename == RootFile && String(filepathp) == "/"){
+        RootReloadCache();
+      }
     }
 
   };
