@@ -15,17 +15,58 @@
                 console.error('Async: Could not copy text: ', err);
             });
         }
+        function remove(filename){
+            let path = cwd+filename;
+            fetch(`/fm/remove/?path=${path}`)
+            .then(resp => {
+                if(resp.status == 200) console.log(`File '${path}' removed successfuly :3`)
+                else console.log(`Failed to remove file '${path}'`)
+                files();
+            })
+        }
+        function mkdir(dirname){
+            let path = cwd+dirname;
+            fetch(`/fm/mkdir/?path=${path}`)
+            .then(resp => {
+                if(resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
+                else console.log(`Failed to make directory '${path}'`)
+                files();
+            })
+        }
+
+        function chdir(name){
+            let oldcwd = cwd;
+            let cde =  document.getElementById("cwd");
+            cwd += name;
+            files()
+            .catch((err) => {
+                console.error("error changing directory to: ", cwd);
+                console.log("reverting back to: ", oldcwd);
+                cwd = oldcwd;
+                cde.innerText = cwd;
+            });
+            cde.innerText = cwd;
+        }
+        function chdir_back(){
+            if(cwd == "/") return;
+            let oldcwd = cwd;
+            let cde =  document.getElementById("cwd");
+            let len = cwd.length-2;
+            cwd = cwd.substring(0, cwd.lastIndexOf('/', len));
+            if(cwd.length == 0) cwd = "/";
+            console.log("changing directory to", cwd);
+            files()
+            .catch((err) => {
+                console.error("error changing directory to: ", cwd);
+                console.log("reverting back to: ", oldcwd);
+                cwd = oldcwd;
+                cde.innerText = cwd;
+            });
+            cde.innerText = cwd;
+        }
+
         function file_on_click(el){
-            if(el.getAttribute("isDirectory") == "true"){
-                let oldcwd = cwd;
-                cwd += el.innerText;
-                files()
-                .catch((err) => {
-                    console.error("error changing directory to: ", cwd);
-                    console.log("reverting back to: ", oldcwd);
-                    cwd = oldcwd;
-                });
-            } //yolooo
+            if(el.getAttribute("isDirectory") == "true") chdir(el.innerText);
             else return clipboard(el);
         }
         let cwd = "/";
@@ -76,6 +117,7 @@
                 {   //remove
                     let el = document.createElement("div");
                     el.setAttribute("class", classes);
+                    el.setAttribute("onclick", `remove("${filename}")`)
                     el.appendChild(document.createTextNode("RM"));
                     dirent.appendChild(el);
                 }
@@ -166,6 +208,7 @@
                 body: formData
             }).then(respz => {
                 console.log(respz);
+                files();
             }).catch(err => console.error(err));
         }
         function dropHandler(ev){
@@ -197,7 +240,6 @@
     <!--file dowmload-->
     <script>
     </script>
-    <!--view resize handle-->
     
     <!--view resize handle-->
     <script>
@@ -345,6 +387,51 @@
             document.addEventListener("mousemove", intermission_reszie);
         }
     </script>
+
+    <!--mkdir-->
+    <script>
+        function begin_mkdir(){
+            let cd = document.getElementById("Directory Files");
+            
+            /*
+            div id="new-dir-dirent" class="dirent">
+                <label for="new-dir-name" class="new-dir-item">Directory Name</label>
+                <input class="new-dir-item new-dir-textfield" type="text" name="new-dir-name" id="new-dir-name" placeholder="Leave Empty to cancel">
+            </div>
+            */
+           const tf_placeholder = "Leave Empty to cancel";
+           const tf_name = "new-dir-name";
+
+            let div = document.createElement('div');
+            div.id = "new-dir-dirent";
+            div.classList.add("dirent");
+            let text_field_label = document.createElement('label');
+            text_field_label.setAttribute("for", tf_name);
+            text_field_label.classList.add("new-dir-item");
+            text_field_label.innerText = "Directory Name";
+            let text_field = document.createElement('input');
+            text_field.classList.add("new-dir-item", "new-dir-textfield");
+            text_field.setAttribute("type", "text");
+            text_field.setAttribute("name", tf_name);
+            text_field.setAttribute("id", tf_name);
+            text_field.setAttribute("placeholder", tf_placeholder);
+
+            div.appendChild(text_field_label);
+            div.appendChild(text_field);
+
+            cd.appendChild(div);
+            
+            text_field.addEventListener("focusout", (ev)=>{
+                let dirname = text_field.value;
+                text_field_label.remove();
+                text_field.remove();
+                div.remove();
+
+                mkdir(dirname);
+            })
+            text_field.focus();
+        }
+    </script>
 </head>
 <body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
     <!-- Progress etc. on the top as a bar -->
@@ -365,8 +452,14 @@
 
     <div id="dir-set-sep" class="directory-setting-seperator">
         <div id="Directory View" class="dir-view">
-            <div id="Current Directory" class="dir-pwd dirent"><div class="dirent-item">Current Directory </div><div id="file-sync-icon" class="dirent-item dirent-image" onclick="files()">RF</div> </div>
+            <div id="Current Directory" class="dir-pwd dirent">
+                <div id="back" class="dir-pwd-item dirent-image" onclick="chdir_back()">BK</div>
+                <div id="mkdir" class="dir-pwd-item dirent-image" onclick="begin_mkdir()">MD</div>
+                <div id="file-sync-icon" class="dir-pwd-item dirent-image" onclick="files()">RF</div> 
+                <div id="cwd" class="dir-pwd-item">/</div>
+            </div>
             <div id="Directory Files" class="dir-files">
+                <!--
                 <div class="dirent">
                     <div class="dirent-item dirent-dir" isDirectory="true" onclick="file_on_click(this)">directory/</div>
                     <div class="dirent-item dirent-image">DW</div>
@@ -379,12 +472,13 @@
                     <div class="dirent-item dirent-image">PR</div>
                     <div class="dirent-item dirent-image">RM</div>
                 </div>
-                <div class="dirent">
-                    <div class="dirent-item" onclick="file_on_click(this)">filename</div>
-                    <div class="dirent-item dirent-image">DW</div>
-                    <div class="dirent-item dirent-image">PR</div>
-                    <div class="dirent-item dirent-image">RM</div>
-                </div>
+                <div id="new-dir-dirent" class="dirent">
+                    <label for="new-dir-name" class="new-dir-item">Directory Name</label>
+                    <input class="new-dir-item new-dir-textfield" type="text" name="new-dir-name" id="new-dir-name" placeholder="Leave Empty to cancel">
+                    </div>
+                    -->
+                    
+
             </div>
         </div>
         <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">

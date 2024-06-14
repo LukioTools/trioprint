@@ -152,6 +152,35 @@ body{
     display: flex;
     align-items: center;
 }
+.dir-pwd-item{
+    display: flex; 
+    flex-direction: row; 
+    align-items: center; 
+    height: 100%;
+    margin-left: 1em;
+}
+.new-dir-item{
+    display: flex; 
+    flex-direction: row; 
+    align-items: center; 
+    height: 100%;
+    margin-left: 1em;
+}
+.new-dir-textfield {
+    height: calc(1em + 6px);
+    background-color: inherit;
+    outline: none !important;
+    color: var(--fg-normal);
+    padding: 0px;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+
+    border: none;
+}
+.new-dir-textfield:focus{
+    border: white solid;
+    border-width: 0px 0px 1px 0px;
+}
 .file-sync-wrong{
     color: red;
 }
