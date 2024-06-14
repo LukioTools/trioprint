@@ -16,7 +16,7 @@ namespace Handlers {
 
     if (upload.status == UPLOAD_FILE_START) {
       Serial.println("Opening file:" + upload.filename + " ...");
-      upload_file = SDW::SD.open(filepath+upload.filename);
+      upload_file = SDW::openFile(filepath+upload.filename);
     } else if (upload.status == UPLOAD_FILE_WRITE) {
       Serial.println("Writing...");
       Serial.printf(
