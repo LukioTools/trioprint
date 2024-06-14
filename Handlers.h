@@ -31,7 +31,7 @@ namespace WebServerW {
         server.on("/fm/remove/", HTTP_GET ,Handlers::Remove);
         server.on("/fm/mkdir/", HTTP_GET ,Handlers::Mkdir);
         server.on("/fm/downloadFile/", HTTP_GET, Handlers::DownloadFile);
-        server.on("/fm/uploadFiles/", HTTP_POST, Handlers::UploadFile);
+        server.on("/fm/uploadFile/", HTTP_POST, Handlers::UploadFile);
 
         server.onNotFound(Handlers::NotFound);
 

@@ -9,7 +9,10 @@ namespace Handlers {
   std::size_t root_cache_size = -1;
 
   void RootPreload(){
-    if(!root_cache_data) root_cache_data = SDW::readFile("compiled.html.gz", root_cache_size);
+    if(!root_cache_data) {
+      root_cache_data = SDW::readFile("compiled.html.gz", root_cache_size);
+      Serial.println("root cached now!");
+    }
   }
 
   void Root(){

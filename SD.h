@@ -95,6 +95,8 @@ namespace WRAPPPER_NAMESPACE
       return false;
     }
 
-    bool
+    bool mkdir(const char* path){
+      return SD.mkdir(path, true);
+    }
 
 } // namespace WRAPPPER_NAMESPACE
