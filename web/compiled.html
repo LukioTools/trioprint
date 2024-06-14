@@ -371,11 +371,15 @@ body{
          * @param file.webkitRelativePath {string | ""} The rel-path of the file.
          */
         function upload_file(file){
-            console.log(`uploading file: ${file.name}`);
-            return fetch("/upload/"+file.name, {
-                method:"post",
-                body: file
-            });
+            console.log(`uploading file: '${file.name}' to path '${cwd}'`);
+            const formData = new FormData();
+            formData.append("file", file);
+            fetch(`/fm/uploadFile/?path=${cwd}`, {
+                method:"POST",
+                body: formData
+            }).then(respz => {
+                console.log(respz);
+            }).catch(err => console.error(err));
         }
         function dropHandler(ev){
             console.log("File(s) dropped", ev);
@@ -559,7 +563,10 @@ body{
     <!-- Progress etc. on the top as a bar -->
     <div id="Status Bar" class="bar status-bar">
         <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
-            <form method='POST' action='/fm/uploadFile/' enctype='multipart/form-data'><input type='file' name='up-file'><input type='submit' value='Upload'></form>
+            <!--
+            Use this shit for uplad thginf
+            <form method='POST' action='/fm/uploadFile/' enctype='multipart/form-data'><input type='file' name='up-file'><input type='submit' value='Upload'></form>-->
+            <div class="status-item" ><div>Server Status</div></div>
         </div>
         <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
             <div class="status-item" ><div>Printer Status</div></div>
