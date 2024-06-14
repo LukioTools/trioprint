@@ -1,8 +1,10 @@
 #pragma once
+#include "SD.h"
 #include "WebServer.h"
 using namespace WebServerW;
 namespace Handlers {
     void Remove(){
-        server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+        if(SWD::remove(server.arg("path"))) server.send(200, "text/plain", "File removed successfully"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+        else server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
     }
 }
