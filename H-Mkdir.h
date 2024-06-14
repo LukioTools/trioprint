@@ -5,6 +5,7 @@
 using namespace WebServerW;
 namespace Handlers {
     void Mkdir(){
-      
+      if(SDW::mkdir(server.arg("path"))){
+        Serial.println("Succeed making dir");
+      }
     }
-}

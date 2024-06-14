@@ -107,4 +107,12 @@ namespace WRAPPPER_NAMESPACE
       return SD.mkdir(path, true);
     }
 
+    bool remove(const char* path){
+      return SD.remove(path);
+    }
+
+    bool remove(const String& path){
+      return SD.remove(path.c_str());
+    }
+
 } // namespace WRAPPPER_NAMESPACE
