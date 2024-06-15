@@ -13,7 +13,7 @@ namespace Handlers {
 
   void RootPreload(){
     if(!root_cache_data) {
-      root_cache_data = SDW::readFile(RootFile, root_cache_size);
+      root_cache_data = SDW::readFile(ROOT_FILE, root_cache_size);
       Serial.printf("Root cached (%p)[%i]!\n", root_cache_data, root_cache_size);
     }
   }

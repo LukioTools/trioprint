@@ -40,7 +40,7 @@ namespace WRAPPPER_NAMESPACE
     //constexpr uint_t SdSectorSize = 512;
 
     freebyte_t cardSize(){ // full size in bytes
-      return sdCardCapacity(&csd)*SdSectorSize;
+      return sdCardCapacity(&csd)*SD_SECTOR_SIZE;
     }
 
     void clearFreeSizeCache(){

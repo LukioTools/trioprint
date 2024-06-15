@@ -29,7 +29,7 @@ namespace Handlers {
     } else if (upload.status == UPLOAD_FILE_END) {
       upload_file.close();
       Serial.println("File Upload handle was successfull!!½!½!!!!");
-      if(upload.filename == RootFile && String(filepathp) == "/"){
+      if(upload.filename == ROOT_FILE && String(filepathp) == "/"){
         RootReloadCache();
       }
     }

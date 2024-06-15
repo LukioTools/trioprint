@@ -7,6 +7,6 @@
 
 #define PORT 80
 
-static constexpr const char * RootFile = "compiled.html.gz"; 
-static constexpr uint32_t SdSectorSize = 512;
+static constexpr const char * ROOT_FILE = "compiled.html.gz"; 
+static constexpr uint32_t SD_SECTOR_SIZE = 512;
 
