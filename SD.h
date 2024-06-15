@@ -39,14 +39,10 @@ namespace WRAPPPER_NAMESPACE
 
     String listDir(String path){
       FsFile folder = SD.open(path);
-      if(!folder){
-        return "Failed to open directory";
-      }
-      if (!folder.isDirectory()){
-          return "Not a directory";
-      }
+      if(!folder) return "Failed to open directory";
+      if (!folder.isDirectory()) return "Not a directory";
 
-      String files = "[";
+      String files = "[ ";
       constexpr size_t filename_max = 32;
       char name[filename_max];
 
