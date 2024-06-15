@@ -28,24 +28,30 @@ namespace WRAPPPER_NAMESPACE
         goto label;
     }
 
-    float cardSize(){ // full size in megabytes
-      return 0.000512*sdCardCapacity(&csd); // returns in MB (1,000,000 bytes)
-    }
+
 
     //cache this
     using freebyte_t = uint64_t;
     using freebyte_return_t = const freebyte_t&;
 
-    freebyte_t free_bytes = -1;
+    constexpr freebyte_t freebyte_invalid_state = 0; 
+    freebyte_t free_bytes = freebyte_invalid_state;
+      //toughest of lucks
+    //constexpr uint_t SdSectorSize = 512;
+
+    freebyte_t cardSize(){ // full size in bytes
+      return sdCardCapacity(&csd)*SdSectorSize;
+    }
+
     void clearFreeSizeCache(){
-      free_bytes = -1;
+      free_bytes = freebyte_invalid_state;
     }
     //takes fucking six seconds!
     void calculateFreeSizeCache(){
       free_bytes = SD.freeClusterCount() * SD.bytesPerCluster();
     }
     freebyte_return_t freeSize(){   //megabytes hopefully
-      if(free_bytes != -1) calculateFreeSizeCache();
+      if(free_bytes == freebyte_invalid_state) calculateFreeSizeCache();
       return free_bytes;
     }
     freebyte_return_t refreshFreeSizeCache(){
