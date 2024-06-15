@@ -1,4 +1,6 @@
 #include "c_types.h"
+#include <cstddef>
+#include <cstdint>
 #pragma once
 
 #include <SdFat.h>
@@ -30,11 +32,25 @@ namespace WRAPPPER_NAMESPACE
       return 0.000512*sdCardCapacity(&csd); // returns in MB (1,000,000 bytes)
     }
 
-    float freeSize(){   //megabytes hopefully
-      float freeKB = SD.freeClusterCount();
-      freeKB *= SD.sectorsPerCluster()/2; 
-      freeKB = freeKB/1000;
-      return freeKB;//freeKB / 1000;
+    //cache this
+    using freebyte_t = uint64_t;
+    using freebyte_return_t = const freebyte_t&;
+
+    freebyte_t free_bytes = -1;
+    void clearFreeSizeCache(){
+      free_bytes = -1;
+    }
+    //takes fucking six seconds!
+    void calculateFreeSizeCache(){
+      free_bytes = SD.freeClusterCount() * SD.bytesPerCluster();
+    }
+    freebyte_return_t freeSize(){   //megabytes hopefully
+      if(free_bytes != -1) calculateFreeSizeCache();
+      return free_bytes;
+    }
+    freebyte_return_t refreshFreeSizeCache(){
+      clearFreeSizeCache(); 
+      return freeSize();
     }
 
     String listDir(String path){
