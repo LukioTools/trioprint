@@ -5,19 +5,23 @@
 #include "Handlers.h"
 #include "log.h"
 
-
-
 void setup(){
-  ESP.wdtEnable(5000);
-  Serial.begin(115200);
-  WiFiW::begin();
-  OTAW::begin();
-  Serial.println(SDW::init(15));
-  WebServerW::begin();
+    TD::devSerial.SerialBegin();
+    ESP.wdtEnable(5000);
+
+    #if DEVSERIAL != 0
+    Serial.begin(115200);
+    #endif  
+
+    WiFiW::begin();
+    OTAW::begin();
+    SDW::init(15);
+    WebServerW::begin();
 }
 
 void loop(){  
-  OTAW::handle();
-  WebServerW::handle();
+    OTAW::handle();
+    WebServerW::handle();
+    TD::devSerial.ReadToBuffer();
 }
 

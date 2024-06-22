@@ -2,18 +2,42 @@
 #pragma once
 #include "config.h"
 
-namespace Target_device {
-    bool isPrintting = false;
-  
-    #if DEVSERIAL == 0
-        HardwareSerial serial = Serial; 
-    #elif DEVSERIAL == 1
-        HardwareSerial serial = Serial1;
-    #elif DEVSERIAL == 2
-        HardwareSerial serial = Serial2;
-    #elif DEVSERIAL == 1
-        HardwareSerial serial = Serial3;
-    #endif
+namespace TD {
+
+    class DevSerial{
+        public: 
+            DevSerial(){}
+
+            String serialBuffer;
+    
+            #if DEVSERIAL == 0
+                HardwareSerial *serial = &Serial; 
+            #elif DEVSERIAL == 1
+                HardwareSerial *serial = &Serial1;
+            #elif DEVSERIAL == 2
+                HardwareSerial *serial = &Serial2;
+            #elif DEVSERIAL == 3
+                HardwareSerial *serial = &Serial3;
+            #endif
+
+            void SerialBegin(){
+                serial->begin(115200);
+            }
+
+            void ReadToBuffer(){
+                if(serial->available()){
+                    serialBuffer += serial->readStringUntil('\n');
+                    if(serialBuffer.length() > 50){
+                        serialBuffer = "";
+                    }
+                }
+            }
+
+    };
+
+    DevSerial devSerial;
+
+    bool isPrintting = false; 
 
     String firmware(){ // M115
         return "FIRMWARE_NAME:Marlin V1.0.6 (Sep 19 2023 09:14:17) SOURCE_CODE_URL:github.com/MarlinFirmware/Marlin PROTOCOL_VERSION:1.0 MACHINE_TYPE:Ender-3 V3 SE EXTRUDER_COUNT:1 UUID:cede2a2f-41a2-4748-9b12-c55c62f367ff Cap:SERIAL_XON_XOFF:0 Cap:BINARY_FILE_TRANSFER:0 Cap:EEPROM:1 Cap:VOLUMETRIC:1 Cap:AUTOREPORT_POS:0 Cap:AUTOREPORT_TEMP:1 Cap:PROGRESS:0 Cap:PRINT_JOB:1 Cap:AUTOLEVEL:1 Cap:RUNOUT:0 Cap:Z_PROBE:1 Cap:LEVELING_DATA:1 Cap:BUILD_PERCENT:0 Cap:SOFTWARE_POWER:0 Cap:TOGGLE_LIGHTS:0 Cap:CASE_LIGHT_BRIGHTNESS:0 Cap:EMERGENCY_PARSER:1 Cap:HOST_ACTION_COMMANDS:0 Cap:PROMPT_SUPPORT:0 Cap:SDCARD:1 Cap:REPEAT:0 Cap:SD_WRITE:1 Cap:AUTOREPORT_SD_STATUS:0 Cap:LONG_FILENAME:1 Cap:THERMAL_PROTECTION:1 Cap:MOTION_MODES:0 Cap:ARCS:1 Cap:BABYSTEPPING:1 Cap:CHAMBER_TEMPERATURE:0 Cap:COOLER_TEMPERATURE:0 Cap:MEATPACK:0";

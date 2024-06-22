@@ -10,7 +10,7 @@ namespace Handlers {
         responce 
             << "\"cardSize\":" << String(SDW::cardSize()) << ","
             << "\"freeSpace\":" << String(SDW::freeSize()) << ","
-            << "\"printStatus\":" << String(Target_device::isPrintting)
+            << "\"printStatus\":" << String(TD::isPrintting)
             << "}";
         server.send(200, "text/plain", responce.str());
     }
