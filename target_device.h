@@ -24,7 +24,7 @@ namespace TD {
                 serial->begin(115200);
             }
 
-            void ReadToBuffer(){
+            void Handle(){
                 if(serial->available()){
                     const String serialBuffer = serial->readStringUntil('\n');
                     WebSocketW::brodcastAllTXT(serialBuffer);

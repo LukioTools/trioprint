@@ -25,6 +25,6 @@ void loop(){
     OTAW::handle();
     WebServerW::handle();
     WebSocketW::Handle();
-    TD::devSerial.ReadToBuffer();
+    TD::devSerial.Handle();
 }
 
