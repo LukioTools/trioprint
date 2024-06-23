@@ -5,11 +5,14 @@
 #define WEB_SOCKET_PORT 81
 #endif
 namespace WebSocketW {
+
+    void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length);
+
     WebSocketsServer webSocket = WebSocketsServer(WEB_SOCKET_PORT);
 
     void begin(){
         webSocket.begin();
-        webSocket.onEvent(webSocketEvent)
+        webSocket.onEvent(webSocketEvent);
     }
 
     void Handle(){
@@ -17,13 +20,12 @@ namespace WebSocketW {
     }
 
     bool brodcastAllTXT(String data){
-        return webSocket.broadcastTXT(data)
+        return webSocket.broadcastTXT(data);
     }
 
     bool brodcastAllTXT(const char*& data){
-        return webSocket.broadcastTXT(data)
+        return webSocket.broadcastTXT(data);
     }
-
 
     void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
         if (type == WStype_DISCONNECTED) {
@@ -35,5 +37,4 @@ namespace WebSocketW {
             Serial.printf("[%u] Text: %s\n", num, payload);
         }
     }
-
 }

@@ -432,6 +432,29 @@
             text_field.focus();
         }
     </script>
+
+    <!--serial console-->
+    <script>
+        var connection = new WebSocket('ws://' + window.location.hostname + ':81/');
+
+        connection.onopen = function () {
+        console.log('Connected to WebSocket');
+        };
+
+        connection.onerror = function (error) {
+        console.log('WebSocket Error ', error);
+        };
+
+        connection.onmessage = function (e) {
+        document.getElementById('sensorValue').innerText = e.data;
+        };
+
+        connection.onclose = function () {
+        console.log('WebSocket connection closed');
+        };
+
+    </script>
+
 </head>
 <body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
     <!-- Progress etc. on the top as a bar -->
@@ -446,7 +469,7 @@
             <div class="status-item" ><div>Printer Status</div></div>
         </div>
         <div id="3" class="resize-handle">
-            <div class="status-item" ><div>Some other bullshit</div></div>
+            <div class="status-item" id="sensorValue">Waiting for data...</div>
         </div>
     </div>
 

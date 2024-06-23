@@ -1,14 +1,14 @@
-#include "HardwareSerial.h"
 #pragma once
+#include "HardwareSerial.h"
 #include "config.h"
+#include "WebSocket.h"
+
 
 namespace TD {
 
     class DevSerial{
         public: 
             DevSerial(){}
-
-            String serialBuffer;
     
             #if DEVSERIAL == 0
                 HardwareSerial *serial = &Serial; 
@@ -26,10 +26,9 @@ namespace TD {
 
             void ReadToBuffer(){
                 if(serial->available()){
-                    serialBuffer += serial->readStringUntil('\n');
-                    if(serialBuffer.length() > 50){
-                        serialBuffer = "";
-                    }
+                    const String serialBuffer = serial->readStringUntil('\n');
+                    WebSocketW::brodcastAllTXT(serialBuffer);
+
                 }
             }
 
