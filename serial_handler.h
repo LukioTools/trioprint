@@ -1,0 +1,6 @@
+namespace SH {
+    
+    class serialC{
+
+    };
+}

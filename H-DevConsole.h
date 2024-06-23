@@ -1,4 +1,5 @@
 #include "target_device.h"
+#include "WebSockets.h"
 
 using namespace WebServerW;
 namespace Handlers {
