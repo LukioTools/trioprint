@@ -1,3 +1,4 @@
+#include "FsLib/FsFile.h"
 #include "c_types.h"
 #include <cstddef>
 #include <cstdint>
@@ -11,6 +12,7 @@ namespace WRAPPPER_NAMESPACE
 {
     SdFs SD;
     csd_t csd;
+
     template<bool dont_repeat = false>
     inline static bool init(uint8 chip_select_pin = PIN_SPI_SS){
     label:
@@ -135,6 +137,15 @@ namespace WRAPPPER_NAMESPACE
 
     bool remove(const String& path){
       return SD.remove(path.c_str());
+    }
+
+    int lineCount(const FsFile& file){
+        int lc = 0;
+        char line[100];
+        while ((n = file.fgets(line, sizeof(line))) > 0) {
+            lc++;
+        }
+        return lc; 
     }
 
 } // namespace WRAPPPER_NAMESPACE
