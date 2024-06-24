@@ -1,8 +1,8 @@
-#include "FsLib/FsFile.h"
+#pragma once
+
 #include "c_types.h"
 #include <cstddef>
 #include <cstdint>
-#pragma once
 
 #include <SdFat.h>
 #include "log.h"
@@ -104,6 +104,18 @@ namespace WRAPPPER_NAMESPACE
       return fileData;
 
     }
+    
+
+    int readChunk(char* data, FsFile& file, uint32 chunkSize){
+        return file.read(data, chunkSize);
+    }
+
+    String readFirstLine(FsFile& file){
+        char data[100];
+        Serial.println(file.fgets(data, 100));        
+        return String(data);
+        
+    }
 
     bool WriteFile(const char* name, const uint8_t* fileData, size_t size){
       FsFile file = SD.open(name, O_WRITE | O_CREAT);
@@ -116,11 +128,11 @@ namespace WRAPPPER_NAMESPACE
     }
 
     FsFile openFile(const char* name){
-      return SD.open(name, O_WRITE | O_CREAT);
+      return SD.open(name, O_RDWR | O_CREAT);
     }
 
     FsFile openFile(const String& name){
-      return SD.open(name.c_str(), O_WRITE | O_CREAT);
+      return SD.open(name.c_str(), O_RDWR | O_CREAT);
     }
 
     bool mkdir(const char* path){
@@ -139,10 +151,10 @@ namespace WRAPPPER_NAMESPACE
       return SD.remove(path.c_str());
     }
 
-    int lineCount(const FsFile& file){
+    int lineCount(FsFile& file){
         int lc = 0;
         char line[100];
-        while ((n = file.fgets(line, sizeof(line))) > 0) {
+        while (file.fgets(line, sizeof(line)) > 0) {
             lc++;
         }
         return lc; 

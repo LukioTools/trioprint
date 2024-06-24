@@ -33,6 +33,16 @@
                 files();
             })
         }
+        function printFile(dirname){
+            let path = cwd+dirname;
+            console.log("kek");
+            fetch(`/device/print/?path=${path}`)
+            .then(resp => {
+                if(resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
+                else console.log(`Failed to make directory '${path}'`)
+                files();
+            })
+        }
 
         function chdir(name){
             let oldcwd = cwd;
@@ -105,6 +115,7 @@
                     el.setAttribute("class", classes);
                     //el.setAttribute("onclick", `download("${filename}")`);
                     el.setAttribute("href", `/fm/downloadFile/?filename=${filename}`);
+                    el.setAttribute('download','');
                     el.appendChild(document.createTextNode("DW"));
                     dirent.appendChild(el);
                 }
@@ -112,12 +123,13 @@
                     let el = document.createElement("div");
                     el.setAttribute("class", classes);
                     el.appendChild(document.createTextNode("PR"));
+                    el.setAttribute("onclick", `printFile("${filename}")`);
                     dirent.appendChild(el);
                 }
                 {   //remove
                     let el = document.createElement("div");
                     el.setAttribute("class", classes);
-                    el.setAttribute("onclick", `remove("${filename}")`)
+                    el.setAttribute("onclick", `remove("${filename}")`);
                     el.appendChild(document.createTextNode("RM"));
                     dirent.appendChild(el);
                 }

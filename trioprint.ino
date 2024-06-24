@@ -6,6 +6,9 @@
 #include "log.h"
 #include "WebSocket.h"
 
+
+FsFile file;
+
 void setup(){
     TD::devSerial.SerialBegin();
     ESP.wdtEnable(5000);
@@ -19,6 +22,7 @@ void setup(){
     SDW::init(15);
     WebServerW::begin();
     WebSocketW::begin();
+    file = SDW::openFile("m1.gcode");
 }
 
 void loop(){  
@@ -26,5 +30,8 @@ void loop(){
     WebServerW::handle();
     WebSocketW::Handle();
     TD::devSerial.Handle();
+    //Serial.println(ESP.getFreeHeap(),DEC);
+    //Serial.println("data" + String((char*)data));
+    //Serial.println(SDW::lineCount(file));
 }
 

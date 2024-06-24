@@ -12,3 +12,5 @@ static constexpr const char * ROOT_FILE = "compiled.html.gz";
 static constexpr uint64_t SD_SECTOR_SIZE = 512;
 
 #define DEVSERIAL 1 
+
+#define FILE_CHUNK_SIZE 1024

@@ -41,7 +41,7 @@ namespace TD {
 
     class GCode{
         String filename;
-        FsFile file
+        FsFile file;
 
         int steps = 0;
         int currentStep = 0;
@@ -51,7 +51,6 @@ namespace TD {
 
         GCode(String fn, bool sP) : filename(fn), shutdownProtection(sP) {
             file = SDW::openFile(filename);
-
         }
 
 
