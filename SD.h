@@ -82,26 +82,50 @@ namespace WRAPPPER_NAMESPACE
     }
 
     uint8_t* readFile(const char* filename, size_t& fileSize) {
-      FsFile file = SD.open(filename, O_READ);
-      if (!file){
-        return nullptr;
-      }
+        FsFile file = SD.open(filename, O_READ);
+        if (!file){
+            return nullptr;
+        }
 
-      if (file.isDir()){
-        return nullptr;
-      }
+        if (file.isDir()){
+            return nullptr;
+        }
 
-      fileSize = file.fileSize();
-      auto fileData = new uint8_t[fileSize];
-      if (file.read(fileData, fileSize) != (long) fileSize) {
-        Serial.println("Failed to read file into RAM");
-        delete[] fileData;
+        fileSize = file.fileSize();
+        auto fileData = new uint8_t[fileSize];
+        if (file.read(fileData, fileSize) != (long) fileSize) {
+            Serial.println("Failed to read file into RAM");
+            delete[] fileData;
+            file.close();
+            return nullptr;
+        }
+
         file.close();
-        return nullptr;
-      }
+        return fileData;
 
-      file.close();
-      return fileData;
+    }
+
+    uint8_t* readFile(const char* filename) {
+        FsFile file = SD.open(filename, O_READ);
+        if (!file){
+            return nullptr;
+        }
+
+        if (file.isDir()){
+            return nullptr;
+        }
+
+        size_t fileSize = file.fileSize();
+        auto fileData = new uint8_t[fileSize];
+        if (file.read(fileData, fileSize) != (long) fileSize) {
+            Serial.println("Failed to read file into RAM");
+            delete[] fileData;
+            file.close();
+            return nullptr;
+        }
+
+        file.close();
+        return fileData;
 
     }
     
@@ -118,6 +142,16 @@ namespace WRAPPPER_NAMESPACE
     }
 
     bool WriteFile(const char* name, const uint8_t* fileData, size_t size){
+      FsFile file = SD.open(name, O_WRITE | O_CREAT);
+      if(file.write(fileData, size) == size){
+        file.close();
+        return true;
+      }
+      file.close();
+      return false;
+    }
+
+    bool WriteFile(FsFile& name, const uint8_t* fileData, size_t size){
       FsFile file = SD.open(name, O_WRITE | O_CREAT);
       if(file.write(fileData, size) == size){
         file.close();

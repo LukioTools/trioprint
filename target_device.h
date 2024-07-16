@@ -1,3 +1,5 @@
+#include "c_types.h"
+#include "WString.h"
 #include "FsLib/FsFile.h"
 #pragma once
 #include "HardwareSerial.h"
@@ -43,14 +45,39 @@ namespace TD {
         String filename;
         FsFile file;
 
-        int steps = 0;
-        int currentStep = 0;
+        String fileContent;
+        
 
-        bool shutdownProtection;
-        bool recovery = false;
+        uint64_t steps = 0;
+        uint64_t currentStep = 0;
 
-        GCode(String fn, bool sP) : filename(fn), shutdownProtection(sP) {
+        bool shutdownProtection = true;
+
+        FsFile recoveryFile;
+
+        GCode(String fn, bool sP, uint64_t c_step) : filename(fn), shutdownProtection(sP), currentStep(c_step) {
             file = SDW::openFile(filename);
+
+            char c;
+            while (file.read(&c, 1) == 1) {
+                if (c == '\n') {
+                steps++;
+                }
+            }
+        }
+
+        void readLine(String* output){
+            while (true){
+                char d = file.read();
+                if(d == -1){
+                    break;
+                }
+
+                if(d == '\n'){
+                    break;
+                }
+                output += d;
+            }
         }
 
 

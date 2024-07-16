@@ -22,7 +22,6 @@ void setup(){
     SDW::init(15);
     WebServerW::begin();
     WebSocketW::begin();
-    file = SDW::openFile("m1.gcode");
 }
 
 void loop(){  
