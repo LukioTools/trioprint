@@ -1,3 +1,4 @@
+#include "common/FsApiConstants.h"
 #include "c_types.h"
 #include "WString.h"
 #include "FsLib/FsFile.h"
@@ -57,6 +58,7 @@ namespace TD {
 
         FsFile recoveryFile;
 
+        public:
         GCode(String fn, bool sP, uint64_t c_step) : filename(fn), shutdownProtection(sP), currentStep(c_step) {
             file = SDW::openFile(filename);
 
@@ -67,13 +69,15 @@ namespace TD {
                 }
             }
 
+            Serial.print("Line amount in gcode file: ");
+            Serial.println(steps);
+
+            file.close();
+
             if(shutdownProtection){
-                recoveryFile = SDW::SD.open("recoveryFile", O_CREAT | O_WRITE | O_TRUNC);
-                    String line = SDW::readFirstLine(recoveryFile);
-                    Serial.print("recovery file line:");
-                    Serial.println(line);
+                recoveryFile = SDW::openFile("recoveryFile");
                 }
-            }
+            
         }
 
         void readLine(String* output){

@@ -5,11 +5,14 @@
 #include "Handlers.h"
 #include "log.h"
 #include "WebSocket.h"
+#include "target_device.h"
+#include "Recovery.h"
 
 
 FsFile file;
 
 void setup(){
+
     
     TD::devSerial.SerialBegin();
     ESP.wdtEnable(5000);
@@ -23,6 +26,8 @@ void setup(){
     SDW::init(15);
     WebServerW::begin();
     WebSocketW::begin();
+
+    //TD::GCode gcode = TD::GCode("m1.gcode", true, 0);
 }
 
 void loop(){  
