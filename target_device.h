@@ -1,9 +1,7 @@
-#pragma once
-
 #include "c_types.h"
 #include "WString.h"
 #include "FsLib/FsFile.h"
-
+#pragma once
 #include "HardwareSerial.h"
 #include "config.h"
 #include "WebSocket.h"
@@ -45,21 +43,17 @@ namespace TD {
 
     bool isPrintting = false;
 
-    bool firmware(){ // M115
-        return "FIRMWARE_NAME:Marlin V1.0.6 (Sep 19 2023 09:14:17) SOURCE_CODE_URL:github.com/MarlinFirmware/Marlin PROTOCOL_VERSION:1.0 MACHINE_TYPE:Ender-3 V3 SE EXTRUDER_COUNT:1 UUID:cede2a2f-41a2-4748-9b12-c55c62f367ff Cap:SERIAL_XON_XOFF:0 Cap:BINARY_FILE_TRANSFER:0 Cap:EEPROM:1 Cap:VOLUMETRIC:1 Cap:AUTOREPORT_POS:0 Cap:AUTOREPORT_TEMP:1 Cap:PROGRESS:0 Cap:PRINT_JOB:1 Cap:AUTOLEVEL:1 Cap:RUNOUT:0 Cap:Z_PROBE:1 Cap:LEVELING_DATA:1 Cap:BUILD_PERCENT:0 Cap:SOFTWARE_POWER:0 Cap:TOGGLE_LIGHTS:0 Cap:CASE_LIGHT_BRIGHTNESS:0 Cap:EMERGENCY_PARSER:1 Cap:HOST_ACTION_COMMANDS:0 Cap:PROMPT_SUPPORT:0 Cap:SDCARD:1 Cap:REPEAT:0 Cap:SD_WRITE:1 Cap:AUTOREPORT_SD_STATUS:0 Cap:LONG_FILENAME:1 Cap:THERMAL_PROTECTION:1 Cap:MOTION_MODES:0 Cap:ARCS:1 Cap:BABYSTEPPING:1 Cap:CHAMBER_TEMPERATURE:0 Cap:COOLER_TEMPERATURE:0 Cap:MEATPACK:0";
-    }
+    class GCode{
+        String filename;
+        FsFile file;
 
-    bool files(){   //M20
-        return "Begin file list\nLOL~1.GCO 0\nEnd file list";
-    }
+        String fileContent;
+        
 
-    bool longName(String path){ // M33 LOL~1.GCO
-        return "/lol.gcode";
-    }
+        uint64_t steps = 0;
+        uint64_t currentStep = 0;
 
-    bool temps(){ //M105
-        return "ok T:31.67 /0.00 B:31.79 /0.00 @:0 B@:0 FAN0@:0";
-    }
+        bool shutdownProtection = true;
 
         FsFile recoveryFile;
 
