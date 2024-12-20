@@ -67,9 +67,13 @@ namespace TD {
                 }
             }
 
-            //if(shutdownProtection){
-            //    recoveryFile.
-            //}
+            if(shutdownProtection){
+                recoveryFile = SDW::SD.open("recoveryFile", O_CREAT | O_WRITE | O_TRUNC);
+                    String line = SDW::readFirstLine(recoveryFile);
+                    Serial.print("recovery file line:");
+                    Serial.println(line);
+                }
+            }
         }
 
         void readLine(String* output){

@@ -138,7 +138,6 @@ namespace WRAPPPER_NAMESPACE
         char data[100];
         Serial.println(file.fgets(data, 100));        
         return String(data);
-        
     }
 
     bool WriteFile(const char* name, const uint8_t* fileData, size_t size){
