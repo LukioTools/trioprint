@@ -151,6 +151,7 @@ namespace WRAPPPER_NAMESPACE
       return false;
     }
 
+/*
     bool WriteFile(FsFile& name, const uint8_t* fileData, size_t size){
       FsFile file = SD.open(name, oflag_t(O_WRITE | O_CREAT));
       if(file.write(fileData, size) == size){
@@ -160,7 +161,7 @@ namespace WRAPPPER_NAMESPACE
       file.close();
       return false;
     }
-
+*/
     FsFile openFile(const char* name){
       return SD.open(name, oflag_t(O_RDWR | O_CREAT));
     }
