@@ -696,6 +696,7 @@ body{
         };
 
         connection.onmessage = function (e) {
+        console.log("message received: " + e.data);
         document.getElementById('sensorValue').innerText = e.data;
         };
 

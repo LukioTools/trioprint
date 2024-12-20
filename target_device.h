@@ -30,6 +30,8 @@ namespace TD {
             void Handle(){
                 if(serial->available()){
                     const String serialBuffer = serial->readStringUntil('\n');
+                    Serial.print("received:");
+                    Serial.println(serialBuffer);
                     WebSocketW::brodcastAllTXT(serialBuffer);
 
                 }
@@ -64,6 +66,10 @@ namespace TD {
                 steps++;
                 }
             }
+
+            //if(shutdownProtection){
+            //    recoveryFile.
+            //}
         }
 
         void readLine(String* output){
@@ -79,9 +85,6 @@ namespace TD {
                 output += d;
             }
         }
-
-
-
     }; 
 
 }

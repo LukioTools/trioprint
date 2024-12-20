@@ -82,7 +82,7 @@ namespace WRAPPPER_NAMESPACE
     }
 
     uint8_t* readFile(const char* filename, size_t& fileSize) {
-        FsFile file = SD.open(filename, O_READ);
+        FsFile file = SD.open(filename, oflag_t(O_READ));
         if (!file){
             return nullptr;
         }
@@ -106,7 +106,7 @@ namespace WRAPPPER_NAMESPACE
     }
 
     uint8_t* readFile(const char* filename) {
-        FsFile file = SD.open(filename, O_READ);
+        FsFile file = SD.open(filename, oflag_t(O_READ));
         if (!file){
             return nullptr;
         }
@@ -142,7 +142,7 @@ namespace WRAPPPER_NAMESPACE
     }
 
     bool WriteFile(const char* name, const uint8_t* fileData, size_t size){
-      FsFile file = SD.open(name, O_WRITE | O_CREAT);
+      FsFile file = SD.open(name, oflag_t(O_WRITE | O_CREAT));
       if(file.write(fileData, size) == size){
         file.close();
         return true;
@@ -152,7 +152,7 @@ namespace WRAPPPER_NAMESPACE
     }
 
     bool WriteFile(FsFile& name, const uint8_t* fileData, size_t size){
-      FsFile file = SD.open(name, O_WRITE | O_CREAT);
+      FsFile file = SD.open(name, oflag_t(O_WRITE | O_CREAT));
       if(file.write(fileData, size) == size){
         file.close();
         return true;
@@ -162,11 +162,11 @@ namespace WRAPPPER_NAMESPACE
     }
 
     FsFile openFile(const char* name){
-      return SD.open(name, O_RDWR | O_CREAT);
+      return SD.open(name, oflag_t(O_RDWR | O_CREAT));
     }
 
     FsFile openFile(const String& name){
-      return SD.open(name.c_str(), O_RDWR | O_CREAT);
+      return SD.open(name.c_str(), oflag_t(O_RDWR | O_CREAT));
     }
 
     bool mkdir(const char* path){
