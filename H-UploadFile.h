@@ -1,6 +1,6 @@
 #pragma once
-#include "SD.h"
-#include "WebServer.h"
+#include "SD_Manager.h"
+#include "webServerClass.h"
 #include "H-Root.h"
 using namespace WebServerW;
 namespace Handlers {

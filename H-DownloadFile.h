@@ -1,5 +1,5 @@
 #pragma once
-#include "WebServer.h"
+#include "webServerClass.h"
 using namespace WebServerW;
 namespace Handlers {
   void DownloadFile(){
@@ -27,7 +27,7 @@ namespace Handlers {
 
         uint64_t currentSize = size;
         char temp[FILE_CHUNK_SIZE];
-        while(currentSize >= 0){
+        while(currentSize > 0){
             int wroteSize = SDW::readChunk(temp, file, FILE_CHUNK_SIZE);
             if(wroteSize <= 0) break;
             delay(0);

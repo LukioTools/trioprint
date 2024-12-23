@@ -1,9 +1,10 @@
 #pragma once
-#include "WebServer.h"
+#include "webServerClass.h"
 #include "config.h"
-using namespace WebServerW;
-#include "SD.h"
+#include "SD_Manager.h"
 #include <cstddef>
+
+using namespace WebServerW;
 namespace Handlers {
 
   unsigned char* root_cache_data = nullptr;

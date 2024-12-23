@@ -1,3 +1,6 @@
+#pragma once
+
+#include "webServerClass.h"
 
 #include "H-DownloadFile.h"
 #include "H-ListFolder.h"
@@ -12,12 +15,15 @@
 #include "H-Stop.h"
 #include "H-UploadFile.h"
 #include "H-DevConsole.h"
+#include "H-Recovery.h"
+#include "H-sendCommand.h"
 
 namespace WebServerW {
     inline static void handle(){server.handleClient();}
     
     void begin(){
         server.on("/", HTTP_GET ,Handlers::Root);
+        /*
         server.on("/server/status/", HTTP_GET ,Handlers::ServerStatus);
 
         server.on("/device/print/", HTTP_GET , Handlers::Print);
@@ -27,11 +33,15 @@ namespace WebServerW {
         server.on("/device/status/", HTTP_GET ,Handlers::PrintStatus);
         server.on("/device/ls/", HTTP_GET ,Handlers::NotFound);
         server.on("/device/console", HTTP_GET , Handlers::GetConsole);
+        server.on("/device/recoveryStatus", HTTP_GET, Handlers::RecoveryStatus);
+
+        server.on("/device/sendCommand", HTTP_GET, Handlers::sendCommand);
         
         server.on("/fm/ls/", HTTP_GET , Handlers::ListFolder);
         server.on("/fm/remove/", HTTP_GET ,Handlers::Remove);
         server.on("/fm/mkdir/", HTTP_GET ,Handlers::Mkdir);
         server.on("/fm/downloadFile/", HTTP_GET, Handlers::DownloadFile);
+
         server.on("/fm/uploadFile/", HTTP_POST,
             [](){ server.send(200); },                          // Send status 200 (OK) to tell the client we are ready to receive
         Handlers::UploadFile);
@@ -41,6 +51,6 @@ namespace WebServerW {
         //PRELOADS
         Handlers::RootPreload();
 
-        server.begin();
+        server.begin();*/
     }
 }

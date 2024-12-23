@@ -19,11 +19,11 @@ namespace WebSocketW {
         webSocket.loop();
     }
 
-    bool brodcastAllTXT(String data){
+    bool brodcastAllTXT(String& data){
         return webSocket.broadcastTXT(data);
     }
 
-    bool brodcastAllTXT(const char*& data){
+    bool brodcastAllTXT(const char* data){
         return webSocket.broadcastTXT(data);
     }
 

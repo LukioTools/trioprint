@@ -4,13 +4,20 @@
   Arduino IDE example: Examples > Arduino OTA > BasicOTA.ino
 *********/
 #pragma once
+#include "./config.h"
 
-#include <ESP8266WiFi.h>
+
+#if BOARD_TYPE == ESP8266
+    #include <ESP8266WiFi.h>
+    #include <ESP8266mDNS.h>
+#elif BOARD_TYPE == ESP32
+    #include <WiFi.h>
+    #include <ESPmDNS.h>
+#endif
+
 #include <WiFiUdp.h>
-#include <ESP8266mDNS.h>
 #include <ArduinoOTA.h>
 
-#include "./config.h"
 
 namespace OTAW{
   void begin() { 

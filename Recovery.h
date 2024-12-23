@@ -6,9 +6,9 @@ namespace RV {
         String recoveryFileData = "";
         uint64_t recoveredLine;
 
-        recoveryFile = SDW::openFile("recoveryFile");
+        FsFile recoveryFile = SDW::openFile("recoveryFile");
 
-        char g;
+        char c;
         while (recoveryFile.read(&c, 1) == 1) {
             recoveryFileData += String(c);
         }
