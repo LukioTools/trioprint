@@ -38,6 +38,7 @@ namespace OTAW{
     });
 
     ArduinoOTA.setHostname("trioprint");
+    ArduinoOTA.setPassword(OTA_PWD);
 
     ArduinoOTA.begin();
     Serial.println("Ready");
