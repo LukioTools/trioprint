@@ -81,7 +81,7 @@ namespace WRAPPPER_NAMESPACE
         return files;
     }
 
-    uint8_t* readFile(const char* filename, size_t& fileSize) {
+    char* readFile(const char* filename, size_t& fileSize) {
         FsFile file = SD.open(filename, oflag_t(O_READ));
         if (!file){
             return nullptr;
@@ -92,7 +92,7 @@ namespace WRAPPPER_NAMESPACE
         }
 
         fileSize = file.fileSize();
-        auto fileData = new uint8_t[fileSize];
+        auto fileData = new char[fileSize];
         if (file.read(fileData, fileSize) != (long) fileSize) {
             Serial.println("Failed to read file into RAM");
             delete[] fileData;
@@ -105,7 +105,7 @@ namespace WRAPPPER_NAMESPACE
 
     }
 
-    uint8_t* readFile(const char* filename) {
+    char* readFile(const char* filename) {
         FsFile file = SD.open(filename, oflag_t(O_READ));
         if (!file){
             return nullptr;
@@ -116,7 +116,7 @@ namespace WRAPPPER_NAMESPACE
         }
 
         size_t fileSize = file.fileSize();
-        auto fileData = new uint8_t[fileSize];
+        auto fileData = new char[fileSize];
         if (file.read(fileData, fileSize) != (long) fileSize) {
             Serial.println("Failed to read file into RAM");
             delete[] fileData;

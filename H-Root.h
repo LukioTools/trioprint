@@ -1,4 +1,3 @@
-#include "c_types.h"
 #pragma once
 #include "config.h"
 #include "webServerClass.h"
@@ -12,7 +11,7 @@ namespace Handlers {
 
     void RootPreload(){
         if(!root_cache_data) {
-        root_cache_data = (char*)SDW::readFile(ROOT_FILE, root_cache_size);
+        root_cache_data = SDW::readFile(ROOT_FILE, root_cache_size);
         Serial.printf("Root cached (%p)[%i]!\n", root_cache_data, root_cache_size);
         }
     }
@@ -33,9 +32,8 @@ namespace Handlers {
         RootPreload();
 
         if(root_cache_data){
-            //Serial.println("File loaded: "+ String(fileSize));
             server.sendHeader("Content-Encoding", "gzip");
-            server.send(200, "text/html", root_cache_data);
+            SERVER_SEND_WITH_LENGTH(200, "text/html", root_cache_data, root_cache_size);
         }else{
             Serial.println("failed to load");
             server.send(500, "text/html", "Failed to load file from SD");
