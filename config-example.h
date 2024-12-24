@@ -13,6 +13,8 @@
 // WIFI
 #define WIFI_SSID ""
 #define WIFI_PWD ""
+#define OTA_PWD ""
+
 
 // mDNS
 #define WEB_NAME "esp8266"
