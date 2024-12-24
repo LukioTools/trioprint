@@ -1,6 +1,7 @@
 #pragma once
-#include "webServerClass.h"
 #include "config.h"
+#include "webServerClass.h"
+
 using namespace WebServerW;
 
 namespace Handlers {

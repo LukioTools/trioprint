@@ -1,11 +1,7 @@
 #pragma once
-
-#include "c_types.h"
-#include <cstddef>
-#include <cstdint>
+#include "config.h"
 
 #include <SdFat.h>
-#include "log.h"
 
 #define WRAPPPER_NAMESPACE SDW
 namespace WRAPPPER_NAMESPACE
@@ -42,43 +38,47 @@ namespace WRAPPPER_NAMESPACE
     //constexpr uint_t SdSectorSize = 512;
 
     freebyte_t cardSize(){ // full size in bytes
-      return sdCardCapacity(&csd)*SD_SECTOR_SIZE;
+        #if defined(ESP8266)
+            return sdCardCapacity(&csd)*SD_SECTOR_SIZE;
+        #elif defined(ESP32)
+            return SD.clusterCount()*SD.sectorsPerCluster()*SD_SECTOR_SIZE;
+        #endif
     }
 
     void clearFreeSizeCache(){
-      free_bytes = freebyte_invalid_state;
+        free_bytes = freebyte_invalid_state;
     }
     //takes fucking six seconds!
     void calculateFreeSizeCache(){
-      free_bytes = SD.freeClusterCount() * SD.bytesPerCluster();
+        free_bytes = SD.freeClusterCount() * SD.bytesPerCluster();
     }
     freebyte_return_t freeSize(){   //megabytes hopefully
-      if(free_bytes == freebyte_invalid_state) calculateFreeSizeCache();
-      return free_bytes;
+        if(free_bytes == freebyte_invalid_state) calculateFreeSizeCache();
+        return free_bytes;
     }
     freebyte_return_t refreshFreeSizeCache(){
-      clearFreeSizeCache(); 
-      return freeSize();
+        clearFreeSizeCache(); 
+        return freeSize();
     }
 
     String listDir(String path){
-      FsFile folder = SD.open(path);
-      if(!folder) return "Failed to open directory";
-      if (!folder.isDirectory()) return "Not a directory";
+        FsFile folder = SD.open(path);
+        if(!folder) return "Failed to open directory";
+        if (!folder.isDirectory()) return "Not a directory";
 
-      String files = "[ ";
-      constexpr size_t filename_max = 32;
-      char name[filename_max];
+        String files = "[ ";
+        constexpr size_t filename_max = 32;
+        char name[filename_max];
 
-      while (FsFile file = folder.openNextFile()) {
-        file.getName(name, filename_max);
-        (files += "\"") += name;
-        if (file.isDirectory()) files += "/\",";
-        else files += + '_' + String(file.size()) + "\",";
-      }
+        while (FsFile file = folder.openNextFile()) {
+            file.getName(name, filename_max);
+            (files += "\"") += name;
+            if (file.isDirectory()) files += "/\",";
+            else files += + '_' + String(file.size()) + "\",";
+        }
 
-      files[files.length()-1]=']';
-      return files;
+        files[files.length()-1]=']';
+        return files;
     }
 
     uint8_t* readFile(const char* filename, size_t& fileSize) {

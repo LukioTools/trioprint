@@ -22,8 +22,9 @@ namespace WebServerW {
     inline static void handle(){server.handleClient();}
     
     void begin(){
+        Serial.println("starting web server");
         server.on("/", HTTP_GET ,Handlers::Root);
-        /*
+        
         server.on("/server/status/", HTTP_GET ,Handlers::ServerStatus);
 
         server.on("/device/print/", HTTP_GET , Handlers::Print);
@@ -51,6 +52,9 @@ namespace WebServerW {
         //PRELOADS
         Handlers::RootPreload();
 
-        server.begin();*/
+        server.begin();
+
+        Serial.println("Server started");
+
     }
 }

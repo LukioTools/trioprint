@@ -1,15 +1,10 @@
-#include <cstddef>
 #pragma once
 
+#include "SD_Manager.h"
+
 #include "config.h"
-#include <sys/_stdint.h>
-#include "common/FsApiConstants.h"
-#include "c_types.h"
-#include "WString.h"
-#include "FsLib/FsFile.h"
 #include "HardwareSerial.h"
 #include "webSocketClass.h"
-#include "SD_Manager.h"
 #include "H-Print.h"
 
 namespace TD {
@@ -136,6 +131,16 @@ namespace TD {
             while(devSerial.inQueue < OUTPUT_QUEUE_LENGHT){
                 String line;
                 readGCodeFromSDCard(line);
+                Serial.print("before modification: ");
+                Serial.println(line);
+                if(line.startsWith(COMMENTCHAR)) continue;
+
+                int delimiterIndex = line.indexOf(COMMENTCHAR);
+                if(delimiterIndex != -1){
+                    line = line.substring(0, delimiterIndex);
+                }
+
+                Serial.println("after: ");
                 devSerial.println(line);
             }
         }

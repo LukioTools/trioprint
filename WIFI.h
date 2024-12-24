@@ -1,16 +1,16 @@
 #pragma once
 
 
-#include "./config.h"
+#include "config.h"
 
 
 #include <WiFiUdp.h>
 
 
-#if BOARD_TYPE == ESP8266
+#if defined(ESP8266)
     #include <ESP8266WiFi.h>
     #include <ESP8266mDNS.h>
-#elif BOARD_TYPE == ESP32
+#elif defined(ESP32)
     #include <WiFi.h>
     #include <ESPmDNS.h>
 #endif

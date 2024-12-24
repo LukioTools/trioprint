@@ -1,5 +1,8 @@
+#include "config.h"
 #pragma once
 #include "webServerClass.h"
+#include "SD_Manager.h"
+
 using namespace WebServerW;
 namespace Handlers {
   void DownloadFile(){

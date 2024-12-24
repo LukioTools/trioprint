@@ -1,6 +1,5 @@
 #pragma once
 
-#include "c_types.h"
 #include "webServerClass.h"
 
 #ifndef FILE_CHUNK_SIZE

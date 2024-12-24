@@ -1,4 +1,3 @@
-#include "c_types.h"
 #pragma once
 
 namespace RV {

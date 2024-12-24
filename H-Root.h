@@ -1,44 +1,43 @@
 #pragma once
-#include "webServerClass.h"
 #include "config.h"
+#include "webServerClass.h"
 #include "SD_Manager.h"
-#include <cstddef>
 
 using namespace WebServerW;
 namespace Handlers {
 
-  unsigned char* root_cache_data = nullptr;
-  std::size_t root_cache_size = -1;
-  
+    char* root_cache_data = nullptr;
+    std::size_t root_cache_size = -1;
 
-
-  void RootPreload(){
-    if(!root_cache_data) {
-      root_cache_data = SDW::readFile(ROOT_FILE, root_cache_size);
-      Serial.printf("Root cached (%p)[%i]!\n", root_cache_data, root_cache_size);
+    void RootPreload(){
+        if(!root_cache_data) {
+        root_cache_data = (char*)SDW::readFile(ROOT_FILE, root_cache_size);
+        Serial.printf("Root cached (%p)[%i]!\n", root_cache_data, root_cache_size);
+        }
     }
-  }
-  void RootClearCache(){
-    Serial.printf("Clearing root cache...\n");
-    delete root_cache_data;
-    root_cache_data = nullptr;
-  }
-  void RootReloadCache(){
-    Serial.printf("Reloading root cache...\n");
-    RootClearCache();
-    RootPreload();
-  }
+    void RootClearCache(){
+        Serial.printf("Clearing root cache...\n");
+        delete root_cache_data;
+        root_cache_data = nullptr;
+    }
+    void RootReloadCache(){
+        Serial.printf("Reloading root cache...\n");
+        RootClearCache();
+        RootPreload();
+    }
 
-  void Root(){
-      RootPreload();
+    void Root(){
+        Serial.println("Handling client");
 
-      if(root_cache_data){
-          //Serial.println("File loaded: "+ String(fileSize));
-          server.sendHeader("Content-Encoding", "gzip");
-          server.send(200, "text/html", root_cache_data, root_cache_size);
-      }else{
-          Serial.println("failed to load");
-          server.send(500, "text/html", "Failed to load file from SD");
-      }
-  }
+        RootPreload();
+
+        if(root_cache_data){
+            //Serial.println("File loaded: "+ String(fileSize));
+            server.sendHeader("Content-Encoding", "gzip");
+            server.send(200, "text/html", root_cache_data);
+        }else{
+            Serial.println("failed to load");
+            server.send(500, "text/html", "Failed to load file from SD");
+        }
+    }
 }
