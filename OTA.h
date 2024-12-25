@@ -4,7 +4,7 @@
   Arduino IDE example: Examples > Arduino OTA > BasicOTA.ino
 *********/
 #pragma once
-#include "./config.h"
+#include "config.h"
 
 
 #if defined(ESP8266)

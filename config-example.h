@@ -1,4 +1,5 @@
-#pragma once
+
+/*#pragma once
 //#include <device_Types.h>
 
 #if defined(ESP32) //Hate to do these things but ig I have to. IDK why can't they be the same on esp8266 and esp32
@@ -39,5 +40,5 @@ static constexpr uint64_t SD_SECTOR_SIZE = 512;
 
 // in gcode there are some comments and I have to remove them before sending the commands to printer.
 #define COMMENTCHAR ";"
-
+*/
 
