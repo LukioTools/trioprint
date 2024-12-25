@@ -1,7 +1,10 @@
 #pragma once
+
 #include "config.h"
 
 #include <SdFat.h>
+
+//#define SDFAT_FILE_TYPE 1
 
 #define WRAPPPER_NAMESPACE SDW
 namespace WRAPPPER_NAMESPACE
@@ -10,9 +13,9 @@ namespace WRAPPPER_NAMESPACE
     csd_t csd;
 
     template<bool dont_repeat = false>
-    inline static bool init(uint8 chip_select_pin = PIN_SPI_SS){
+    inline static bool init(SdSpiConfig chip_select_pin = SD_CONFIG){
     label:
-        if (SD.begin(chip_select_pin, 100000000)) {
+        if (SD.cardBegin(chip_select_pin)) {
           SD.card()->readCSD(&csd);
           return true;
         }
@@ -22,7 +25,7 @@ namespace WRAPPPER_NAMESPACE
             return false;
         }
         delay(15);
-        Serial.println("Failed to initialize SD, retrying....");
+        Serial.println("Failed to initialize SD, retrying.... CS pin is: " + String(PIN_SPI_SS));
         goto label;
     }
 

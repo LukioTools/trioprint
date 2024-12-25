@@ -29,9 +29,12 @@ void setup(){
 
     WiFiW::begin();
     OTAW::begin();
-    SDW::init(15);
+    SDW::init(SD_CONFIG);
     WebServerW::begin();
     WebSocketW::begin();
+
+    Serial.println("files in root: ");
+    Serial.println(SDW::listDir("/"));
 
 
     recoveryLine = RV::CheckForRecovering();
