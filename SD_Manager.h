@@ -1,4 +1,3 @@
-#include <cstdint>
 #pragma once
 
 #include "config.h"
