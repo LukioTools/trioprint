@@ -1,3 +1,4 @@
+#include <cstdint>
 #pragma once
 
 #include "config.h"
@@ -13,9 +14,9 @@ namespace WRAPPPER_NAMESPACE
     csd_t csd;
 
     template<bool dont_repeat = false>
-    inline static bool init(SdSpiConfig chip_select_pin = SD_CONFIG){
+    inline static bool init(SdCsPin_t chip_select_pin = PIN_SPI_SS){
     label:
-        if (SD.cardBegin(chip_select_pin)) {
+        if (SD.begin(chip_select_pin, SD_SPI_SPEED)) {
           SD.card()->readCSD(&csd);
           return true;
         }
@@ -77,7 +78,8 @@ namespace WRAPPPER_NAMESPACE
             file.getName(name, filename_max);
             (files += "\"") += name;
             if (file.isDirectory()) files += "/\",";
-            else files += + '_' + String(file.size()) + "\",";
+            else files += '_' + String(file.size()) + "\",";
+            Serial.println(files);
         }
 
         files[files.length()-1]=']';

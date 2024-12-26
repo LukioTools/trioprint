@@ -1,0 +1,41 @@
+Assuming the SD is the only SPI device.
+Edit DISABLE_CS_PIN to disable an SPI device.
+
+Assuming the SD chip select pin is: 15
+Edit SD_CS_PIN to change the SD chip select pin.
+
+type any character to start
+init time: 24 ms
+
+Card type: SDHC
+
+Manufacturer ID: 0X12
+OEM ID: Vx
+Product: ASTC
+Version: 3.4
+Serial number: 0XB0060000
+Manufacturing date: 2/2016
+
+cardSize: 3930.06 MB (MB = 1,000,000 bytes)
+flashEraseSize: 128 blocks
+eraseSingleBlock: true
+
+OCR: 0XC0FF8000
+
+SD Partition Table
+part,boot,bgnCHS[3],type,endCHS[3],start,length
+1,0X0,0X82,0X3,0X0,0XC,0XFE,0X7F,0XDC,8192,7667712
+2,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0,0
+3,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0,0
+4,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0,0
+
+Scanning FAT, please wait.
+
+Volume is FAT32
+sectorsPerCluster: 8
+clusterCount:      956416
+freeClusterCount:  955102
+fatStartSector:    9630
+dataStartSector:   24576
+
+type any character to start

@@ -29,13 +29,17 @@ void setup(){
 
     WiFiW::begin();
     OTAW::begin();
-    SDW::init(SD_CONFIG);
+    SDW::init(5);
     WebServerW::begin();
     WebSocketW::begin();
 
     Serial.println("files in root: ");
     Serial.println(SDW::listDir("/"));
 
+    Serial.print("filename type: ");
+    Serial.print(USE_LONG_FILE_NAMES);
+    Serial.print(" UTF8: ");
+    Serial.println(USE_UTF8_LONG_NAMES);
 
     recoveryLine = RV::CheckForRecovering();
 
@@ -62,6 +66,7 @@ void loop(){
 
         TD::printRunning = true;
         TD::printStarted = false;
+        WebSocketW::brodcastAllTXT("print started");
         printRunningCurrently = TD::GCode(TD::filename, false, 0);
     }
 
