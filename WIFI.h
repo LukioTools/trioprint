@@ -28,12 +28,14 @@ namespace WiFiW{
             delay(5000);
             ESP.restart();
         }
-
+        
+        /*
         if (MDNS.begin(WEB_NAME)) {              // Start the mDNS responder for esp8266.local
           Serial.println("mDNS responder started");
         } else {
           Serial.println("Error setting up MDNS responder!");
         }
+        */
     }
 
     IPAddress localIP(){
