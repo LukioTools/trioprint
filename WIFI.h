@@ -1,3 +1,4 @@
+#include "Debug.h"
 #pragma once
 
 
@@ -19,23 +20,15 @@
 
 namespace WiFiW{
     void begin(){
-        Serial.println("connection to WiFi");
+        Debugger::serialPrint("connection to WiFi");
         WiFi.mode(WIFI_STA);
         WiFi.begin(WIFI_SSID, WIFI_PWD);
 
         while (WiFi.waitForConnectResult() != WL_CONNECTED) {
-            Serial.println("Connection Failed! Rebooting...");
+            Debugger::serialPrint("Connection Failed! Rebooting...");
             delay(5000);
             ESP.restart();
         }
-        
-        /*
-        if (MDNS.begin(WEB_NAME)) {              // Start the mDNS responder for esp8266.local
-          Serial.println("mDNS responder started");
-        } else {
-          Serial.println("Error setting up MDNS responder!");
-        }
-        */
     }
 
     IPAddress localIP(){

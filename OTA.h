@@ -37,7 +37,7 @@ namespace OTAW{
       else if (error == OTA_END_ERROR) Serial.println("End Failed");
     });
 
-    ArduinoOTA.setHostname("trioprint");
+    ArduinoOTA.setHostname(WEB_NAME);
     ArduinoOTA.setPassword(OTA_PWD);
 
     ArduinoOTA.begin();

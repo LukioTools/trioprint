@@ -21,11 +21,11 @@ namespace WRAPPPER_NAMESPACE
         }
         else if(dont_repeat){
             SD.initErrorHalt();
-            Serial.println("Failed to initialize SD, NOT retrying....");
+            Debugger::print("Failed to initialize SD, NOT retrying....");
             return false;
         }
         delay(15);
-        Serial.println("Failed to initialize SD, retrying.... CS pin is: " + String(PIN_SPI_SS));
+        Debugger::print("Failed to initialize SD, retrying.... CS pin is: " + String(PIN_SPI_SS));
         goto label;
     }
 
@@ -78,7 +78,6 @@ namespace WRAPPPER_NAMESPACE
             (files += "\"") += name;
             if (file.isDirectory()) files += "/\",";
             else files += '_' + String(file.size()) + "\",";
-            Serial.println(files);
         }
 
         files[files.length()-1]=']';
@@ -98,7 +97,7 @@ namespace WRAPPPER_NAMESPACE
         fileSize = file.fileSize();
         auto fileData = new char[fileSize];
         if (file.read(fileData, fileSize) != (long) fileSize) {
-            Serial.println("Failed to read file into RAM");
+            Debugger::print("Failed to read file into RAM");
             delete[] fileData;
             file.close();
             return nullptr;
@@ -122,7 +121,7 @@ namespace WRAPPPER_NAMESPACE
         size_t fileSize = file.fileSize();
         auto fileData = new char[fileSize];
         if (file.read(fileData, fileSize) != (long) fileSize) {
-            Serial.println("Failed to read file into RAM");
+            Debugger::print("Failed to read file into RAM");
             delete[] fileData;
             file.close();
             return nullptr;
@@ -140,7 +139,7 @@ namespace WRAPPPER_NAMESPACE
 
     String readFirstLine(FsFile& file){
         char data[100];
-        Serial.println(file.fgets(data, 100));        
+        Debugger::print(file.fgets(data, 100));        
         return String(data);
     }
 

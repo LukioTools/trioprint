@@ -5,7 +5,7 @@
 using namespace WebServerW;
 namespace Handlers {
     void ListFolder(){
-        Serial.println(server.arg("path"));
+        Debugger::print(server.arg("path"));
         auto e = SDW::listDir(server.arg("path"));
 
         server.send(200, "application/json", e.c_str());

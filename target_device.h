@@ -1,8 +1,8 @@
 #pragma once
 
-#include "SD_Manager.h"
 
 #include "config.h"
+#include "SD_Manager.h"
 #include "HardwareSerial.h"
 #include "webSocketClass.h"
 #include "H-Print.h"
@@ -131,8 +131,6 @@ namespace TD {
             while(devSerial.inQueue < OUTPUT_QUEUE_LENGHT){
                 String line;
                 readGCodeFromSDCard(line);
-                Serial.print("before modification: ");
-                Serial.println(line);
                 if(line.startsWith(COMMENTCHAR)) continue;
 
                 int delimiterIndex = line.indexOf(COMMENTCHAR);
@@ -140,7 +138,6 @@ namespace TD {
                     line = line.substring(0, delimiterIndex);
                 }
 
-                Serial.println("after: ");
                 devSerial.println(line);
             }
         }

@@ -16,18 +16,18 @@ namespace Handlers {
         }
     }
     void RootClearCache(){
-        Serial.printf("Clearing root cache...\n");
+        Debugger::print("Clearing root cache...\n");
         delete root_cache_data;
         root_cache_data = nullptr;
     }
     void RootReloadCache(){
-        Serial.printf("Reloading root cache...\n");
+        Debugger::print("Reloading root cache...\n");
         RootClearCache();
         RootPreload();
     }
 
     void Root(){
-        Serial.println("Handling client");
+        Debugger::print("Handling client");
 
         RootPreload();
 
@@ -35,7 +35,7 @@ namespace Handlers {
             server.sendHeader("Content-Encoding", "gzip");
             SERVER_SEND_WITH_LENGTH(200, "text/html", root_cache_data, root_cache_size);
         }else{
-            Serial.println("failed to load");
+            Debugger::print("failed to load");
             server.send(500, "text/html", "Failed to load file from SD");
         }
     }

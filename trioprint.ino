@@ -6,6 +6,7 @@
 #include "webSocketClass.h"
 #include "Handlers.h"
 #include "Recovery.h"
+#include "Debug.h"
 
 
 //When using esp32 you have to install SdFat library made by Bill Greiman and on esp8266 you must delete that one and use the built in sdat library.
@@ -33,22 +34,24 @@ void setup(){
     WebServerW::begin();
     WebSocketW::begin();
 
-    Serial.println("files in root: ");
-    Serial.println(SDW::listDir("/"));
+    Debugger::print("files in root: ");
+    Debugger::print(SDW::listDir("/"));
 
-    Serial.print("filename type: ");
-    Serial.print(USE_LONG_FILE_NAMES);
-    Serial.print(" UTF8: ");
-    Serial.println(USE_UTF8_LONG_NAMES);
+    Debugger::print("filename type: ");
+    Debugger::print(USE_LONG_FILE_NAMES);
+    Debugger::print(" UTF8: ");
+    Debugger::print(USE_UTF8_LONG_NAMES);
+
+    //./xtensa-esp-elf-addr2line -fe /home/hiha/developer/arduino/trioprint/build/esp32.esp32.esp32/trioprint.ino.elf 0x40179b5f:0x3ffb2170 0x400e31a6:0x3ffb2190 0x400d2ee8:0x3ffb21b0 0x400d2f12:0x3ffb21d0 0x400d4a93:0x3ffb2210 0x400e672b:0x3ffb2270 0x4008d16e:0x3ffb2290
 
     recoveryLine = RV::CheckForRecovering();
 
     #if DEBUG
         if(recoveryLine != -1){
-            Serial.println("There is print to recover. Check the web interface! (Recovering isn't supported currently)");
-            Serial.println(recoveryLine);
+            Debugger::print("There is print to recover. Check the web interface! (Recovering isn't supported currently)");
+            Debugger::print(recoveryLine);
         } else{
-            Serial.println("No print to recovery. You may proceed normally");
+            Debugger::print("No print to recovery. You may proceed normally");
         }
     #endif
 
@@ -56,7 +59,6 @@ void setup(){
 }
 
 void loop(){  
-    auto start = millis();
     OTAW::handle();
     WebServerW::handle();
     WebSocketW::Handle();
@@ -73,14 +75,6 @@ void loop(){
     if(TD::printRunning){
         printRunningCurrently.Handle();
     }
-    auto end = millis();
-
-
-    //TD::devSerial.inQueue = 0;
-
-    //Serial.println(ESP.getFreeHeap(),DEC);
-    //Serial.println("data" + String((char*)data));
-    //Serial.println(SDW::lineCount(file));
     
 }
 
