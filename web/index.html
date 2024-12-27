@@ -446,8 +446,95 @@
         }
     </script>
 
+</head>
+<body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+    <!-- Progress etc. on the top as a bar -->
+        <div id="Status Bar" class="bar status-bar">
+            <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
+                <!--
+                Use this shit for uplad thginf
+                <form method='POST' action='/fm/uploadFile/' enctype='multipart/form-data'><input type='file' name='up-file'><input type='submit' value='Upload'></form>-->
+                <div class="status-item" ><div>Server Status</div></div>
+            </div>
+            <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
+                <div class="status-item" ><div>Printer Status</div></div>
+            </div>
+            <div id="3" class="resize-handle">
+                <div class="status-item">
+                    <div class="cmd_controls">
+                        <div id="resume-button" >Scroll</div>
+                    </div>
+                    <div id="scroll-container"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="dir-set-sep" class="directory-setting-seperator">
+            <div id="Directory View" class="dir-view">
+                <div id="Current Directory" class="dir-pwd dirent">
+                    <div id="back" class="dir-pwd-item dirent-image" onclick="chdir_back()">BK</div>
+                    <div id="mkdir" class="dir-pwd-item dirent-image" onclick="begin_mkdir()">MD</div>
+                    <div id="file-sync-icon" class="dir-pwd-item dirent-image" onclick="files()">RF</div> 
+                    <div id="cwd" class="dir-pwd-item">/</div>
+                </div>
+                <div id="Directory Files" class="dir-files">
+                    <!--
+                    <div class="dirent">
+                        <div class="dirent-item dirent-dir" isDirectory="true" onclick="file_on_click(this)">directory/</div>
+                        <div class="dirent-item dirent-image">DW</div>
+                        <div class="dirent-item dirent-image">PR</div>
+                        <div class="dirent-item dirent-image">RM</div>
+                    </div>
+                    <div class="dirent">
+                        <div class="dirent-item" onclick="file_on_click(this)">filename</div>
+                        <div class="dirent-item dirent-image">DW</div>
+                        <div class="dirent-item dirent-image">PR</div>
+                        <div class="dirent-item dirent-image">RM</div>
+                    </div>
+                    <div id="new-dir-dirent" class="dirent">
+                        <label for="new-dir-name" class="new-dir-item">Directory Name</label>
+                        <input class="new-dir-item new-dir-textfield" type="text" name="new-dir-name" id="new-dir-name" placeholder="Leave Empty to cancel">
+                        </div>
+                        -->
+                        
+
+                </div>
+            </div>
+            <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">
+                <div id="Settings Column" class="bar settings-bar" >Settings Column</div>
+            </div>
+        </div>
+    <!--Serial scrolling-->
+    <script>
+        var scrollContainer = document.getElementById('scroll-container');
+        var resumeButton = document.getElementById('resume-button');
+
+        var isAutoScrolling = true;
+        var userInteracted = false;
+        
+        // Stop scrolling when user interacts
+        scrollContainer.addEventListener('scroll', () => {
+            if (!userInteracted && scrollContainer.scrollTop + scrollContainer.clientHeight < scrollContainer.scrollHeight) {
+                isAutoScrolling = false;
+                userInteracted = true;
+            }
+        });
+
+        // Resume scrolling on button press
+        resumeButton.addEventListener('click', () => {
+            console.log("should scroll");
+            isAutoScrolling = true;
+            userInteracted = false;
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        });
+    </script>
+
     <!--serial console-->
     <script>
+
+        Console_array = [];
+        Console_max_size = 20;
+
         var connection = new WebSocket('ws://' + window.location.hostname + ':81/');
 
         connection.onopen = function () {
@@ -460,7 +547,18 @@
 
         connection.onmessage = function (e) {
         console.log("message received: " + e.data);
-        document.getElementById('sensorValue').innerText = e.data;
+        elem = document.createElement('div');
+        elem.innerText = e.data;
+        Console_array.push(elem);
+        document.getElementById('scroll-container').appendChild(elem);
+
+        if (isAutoScrolling) {
+            console.log("scrolling");
+            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        }
+
+        if(Console_array.length > Console_max_size) Console_array.pop();
+
         };
 
         connection.onclose = function () {
@@ -468,59 +566,7 @@
         };
 
     </script>
-
-</head>
-<body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
-    <!-- Progress etc. on the top as a bar -->
-    <div id="Status Bar" class="bar status-bar">
-        <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
-            <!--
-            Use this shit for uplad thginf
-            <form method='POST' action='/fm/uploadFile/' enctype='multipart/form-data'><input type='file' name='up-file'><input type='submit' value='Upload'></form>-->
-            <div class="status-item" ><div>Server Status</div></div>
-        </div>
-        <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
-            <div class="status-item" ><div>Printer Status</div></div>
-        </div>
-        <div id="3" class="resize-handle">
-            <div class="status-item" id="sensorValue">Waiting for data...</div>
-        </div>
-    </div>
-
-    <div id="dir-set-sep" class="directory-setting-seperator">
-        <div id="Directory View" class="dir-view">
-            <div id="Current Directory" class="dir-pwd dirent">
-                <div id="back" class="dir-pwd-item dirent-image" onclick="chdir_back()">BK</div>
-                <div id="mkdir" class="dir-pwd-item dirent-image" onclick="begin_mkdir()">MD</div>
-                <div id="file-sync-icon" class="dir-pwd-item dirent-image" onclick="files()">RF</div> 
-                <div id="cwd" class="dir-pwd-item">/</div>
-            </div>
-            <div id="Directory Files" class="dir-files">
-                <!--
-                <div class="dirent">
-                    <div class="dirent-item dirent-dir" isDirectory="true" onclick="file_on_click(this)">directory/</div>
-                    <div class="dirent-item dirent-image">DW</div>
-                    <div class="dirent-item dirent-image">PR</div>
-                    <div class="dirent-item dirent-image">RM</div>
-                </div>
-                <div class="dirent">
-                    <div class="dirent-item" onclick="file_on_click(this)">filename</div>
-                    <div class="dirent-item dirent-image">DW</div>
-                    <div class="dirent-item dirent-image">PR</div>
-                    <div class="dirent-item dirent-image">RM</div>
-                </div>
-                <div id="new-dir-dirent" class="dirent">
-                    <label for="new-dir-name" class="new-dir-item">Directory Name</label>
-                    <input class="new-dir-item new-dir-textfield" type="text" name="new-dir-name" id="new-dir-name" placeholder="Leave Empty to cancel">
-                    </div>
-                    -->
-                    
-
-            </div>
-        </div>
-        <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">
-            <div id="Settings Column" class="bar settings-bar" >Settings Column</div>
-        </div>
-    </div>
 </body>
+
 </html>
+

@@ -18,6 +18,43 @@
 *{
     min-width: 0;
 }
+
+*::-webkit-scrollbar {
+    width: 5px;  /* Remove scrollbar space */
+    background: transparent;  /*make scrollbar space invisible */
+    border-radius: 3px;
+    height: 6px;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: transparent; /*makes it invisible when not hovering*/
+}
+*:hover::-webkit-scrollbar-thumb {
+  background: grey; /*On hover, it will turn grey*/
+}
+
+
+@keyframes scrollbarFadeIn {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+@keyframes scrollbarFadeOut {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+
+    }
+}
+
+
+
 html{
     max-height: 100vh;
     max-width: 100vw;
@@ -37,13 +74,12 @@ body{
 
 .directory-setting-seperator{
     display: flex;
-    height: 80%;
 }
 .bar{
     background-color: var(--bg-bar);
 }
 .status-bar{
-    height: calc(20% - 1px);
+    height: calc(40% - 1px);
     border-width: 0px 0px 1px 0px;
     border-style: solid;
     border-color: var(--border-normal);
@@ -55,12 +91,9 @@ body{
     overflow-x: clip;
 }
 
-
-
-
 .dir-view{
     height: 100%;
-    width: 80%;
+    width: 60%;
     max-height: 100%;
 }
 
@@ -75,7 +108,7 @@ body{
 
 .dir-files{
     width: 100%; 
-    height: calc(100% - 2em); 
+    height: 60%; 
     overflow: scroll; 
     overflow-x: hidden;
     background-color: var(--bg-bar);
@@ -236,3 +269,30 @@ body{
     width: 20%;
 }
 
+
+.cmd_controls {
+    position: fixed;
+    top: 0;
+    
+    width: 100%;
+    height: 20px;
+
+    background: #151d2b;
+    border-bottom: 1px solid #ccc;
+    z-index: 10;
+}
+
+#scroll-container {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    box-sizing: border-box;
+}
+
+#resume-button{
+    color: white;
+}
+
+#resume-button:hover{
+    color: rgb(0, 17, 255);
+}
