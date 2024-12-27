@@ -1,3 +1,4 @@
+#include "Debug.h"
 #pragma once
 
 
@@ -28,11 +29,13 @@ namespace TD {
         #endif
 
         void SerialBegin(){
+            //serial->begin(115200, SERIAL_8N1, 16, 17);
             serial->begin(115200);
         }
 
         size_t println(const String& data){
             inQueue++; // we assume everything is command :)
+            Debugger::print(data);
             return serial->println(data);
         }
 
@@ -55,7 +58,7 @@ namespace TD {
             String data;
             if(!serial->available()) return;
             while( serial->available() && !(data = serial->readStringUntil('\n')).isEmpty()){
-                WebSocketW::brodcastAllTXT(data);
+                Debugger::print(data);
 
                 if(data.startsWith("ok")){
                     if(inQueue) 
@@ -94,7 +97,9 @@ namespace TD {
         FsFile recoveryFile;
 
 
+
         public:
+        bool printRunning = false;
 
         GCode(){}
 
@@ -128,9 +133,20 @@ namespace TD {
 
             if(devSerial.inQueue > OUTPUT_QUEUE_LENGHT) return;
 
+            if(!printRunning) return;
+
             while(devSerial.inQueue < OUTPUT_QUEUE_LENGHT){
                 String line;
-                readGCodeFromSDCard(line);
+
+                bool readState = readGCodeFromSDCard(line);
+
+                if(!readState){
+                    printRunning = false;
+                    Debugger::print("print finished");
+
+                    return;
+                }
+
                 if(line.startsWith(COMMENTCHAR)) continue;
 
                 int delimiterIndex = line.indexOf(COMMENTCHAR);
@@ -138,22 +154,30 @@ namespace TD {
                     line = line.substring(0, delimiterIndex);
                 }
 
+                if(line.isEmpty() || line == "") continue;
+
+                currentStep++;
                 devSerial.println(line);
+                Debugger::print("line: " + String(currentStep) + "/" + String(steps));
+                if(currentStep >= steps){
+                        printRunning = false;
+                        Debugger::print("print finished");
+                    };
             }
         }
 
 
 
         private:
-        void readGCodeFromSDCard(String& output){
+        bool readGCodeFromSDCard(String& output){
             while (true){
                 int d = file.read();
                 if(d == -1){
-                    break;
+                    return false;
                 }
 
                 if((char)d == '\n'){
-                    break;
+                    return true;
                 }
                 output += (char)d;
             }

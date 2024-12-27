@@ -70,6 +70,7 @@ void loop(){
         TD::printStarted = false;
         WebSocketW::brodcastAllTXT("print started");
         printRunningCurrently = TD::GCode(TD::filename, false, 0);
+        printRunningCurrently.printRunning = true;
     }
 
     if(TD::printRunning){
