@@ -5,12 +5,12 @@
 namespace Debugger {
     
     #if defined (DEBUG_SERIAL)
-    HardwareSerial* serial = & DEBUG_SERIAL_INSTANCE;
+    HardwareSerial* debug_serial = & DEBUG_SERIAL_INSTANCE;
     #endif
 
     void print(const String& data){
         #if defined (DEBUG_SERIAL)
-        serial->println(data);
+            debug_serial->println(data);
         #endif
 
         #if defined (DEBUG_SOCKET)
@@ -21,7 +21,7 @@ namespace Debugger {
 
     void print(const int& data){
         #if defined (DEBUG_SERIAL)
-        serial->println(String(data));
+        debug_serial->println(String(data));
         #endif
 
         #if defined (DEBUG_SOCKET)
@@ -35,7 +35,7 @@ namespace Debugger {
 
     void serialPrint(const String& data){
         #if defined (DEBUG_SERIAL)
-        serial->println(data);
+        debug_serial->println(data);
         #endif
     }
 }

@@ -1,6 +1,0 @@
-namespace SH {
-    
-    class serialC{
-
-    };
-}

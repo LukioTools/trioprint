@@ -17,6 +17,8 @@
 #include "H-DevConsole.h"
 #include "H-Recovery.h"
 #include "H-sendCommand.h"
+#include "H-set_config.h"
+#include "H-getDynamicConfig.h"
 
 namespace WebServerW {
     inline static void handle(){server.handleClient();}
@@ -33,18 +35,20 @@ namespace WebServerW {
         server.on("/device/ems/", HTTP_GET ,Handlers::NotFound);
         server.on("/device/status/", HTTP_GET ,Handlers::PrintStatus);
         server.on("/device/ls/", HTTP_GET ,Handlers::NotFound);
-        server.on("/device/console", HTTP_GET , Handlers::GetConsole);
-        server.on("/device/recoveryStatus", HTTP_GET, Handlers::RecoveryStatus);
+        server.on("/device/console/", HTTP_GET , Handlers::GetConsole);
+        server.on("/device/recoveryStatus/", HTTP_GET, Handlers::RecoveryStatus);
 
-        server.on("/device/sendCommand", HTTP_GET, Handlers::sendCommand);
+        server.on("/device/sendCommand/", HTTP_GET, Handlers::sendCommand);
         
         server.on("/fm/ls/", HTTP_GET , Handlers::ListFolder);
         server.on("/fm/remove/", HTTP_GET ,Handlers::Remove);
         server.on("/fm/mkdir/", HTTP_GET ,Handlers::Mkdir);
         server.on("/fm/downloadFile/", HTTP_GET, Handlers::DownloadFile);
 
-        server.on("/fm/uploadFile/", HTTP_POST,
-            [](){ server.send(200); },                          // Send status 200 (OK) to tell the client we are ready to receive
+        server.on("/config/setDynamicConfig/", HTTP_GET, Handlers::setDynamicConfig);
+        server.on("/config/getDynamicConfig/", HTTP_GET, Handlers::getDynamicConfig);
+
+        server.on("/fm/uploadFile/", HTTP_POST, [](){ server.send(200); },                          // Send status 200 (OK) to tell the client we are ready to receive
         Handlers::UploadFile);
 
         server.onNotFound(Handlers::NotFound);

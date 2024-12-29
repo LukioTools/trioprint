@@ -30,12 +30,18 @@ namespace WebSocketW {
 
     void webSocketEvent(uint8_t num, WStype_t type, uint8_t * payload, size_t length) {
         if (type == WStype_DISCONNECTED) {
-            Serial.printf("[%u] Websocket disconnected!\n", num);
+            #if defined(DEBUG_SERIAL)
+                Serial.printf("[%u] Websocket disconnected!\n", num);
+            #endif
         } else if (type == WStype_CONNECTED) {
             IPAddress ip = webSocket.remoteIP(num);
-            Serial.printf("[%u] Websocket connected from %s\n", num, ip.toString().c_str());
+            #if defined(DEBUG_SERIAL)
+                Serial.printf("[%u] Websocket connected from %s\n", num, ip.toString().c_str());
+            #endif
         } else if (type == WStype_TEXT) {
-            Serial.printf("[%u] Websocket text: %s\n", num, payload);
+            #if defined(DEBUG_SERIAL)
+                Serial.printf("[%u] Websocket text: %s\n", num, payload);
+            #endif
         }
     }
 }
