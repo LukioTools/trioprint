@@ -7,6 +7,7 @@
 #include "Handlers.h"
 #include "Recovery.h"
 #include "Debug.h"
+#include "dynamic_config.h"
 
 
 //When using esp32 you have to install SdFat library made by Bill Greiman and on esp8266 you must delete that one and use the built in sdat library.
@@ -18,15 +19,18 @@ int recoveryLine = 0;
 TD::GCode printRunningCurrently;
 
 void setup(){
+
+    memory.begin();
+
     TD::devSerial.SerialBegin();
 
     #if defined(ESP8266)
     ESP.wdtEnable(5000);
     #endif
 
-    #if DEVSERIAL != 0
-    Serial.begin(115200);
-    #endif  
+    #if defined(DEVSERIAL) &&  DEVSERIAL != 0
+        Serial.begin(115200);
+    #endif
 
     WiFiW::begin();
     OTAW::begin();
@@ -70,6 +74,7 @@ void loop(){
         TD::printStarted = false;
         WebSocketW::brodcastAllTXT("print started");
         printRunningCurrently = TD::GCode(TD::filename, false, 0);
+        printRunningCurrently.printRunning = true;
     }
 
     if(TD::printRunning){

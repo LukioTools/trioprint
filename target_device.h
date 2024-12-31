@@ -1,3 +1,4 @@
+#include "Debug.h"
 #pragma once
 
 
@@ -28,16 +29,33 @@ namespace TD {
         #endif
 
         void SerialBegin(){
-            serial->begin(115200);
+            #if defined(DEV_CUSTOM_SERIAL) && defined(ESP32)
+                serial->begin(115200, SERIAL_8N1, 16, 17);
+            #else
+                serial->begin(115200);
+            #endif
+        }
+
+        bool isCommand(const String& data){
+            if(data.startsWith("m") || data.startsWith("M") || data.startsWith("g") || data.startsWith("G")){
+                return true;
+            }
+            return false;
         }
 
         size_t println(const String& data){
-            inQueue++; // we assume everything is command :)
+            
+            //if(isCommand(data))
+                inQueue++; 
+
+            Debugger::print("sent to printer: " + data);
             return serial->println(data);
         }
 
         size_t print(const String& data){
-            inQueue++; // we assume everything is command :)
+            //if(isCommand(data))
+                inQueue++; 
+                
             return serial->print(data);
         }
 
@@ -54,6 +72,7 @@ namespace TD {
 
             String data;
             if(!serial->available()) return;
+            
             while( serial->available() && !(data = serial->readStringUntil('\n')).isEmpty()){
 
                 if(data.startsWith("ok")){
@@ -61,8 +80,8 @@ namespace TD {
                         inQueue--;
 
                     canWrite = true;
-                    Serial.print("in queue: ");
-                    Serial.println(inQueue);
+                    Debugger::print("in queue: " + String(inQueue));
+                } else{
                 }
 
                 if(data.startsWith("echo:busy: processing")){
@@ -93,7 +112,9 @@ namespace TD {
         FsFile recoveryFile;
 
 
+
         public:
+        bool printRunning = false;
 
         GCode(){}
 
@@ -111,8 +132,7 @@ namespace TD {
             file.seek(0);
 
             #if DEBUG
-                Serial.print("Line amount in gcode file: ");
-                Serial.println(steps);
+                DebDebugger::print("Line amount in gcode file: " + String(steps));
             #endif
 
             //recovery isn't supported right now. I have to think more how will it work.
@@ -127,9 +147,20 @@ namespace TD {
 
             if(devSerial.inQueue > OUTPUT_QUEUE_LENGHT) return;
 
+            if(!printRunning) return;
+
             while(devSerial.inQueue < OUTPUT_QUEUE_LENGHT){
                 String line;
-                readGCodeFromSDCard(line);
+
+                bool readState = readGCodeFromSDCard(line);
+
+                if(!readState){
+                    printRunning = false;
+                    Debugger::print("print finished");
+
+                    return;
+                }
+
                 if(line.startsWith(COMMENTCHAR)) continue;
 
                 int delimiterIndex = line.indexOf(COMMENTCHAR);
@@ -137,22 +168,32 @@ namespace TD {
                     line = line.substring(0, delimiterIndex);
                 }
 
+                if(line.isEmpty() || line == "") continue;
+
                 devSerial.println(line);
+
+                currentStep++;
+                Debugger::print("commands completed: " + String(currentStep) + "/" + String(steps));
+
+
+
+                if(currentStep >= steps){
+                        printRunning = false;
+                        Debugger::print("print finished");
+                    };
             }
         }
 
-
-
         private:
-        void readGCodeFromSDCard(String& output){
+        bool readGCodeFromSDCard(String& output){
             while (true){
                 int d = file.read();
                 if(d == -1){
-                    break;
+                    return false;
                 }
 
                 if((char)d == '\n'){
-                    break;
+                    return true;
                 }
                 output += (char)d;
             }
