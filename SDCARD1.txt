@@ -1,6 +1,3 @@
-Assuming the SD is the only SPI device.
-Edit DISABLE_CS_PIN to disable an SPI device.
-
 Assuming the SD chip select pin is: 15
 Edit SD_CS_PIN to change the SD chip select pin.
 
