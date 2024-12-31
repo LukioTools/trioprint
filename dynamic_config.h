@@ -4,6 +4,7 @@
 #else
     #include <EEPROM.h>
 #endif
+
 #include "Debug.h"
 
 #define EEPROM_SIZE 512 // Define the EEPROM size for ESP32
@@ -14,15 +15,22 @@ struct Memory{
 
     Memory(){}
 
-    unsigned char boolean_config[1] = {0};
+    unsigned char boolean_config[3];
     /*
-    0: debug via serial
-    1: debug via web interface
-    2: debug sent commands to printer
+    [0]:
+        0: debug: via serial
+        1: debug: via web interface
+        2: debug: sent commands to printer
+        3: debug: in queue
+        4: debug: show failed commands
+    [1]:
+    [2]:
+        puller frequency 0-255
     */
 
     void begin(){
         EEPROM.begin(sizeof(Memory)); // ESP8266: Must initialize with EEPROM size
+        loadFromEEPROM();
     }
 
     void set_debug_via_serial(bool status) {
@@ -49,12 +57,29 @@ struct Memory{
         return get_bit(2);
     }
 
+    void set_debug_in_queue(bool status) {
+        set_bit(3, status);
+    }
+
+    bool get_debug_in_queue(){
+        return get_bit(3);
+    }
+
+    void set_debug_show_failed_command(bool status) {
+        set_bit(4, status);
+    }
+
+    bool get_debug_show_failed_command(){
+        return get_bit(4);
+    }
+
     void set_bit(int pos, bool status){
        if (status) {
             boolean_config[0] |= (1 << pos); 
         } else {
             boolean_config[0] &= ~(1 << pos);
         }
+        saveToEEPROM();
     }
 
     bool get_bit(int bit_position) {
@@ -65,7 +90,6 @@ struct Memory{
         Memory tempMemory = *this;
         EEPROM.put(0, tempMemory);
         bool ok = EEPROM.commit();
-        Debugger::print((ok) ? "config saved" : "config save failed");
         return ok;
     }
 

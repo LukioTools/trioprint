@@ -27,15 +27,13 @@ namespace Handlers {
     }
 
     void Root(){
-        Debugger::print("Handling client");
-
         RootPreload();
 
         if(root_cache_data){
             server.sendHeader("Content-Encoding", "gzip");
             SERVER_SEND_WITH_LENGTH(200, "text/html", root_cache_data, root_cache_size);
         }else{
-            Debugger::print("failed to load");
+            Debugger::print("failed to load page");
             server.send(500, "text/html", "Failed to load file from SD");
         }
     }

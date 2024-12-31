@@ -13,8 +13,6 @@ namespace Handlers {
     else filepathp = filepath.c_str();
 
     HTTPUpload& upload = server.upload();
-      Debugger::print("Status: ");
-      Debugger::print(upload.status);
 
     if (upload.status == UPLOAD_FILE_START) {
         Debugger::print("Opening file:" + upload.filename + " ...");

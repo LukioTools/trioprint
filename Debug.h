@@ -1,41 +1,35 @@
 #pragma once
 #include "config.h"
 #include "webSocketClass.h"
+#include "dynamic_config.h"
 
 namespace Debugger {
     
-    #if defined (DEBUG_SERIAL)
     HardwareSerial* debug_serial = & DEBUG_SERIAL_INSTANCE;
-    #endif
 
     void print(const String& data){
-        #if defined (DEBUG_SERIAL)
+        if(memory.get_debug_via_serial())
             debug_serial->println(data);
-        #endif
 
-        #if defined (DEBUG_SOCKET)
-        String& temp = const_cast<String&>(data);
-        WebSocketW::brodcastAllTXT(temp);
-        #endif
+        if(memory.get_debug_via_web()){
+            String& temp = const_cast<String&>(data);
+            WebSocketW::brodcastAllTXT(temp);
+        }
     }
 
     void print(const int& data){
-        #if defined (DEBUG_SERIAL)
-        debug_serial->println(String(data));
-        #endif
-
-        #if defined (DEBUG_SOCKET)
-        String temp = String(const_cast<int&>(data));
-        WebSocketW::brodcastAllTXT(temp);
-        #endif
+        if(memory.get_debug_via_serial())
+            debug_serial->println(String(data));
+        
+        if(memory.get_debug_via_web()) {
+            String temp = String(const_cast<int&>(data));
+            WebSocketW::brodcastAllTXT(temp);
+        }
     }
     //TODO: keep adding these
 
-    //TODO: add printf
-
     void serialPrint(const String& data){
-        #if defined (DEBUG_SERIAL)
-        debug_serial->println(data);
-        #endif
+        if(memory.get_debug_via_serial())
+            debug_serial->println(data);
     }
 }

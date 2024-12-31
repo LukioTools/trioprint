@@ -5,7 +5,11 @@
 using namespace WebServerW;
 namespace Handlers {
     void Remove(){
-        if(SDW::remove(server.arg("path"))) server.send(200, "text/plain", "File removed successfully"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
-        else server.send(404, "text/plain", "404: Not found"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+        bool status = SDW::remove(server.arg("path"));
+        if(status) server.send(200, "text/plain", "File removed successfully"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+        else{
+            bool exists = SDW::exists(server.arg("path"));
+            server.send(500, "text/plain", "failed: " + server.arg("path") + " " + String(status) + " " + String(exists));
+        } // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
     }
 }
