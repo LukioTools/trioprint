@@ -6,6 +6,9 @@
     <link rel="stylesheet" href="index.css">
     <title>Interface</title>
 
+</head>
+<body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+
     <!--file view & navigation-->
     <script>
         function clipboard(el){
@@ -79,6 +82,7 @@
             if(el.getAttribute("isDirectory") == "true") chdir(el.innerText);
             else return clipboard(el);
         }
+
         let cwd = "/";
         const dirent_item = "dirent-item ";
         //when the icons are ready, insert them here
@@ -180,30 +184,25 @@
         }
 
         function files(){
-            return new Promise((resolve, reject) => {
+            alert('Button clicked!');
+            //document.getElementById('fetch').textContent = "listing";
+            /*return new Promise((resolve, reject) => {
                 interval_id = rotate_file_load_icon();
                 fetch(`/fm/ls/?path=${cwd}`)
                 .then(r=>{return r.json();})
                 .then(js => {return refresh_files(js)})
                 .catch(err => {
+                    document.getElementById('fetch').textContent = err;
+
                     console.error(err);
                     set_wrong();
                     stop_file_load_icon(interval_id);
 
                     reject(err);
                 });
-            })
-        }
-            ///status window shenanigans
-        function status(){
-
+            })*/
         }
 
-
-    </script>
-    
-    <!--file upload & drag 'n drop-->
-    <script>
         /**
          * @param file {Object}.
          * @param file.lastModified {number}.
@@ -248,15 +247,6 @@
             ev.preventDefault();
             //document.getElementById("drop-zone").setAttribute("")
         }
-    
-    </script>
-    <!--file dowmload-->
-    <script>
-    </script>
-    
-    <!--view resize handle-->
-    <script>
-
 
         let dir_settings_percent = 80;
         let dir_status_percent = 80;
@@ -293,26 +283,48 @@
             dv.setAttribute("style", `width: ${dir_settings_percent}%;`);
             sc.setAttribute("style", `width: ${100-dir_settings_percent}%;`);
         }
-        function resize_dir_set(ev){
-            let dss = document.getElementById("dir-set-sep");
-            function update(ev1){
-                dir_settings_percent = 100*ev1.clientX/dss.clientWidth;
-                if(dir_settings_percent < 1){
-                    dir_settings_percent = 1;
-                }
-                else if(dir_settings_percent > 99){
-                    dir_settings_percent = 99;
-                }
-                refresh_dir_set();
-            }
-            function updateFinal(ev1){
-                update(ev1);
-                document.removeEventListener("mouseup", updateFinal);
-                document.removeEventListener("mousemove", update);
-            }
-            document.addEventListener("mouseup", updateFinal);
-            document.addEventListener("mousemove", update);
+
+        
+        function resize_dir_set(ev) {
+        let dss = document.getElementById("dir-set-sep");
+        let pos_element = document.getElementById("Settings Column Resizer");
+        let rect = pos_element.getBoundingClientRect();
+
+        let clientX = ev.clientX || (ev.touches && ev.touches[0].clientX);
+
+        if (!clientX || clientX < rect.left - 5 || clientX > rect.left + 5) {
+            console.log("Cursor/touch not near the resizable line");
+            return; // Exit if cursor or touch is not near the resizable line
         }
+
+        function update(ev1) {
+            let currentX = ev1.clientX || (ev1.touches && ev1.touches[0].clientX);
+            if (!currentX) return;
+
+            dir_settings_percent = (100 * currentX) / dss.clientWidth;
+            dir_settings_percent = Math.max(1, Math.min(dir_settings_percent, 99)); // Clamp between 1% and 99%
+            refresh_dir_set();
+        }
+
+        function updateFinal(ev1) {
+            update(ev1);
+            document.removeEventListener("mouseup", updateFinal);
+            document.removeEventListener("mousemove", update);
+            document.removeEventListener("touchend", updateFinal);
+            document.removeEventListener("touchmove", update);
+        }
+
+        document.addEventListener("mouseup", updateFinal);
+        document.addEventListener("mousemove", update);
+        document.addEventListener("touchend", updateFinal);
+        document.addEventListener("touchmove", update);
+    }
+
+    // Attach both mousedown and touchstart
+    document.getElementById("Settings Column Resizer").addEventListener("mousedown", resize_dir_set);
+    document.getElementById("Settings Column Resizer").addEventListener("touchstart", resize_dir_set);
+
+
 
 
 
@@ -365,6 +377,7 @@
 
             bar_resize_ongoing = true;
             ev.preventDefault();
+
             function resize_bar(cursor_x){
                 if(index+1 < bars.length && bars[index+1]-8 < cursor_x){
                     cursor_x = bars[index+1]-8;
@@ -399,10 +412,7 @@
             document.addEventListener("mouseup", final_resize);
             document.addEventListener("mousemove", intermission_reszie);
         }
-    </script>
 
-    <!--mkdir-->
-    <script>
         function begin_mkdir(){
             let cd = document.getElementById("Directory Files");
             
@@ -444,23 +454,46 @@
             })
             text_field.focus();
         }
+
+        function sendBooleanSetting(pos, state){
+            fetch(`/config/setDynamicConfig/?config=${pos}&status=${state}`, {
+                method:"get",
+            }).then(respz => {
+                console.log(respz);
+                files();
+            }).catch(err => console.error(err));
+        }
+
+        function getBooleanSetting(){
+
+        }
+
     </script>
 
-</head>
-<body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+    <script>
+                function test(){
+            alert("this works");
+        }
+    </script>
+
+
     <!-- Progress etc. on the top as a bar -->
         <div id="Status Bar" class="bar status-bar">
             <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
                 <!--
                 Use this shit for uplad thginf
                 <form method='POST' action='/fm/uploadFile/' enctype='multipart/form-data'><input type='file' name='up-file'><input type='submit' value='Upload'></form>-->
-                <div class="status-item" ><div>Server Status</div></div>
+                <div class="status-item" ><div> <p id="fetch">Check Fetch Support</p></div></div>
             </div>
             <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
-                <div class="status-item" ><div>Printer Status</div></div>
+                <div class="status-item" >
+                    <br>
+                    <canvas id="temperatures" style="width:100%;max-width:600px"></canvas>
+                </div>
+                
             </div>
             <div id="3" class="resize-handle">
-                <div class="status-item">
+                <div class="status-item" style="position: relative;">
                     <div class="cmd_controls">
                         <div id="resume-button" >Scroll</div>
                     </div>
@@ -472,9 +505,12 @@
         <div id="dir-set-sep" class="directory-setting-seperator">
             <div id="Directory View" class="dir-view">
                 <div id="Current Directory" class="dir-pwd dirent">
-                    <div id="back" class="dir-pwd-item dirent-image" onclick="chdir_back()">BK</div>
-                    <div id="mkdir" class="dir-pwd-item dirent-image" onclick="begin_mkdir()">MD</div>
-                    <div id="file-sync-icon" class="dir-pwd-item dirent-image" onclick="files()">RF</div> 
+                    <button id="back" class="dir-pwd-item dirent-image unstyled-button">BK</button>
+                    <button id="mkdir" class="dir-pwd-item dirent-image unstyled-button">MD</button>
+
+                    <button id="file-sync-icon" class="dir-pwd-item dirent-image unstyled-button" onclick="test()">RF</button>
+
+
                     <div id="cwd" class="dir-pwd-item">/</div>
                 </div>
                 <div id="Directory Files" class="dir-files">
@@ -501,7 +537,26 @@
                 </div>
             </div>
             <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">
-                <div id="Settings Column" class="bar settings-bar" >Settings Column</div>
+                <div id="Settings Column" class="bar settings-bar" >
+                    <div>Settings. Hover for more information</div>
+                    <br>
+                    <div>esp configuration</div>
+                    <div class="setting">
+                        <input type="checkbox" id="setting" name="debugViaSerial" value="0" onchange="sendBooleanSetting(0, +this.checked)" />
+                        <div title="esp sends debugging messages via serial. If you dont have pc connected to usb output of esp disable this.">debug via serial</div>
+                    </div>
+
+                    <div class="setting">
+                        <input type="checkbox" id="coding" name="interest" value="coding"  onchange="sendBooleanSetting(1, +this.checked)" />
+                        <div title="esp sends debugging log via socket to web client." >debug via web interface</div>
+                    </div>
+
+                    <div class="setting">
+                        <input type="checkbox" id="coding" name="interest" value="coding"  onchange="sendBooleanSetting(2, +this.checked)"/>
+                        <div title="When enabled esp is going to log sent commands via serial and/or socket">show sent commands</div>
+                    </div>
+
+                </div>
             </div>
         </div>
     <!--Serial scrolling-->
@@ -529,8 +584,120 @@
         });
     </script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+
+    <script>
+
+        const xValues = [];
+        const nozzleTempData = [];
+        const nozzleTempTargerData = [];
+        const bedTempData = []; 
+        const bedTempTargetData = []; 
+        const fanSpeedData = [];
+        
+        const printerTempChart = new Chart("temperatures", {
+        type: "line",
+        data: {
+            labels: xValues,
+            datasets: [
+                { 
+                    data: nozzleTempData,
+                    borderColor: "#BD2D03",
+                    fill: false
+                }, 
+                { 
+                    data: nozzleTempTargerData,
+                    borderColor: "#F68462",
+                    fill: false
+                }, 
+                { 
+                    data: bedTempData,
+                    borderColor: "#107C99",
+                    fill: false
+                }, 
+                { 
+                    data: bedTempTargetData,
+                    borderColor: "#22C3EF",
+                    fill: false
+                }, 
+                { 
+                    data: fanSpeedData,
+                    borderColor: "#DDA512",
+                    fill: false
+                }, 
+            ]
+            },
+            options: {
+                legend: { display: false}
+            }
+            });
+    </script>
+    
     <!--serial console-->
     <script>
+
+        function parseSerial(data) {
+            // Ensure the input is a string and contains key markers we expect
+            if (typeof data !== 'string' || !data.includes("T:") || !data.includes("B:") || !data.includes("FAN0@")) {
+                console.log(typeof data);
+                console.log(data.includes("T:"));
+                console.log(data.includes("FAN0@"));
+                console.error("Invalid input data");
+                return;
+            }
+
+            // Regular expressions to extract T, B temperatures, and FAN0@ values
+            const regex = /T:([\d.]+)\s+\/([\d.]+).*B:([\d.]+)\s+\/([\d.]+).*FAN0@:(\d+)/;
+
+            // Execute the regex on the input string
+            const match = data.match(regex);
+
+            if (match) {
+                const currentT = parseFloat(match[1]); // Current T temperature
+                const targetT = parseFloat(match[2]); // Target T temperature
+                const currentB = parseFloat(match[3]); // Current B temperature
+                const targetB = parseFloat(match[4]); // Target B temperature
+                const fanSpeed = parseInt(match[5], 10); // FAN0 speed
+
+                const currentTime = xValues.length > 0 ? xValues[xValues.length - 1] + 1 : 0;
+
+                xValues.push(currentTime);
+                nozzleTempData.push(currentT);
+                nozzleTempTargerData.push(targetT);
+                bedTempData.push(currentB);
+                bedTempTargetData.push(targetB);
+                fanSpeedData.push(fanSpeed);
+
+                console.log({
+                    currentTime,
+                    currentT,
+                    targetT,
+                    currentB,
+                    targetB,
+                    targetB,
+                    fanSpeed
+                })
+
+                if (xValues.length > 30) {
+                    xValues.shift();
+                    nozzleTempData.shift();
+                    nozzleTempTargerData.shift()
+                    bedTempData.shift()
+                    bedTempTargetData.shift()
+                    fanSpeedData.shift();
+
+                }
+
+                printerTempChart.update();
+
+
+
+            } else {
+                console.error("Failed to parse the input");
+                return null;
+            }
+        }
+
 
         Console_array = [];
         Console_max_size = 20;
@@ -546,18 +713,21 @@
         };
 
         connection.onmessage = function (e) {
-        console.log("message received: " + e.data);
-        elem = document.createElement('div');
-        elem.innerText = e.data;
-        Console_array.push(elem);
-        document.getElementById('scroll-container').appendChild(elem);
+            console.log("message received: " + e.data);
+            console.log(parseSerial(e.data));
+            //parse data
 
-        if (isAutoScrolling) {
-            console.log("scrolling");
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
-        }
+            elem = document.createElement('div');
+            elem.innerText = e.data;
+            Console_array.push(elem);
+            document.getElementById('scroll-container').appendChild(elem);
 
-        if(Console_array.length > Console_max_size) Console_array.pop();
+            if (isAutoScrolling) {
+                console.log("scrolling");
+                scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            }
+
+            if(Console_array.length > Console_max_size) Console_array.pop();
 
         };
 
@@ -566,6 +736,10 @@
         };
 
     </script>
+
+
+
+
 </body>
 
 </html>

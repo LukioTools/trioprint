@@ -55,7 +55,6 @@ namespace TD {
             String data;
             if(!serial->available()) return;
             while( serial->available() && !(data = serial->readStringUntil('\n')).isEmpty()){
-                WebSocketW::brodcastAllTXT(data);
 
                 if(data.startsWith("ok")){
                     if(inQueue) 
