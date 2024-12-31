@@ -1,0 +1,456 @@
+function clipboard(el){
+    navigator.clipboard.writeText(el.innerText).then(function() {
+        console.log('Async: Copying to clipboard was successful!');
+    }, function(err) {
+        console.error('Async: Could not copy text: ', err);
+    });
+}
+function remove(filename){
+    let path = cwd+filename;
+    fetch(`/fm/remove/?path=${path}`)
+    .then(resp => {
+        if(resp.status == 200) console.log(`File '${path}' removed successfuly :3`)
+        else console.log(`Failed to remove file '${path}'`)
+        files();
+    })
+}
+function mkdir(dirname){
+    let path = cwd+dirname;
+    fetch(`/fm/mkdir/?path=${path}`)
+    .then(resp => {
+        if(resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
+        else console.log(`Failed to make directory '${path}'`)
+        files();
+    })
+}
+function printFile(dirname){
+    let path = cwd+dirname;
+    console.log("kek");
+    fetch(`/device/print/?path=${path}`)
+    .then(resp => {
+        if(resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
+        else console.log(`Failed to make directory '${path}'`)
+        files();
+    })
+}
+
+function chdir(name){
+    let oldcwd = cwd;
+    let cde =  document.getElementById("cwd");
+    cwd += name;
+    files()
+    .catch((err) => {
+        console.error("error changing directory to: ", cwd);
+        console.log("reverting back to: ", oldcwd);
+        cwd = oldcwd;
+        cde.innerText = cwd;
+    });
+    cde.innerText = cwd;
+}
+function chdir_back(){
+    if(cwd == "/") return;
+    let oldcwd = cwd;
+    let cde =  document.getElementById("cwd");
+    let len = cwd.length-2;
+    cwd = cwd.substring(0, cwd.lastIndexOf('/', len));
+    if(cwd.length == 0) cwd = "/";
+    console.log("changing directory to", cwd);
+    files()
+    .catch((err) => {
+        console.error("error changing directory to: ", cwd);
+        console.log("reverting back to: ", oldcwd);
+        cwd = oldcwd;
+        cde.innerText = cwd;
+    });
+    cde.innerText = cwd;
+}
+
+function file_on_click(el){
+    if(el.getAttribute("isDirectory") == "true") chdir(el.innerText);
+    else return clipboard(el);
+}
+
+let cwd = "/";
+const dirent_item = "dirent-item ";
+//when the icons are ready, insert them here
+/**
+ * @param filename {string}
+ * */
+function create_file_element(filename){
+    
+    dirent = document.createElement("div");
+    dirent.setAttribute("class", "dirent");
+    let filesize="";
+    let isDirectory = (filename[filename.length-1] == '/');
+    {// file
+        let el = document.createElement("div");
+        let classes = dirent_item;
+
+        if (isDirectory) classes+="dirent-dir ";
+        if(!isDirectory){
+            filesize=filename.substring(filename.lastIndexOf("_")+1);
+            filename=filename.substring(0, filename.lastIndexOf("_"));
+        }
+        
+        el.setAttribute("isDirectory", isDirectory);
+        el.setAttribute("onclick", "file_on_click(this)");
+        el.setAttribute("class", classes);
+
+        el.appendChild(document.createTextNode(filename));
+        dirent.appendChild(el);
+    }
+    {//buttons
+        let classes = dirent_item + "dirent-image ";
+        if(!isDirectory){   //download
+            let el = document.createElement("a");
+            el.setAttribute("class", classes);
+            //el.setAttribute("onclick", `download("${filename}")`);
+            el.setAttribute("href", `/fm/downloadFile/?filename=${filename}`);
+            el.setAttribute('download','');
+            el.appendChild(document.createTextNode("DW"));
+            dirent.appendChild(el);
+        }
+        {   //print
+            let el = document.createElement("div");
+            el.setAttribute("class", classes);
+            el.appendChild(document.createTextNode("PR"));
+            el.setAttribute("onclick", `printFile("${filename}")`);
+            dirent.appendChild(el);
+        }
+        {   //remove
+            let el = document.createElement("div");
+            el.setAttribute("class", classes);
+            el.setAttribute("onclick", `remove("${filename}")`);
+            el.appendChild(document.createTextNode("RM"));
+            dirent.appendChild(el);
+        }
+    }
+    return dirent;
+}
+
+const rotate_rps=0.5;
+const rotate_ups=20;
+function rotate_file_load_icon(){
+    let fsi_el = document.getElementById("file-sync-icon");
+    let angle = 25;
+    let increment = (360*rotate_rps)/rotate_ups;
+    return setInterval(()=>{
+        fsi_el.setAttribute("style", `transform: rotate(${angle}deg);`);
+        angle+=increment;
+    }, 1000/20)
+}
+
+let interval_id = 0;
+function stop_file_load_icon(interval_id){
+    let fsi_el = document.getElementById("file-sync-icon");
+    fsi_el.setAttribute("style", '');
+    clearInterval(interval_id);
+}
+
+let wrong_timeout_id = null;
+function set_wrong(){
+    const wrong_class = "file-sync-wrong";
+    let element = document.getElementById("file-sync-icon");
+    element.classList.add(wrong_class);
+    if(wrong_timeout_id != null){clearTimeout(wrong_timeout_id);wrong_timeout_id = null;}
+    wrong_timeout_id=setTimeout(()=>{
+        wrong_timeout_id = null;
+        element.classList.remove(wrong_class);
+    }, 5000)
+}
+
+function refresh_files(js){
+    let df = document.getElementById("Directory Files");
+
+    console.log(js);
+
+    df.replaceChildren();
+    js.forEach(element => {
+        console.log(element);
+        let e = create_file_element(element);
+        df.appendChild(e);
+    });
+
+    stop_file_load_icon(interval_id);
+}
+
+function files(){
+    alert('Button clicked!');
+    //document.getElementById('fetch').textContent = "listing";
+    /*return new Promise((resolve, reject) => {
+        interval_id = rotate_file_load_icon();
+        fetch(`/fm/ls/?path=${cwd}`)
+        .then(r=>{return r.json();})
+        .then(js => {return refresh_files(js)})
+        .catch(err => {
+            document.getElementById('fetch').textContent = err;
+
+            console.error(err);
+            set_wrong();
+            stop_file_load_icon(interval_id);
+
+            reject(err);
+        });
+    })*/
+}
+
+/**
+ * @param file {Object}.
+ * @param file.lastModified {number}.
+ * @param file.name {string} The name of the file.
+ * @param file.size {number} The size of the file.
+ * @param file.type {string} The mimetype of the file.
+ * @param file.webkitRelativePath {string | ""} The rel-path of the file.
+ */
+function upload_file(file){
+    console.log(`uploading file: '${file.name}' to path '${cwd}'`);
+    const formData = new FormData();
+    formData.append("file", file);
+    fetch(`/fm/uploadFile/?path=${cwd}`, {
+        method:"POST",
+        body: formData
+    }).then(respz => {
+        console.log(respz);
+        files();
+    }).catch(err => console.error(err));
+}
+
+function dropHandler(ev){
+    console.log("File(s) dropped", ev);
+    ev.preventDefault();
+    if (ev.dataTransfer.items) {
+        // Use DataTransferItemList interface to access the file(s)
+        [...ev.dataTransfer.items].forEach((item, i) => {
+            // If dropped items aren't files, reject them
+            if (item.kind === "file") {
+                upload_file(item.getAsFile());
+            }
+        });
+    } else {
+        // Use DataTransfer interface to access the file(s)
+        [...ev.dataTransfer.files].forEach((file, i) => {
+            upload_file(file);
+        });
+    }
+}
+
+function dragOverHandler(ev) {
+    console.log("File(s) in drop zone", ev);
+    // Prevent default behavior (Prevent file from being opened)
+    ev.preventDefault();
+    //document.getElementById("drop-zone").setAttribute("")
+}
+
+let dir_settings_percent = 80;
+let dir_status_percent = 80;
+
+function refresh_dir_status(){
+    let dv = document.getElementById("dir-set-sep");
+    let st = document.getElementById("Status Bar");
+    dv.setAttribute("style", `width: ${dir_status_percent}%;`);
+    st.setAttribute("style", `width: ${100-dir_status_percent}%;`);
+}
+
+function resize_dir_stat(ev){
+    function update(ev1){
+        dir_status_percent = 100*ev1.clientY/document.body.clientHeight;
+        if(dir_status_percent < 1){
+            dir_status_percent = 1;
+        }
+        else if(dir_status_percent > 99){
+            dir_status_percent = 99;
+        }
+        refresh_dir_status();
+    }
+    function updateFinal(ev1){
+        update(ev1);
+        document.removeEventListener("mouseup", updateFinal);
+        document.removeEventListener("mousemove", update);
+    }
+    document.addEventListener("mouseup", updateFinal);
+    document.addEventListener("mousemove", update);
+}
+
+function refresh_dir_set(){
+    let dv = document.getElementById("Directory View");
+    let sc = document.getElementById("Settings Column Resizer");
+    dv.setAttribute("style", `width: ${dir_settings_percent}%;`);
+    sc.setAttribute("style", `width: ${100-dir_settings_percent}%;`);
+}
+
+
+function resize_dir_set(ev) {
+let dss = document.getElementById("dir-set-sep");
+let pos_element = document.getElementById("Settings Column Resizer");
+let rect = pos_element.getBoundingClientRect();
+
+let clientX = ev.clientX || (ev.touches && ev.touches[0].clientX);
+
+if (!clientX || clientX < rect.left - 5 || clientX > rect.left + 5) {
+    console.log("Cursor/touch not near the resizable line");
+    return; // Exit if cursor or touch is not near the resizable line
+}
+}
+
+function update(ev1) {
+    let currentX = ev1.clientX || (ev1.touches && ev1.touches[0].clientX);
+    if (!currentX) return;
+
+    dir_settings_percent = (100 * currentX) / dss.clientWidth;
+    dir_settings_percent = Math.max(1, Math.min(dir_settings_percent, 99)); // Clamp between 1% and 99%
+    refresh_dir_set();
+}
+
+function updateFinal(ev1) {
+    update(ev1);
+    document.removeEventListener("mouseup", updateFinal);
+    document.removeEventListener("mousemove", update);
+    document.removeEventListener("touchend", updateFinal);
+    document.removeEventListener("touchmove", update);
+}
+
+document.addEventListener("mouseup", updateFinal);
+document.addEventListener("mousemove", update);
+document.addEventListener("touchend", updateFinal);
+document.addEventListener("touchmove", update);
+
+// Attach both mousedown and touchstart
+document.getElementById("Settings Column Resizer").addEventListener("mousedown", resize_dir_set);
+document.getElementById("Settings Column Resizer").addEventListener("touchstart", resize_dir_set);
+
+let bars = []
+window.addEventListener("load", ()=>{
+    console.log("loaded");
+    let sb = document.getElementById("Status Bar");
+    let width = sb.clientWidth;
+    let inc = width/sb.children.length;
+    console.log(width, inc, sb);
+    for (let index = 0; index < sb.children.length; index++) {
+        const element = sb.children[index];
+        element.setAttribute("style", `width: ${inc}px;`);
+        if(index != 0){bars.push(inc*index);}
+    }
+    refresh_dir_set();
+    files();
+})
+
+function index_of_element(e){
+    const arr = e.parentElement.children;
+    for (let index = 0; index < arr.length; index++) {
+        if(arr[index] == e) return index;
+    }
+    return null;
+}
+
+function refresh_bars(){
+    let sb = document.getElementById("Status Bar");
+    let total = 0;
+    let last = 0;
+    for (let index = 0; index < bars.length; index++) {
+        const element = sb.children[index]; 
+        const bar = bars[index];
+        console.log("bar:", bar);
+        console.log("bar-style", `width: ${bar}px;`);
+        element.setAttribute("style", `width: ${bar-total}px;`);
+        total+=bar;
+        if(index == bars.length-1){
+            last=bar;
+        }
+    }
+    sb.children[sb.children.length-1].setAttribute("style", `width: ${sb.clientWidth-last}px;`);
+}
+
+let bar_resize_ongoing = false;
+function resize_vertical_bars(ev, index){
+    console.log(ev);
+    if(ev.clientX > bars[index]+32 || ev.clientX < bars[index]-32) return;
+
+    bar_resize_ongoing = true;
+    ev.preventDefault();
+
+    function resize_bar(cursor_x){
+        if(index+1 < bars.length && bars[index+1]-8 < cursor_x){
+            cursor_x = bars[index+1]-8;
+        }
+        if(index >= 1 && bars[index - 1 ]+8 > cursor_x){
+            cursor_x = bars[index - 1 ]+8;
+        }
+        let sbw = document.getElementById("Status Bar").clientWidth-8;
+        if(cursor_x > sbw){
+            cursor_x = sbw;
+        }
+        if(cursor_x < 8){
+            cursor_x = 8;
+        }
+            //idk anymore
+        if((index+1 < bars.length && bars[index+1]-8 < cursor_x)|| index >= 1 && bars[index - 1 ]+8 > cursor_x){
+            return;
+        }
+        bars[index] = cursor_x;
+    }
+    function intermission_reszie(ev1){
+        resize_bar(ev1.clientX);
+        refresh_bars();
+    }
+    function final_resize(ev1){
+        resize_bar(ev1.clientX);
+        refresh_bars();
+        document.removeEventListener("mouseup", final_resize);
+        document.removeEventListener("mousemove", intermission_reszie);
+        bar_resize_ongoing = false;
+    };
+    document.addEventListener("mouseup", final_resize);
+    document.addEventListener("mousemove", intermission_reszie);
+}
+
+function begin_mkdir(){
+    let cd = document.getElementById("Directory Files");
+    
+    /*
+    div id="new-dir-dirent" class="dirent">
+        <label for="new-dir-name" class="new-dir-item">Directory Name</label>
+        <input class="new-dir-item new-dir-textfield" type="text" name="new-dir-name" id="new-dir-name" placeholder="Leave Empty to cancel">
+    </div>
+    */
+   const tf_placeholder = "Leave Empty to cancel";
+   const tf_name = "new-dir-name";
+
+    let div = document.createElement('div');
+    div.id = "new-dir-dirent";
+    div.classList.add("dirent");
+    let text_field_label = document.createElement('label');
+    text_field_label.setAttribute("for", tf_name);
+    text_field_label.classList.add("new-dir-item");
+    text_field_label.innerText = "Directory Name";
+    let text_field = document.createElement('input');
+    text_field.classList.add("new-dir-item", "new-dir-textfield");
+    text_field.setAttribute("type", "text");
+    text_field.setAttribute("name", tf_name);
+    text_field.setAttribute("id", tf_name);
+    text_field.setAttribute("placeholder", tf_placeholder);
+
+    div.appendChild(text_field_label);
+    div.appendChild(text_field);
+
+    cd.appendChild(div);
+    
+    text_field.addEventListener("focusout", (ev)=>{
+        let dirname = text_field.value;
+        text_field_label.remove();
+        text_field.remove();
+        div.remove();
+
+        mkdir(dirname);
+    })
+    text_field.focus();
+}
+
+function sendBooleanSetting(pos, state){
+    fetch(`/config/setDynamicConfig/?config=${pos}&status=${state}`, {
+        method:"get",
+    }).then(respz => {
+        console.log(respz);
+        files();
+    }).catch(err => console.error(err));
+}
+

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,131 +8,201 @@
     <title>Interface</title>
 
 </head>
-<body id="drop-zone"   ondrop="dropHandler(event);" ondragover="dragOverHandler(event);">
+
+<body id="drop-zone" ondrop="dropHandler(event);" ondragover="dragOverHandler(event);" onload="files(); getSettings();">
+
+
+    <script>
+        function xhrFetch(url, options) {
+            options = options || {};
+            return new Promise(function (resolve, reject) {
+                var xhr = new XMLHttpRequest();
+
+                // Set up the method and URL
+                xhr.open(options.method || 'GET', url);
+
+                // Set request headers
+                if (options.headers) {
+                    for (var key in options.headers) {
+                        if (options.headers.hasOwnProperty(key)) {
+                            xhr.setRequestHeader(key, options.headers[key]);
+                        }
+                    }
+                }
+
+                // Set response type if defined in options
+                if (options.responseType) {
+                    xhr.responseType = options.responseType;
+                }
+
+                // Handle the response
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve({
+                            ok: true,
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            json: function () {
+                                return Promise.resolve(JSON.parse(xhr.responseText));
+                            },
+                            text: function () {
+                                return Promise.resolve(xhr.responseText);
+                            }
+                        });
+                    } else {
+                        reject(new Error('HTTP Error: ' + xhr.status));
+                    }
+                };
+
+                // Handle errors
+                xhr.onerror = function () {
+                    reject(new Error('Network Error'));
+                };
+
+                // Send the request with the provided body (if any)
+                xhr.send(options.body || null);
+            });
+        }
+    </script>
 
     <!--file view & navigation-->
     <script>
-        function clipboard(el){
-            navigator.clipboard.writeText(el.innerText).then(function() {
+        function clipboard(el) {
+            navigator.clipboard.writeText(el.innerText).then(function () {
                 console.log('Async: Copying to clipboard was successful!');
-            }, function(err) {
+            }, function (err) {
                 console.error('Async: Could not copy text: ', err);
             });
         }
-        function remove(filename){
-            let path = cwd+filename;
-            fetch(`/fm/remove/?path=${path}`)
-            .then(resp => {
-                if(resp.status == 200) console.log(`File '${path}' removed successfuly :3`)
-                else console.log(`Failed to remove file '${path}'`)
-                files();
-            })
-        }
-        function mkdir(dirname){
-            let path = cwd+dirname;
-            fetch(`/fm/mkdir/?path=${path}`)
-            .then(resp => {
-                if(resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
-                else console.log(`Failed to make directory '${path}'`)
-                files();
-            })
-        }
-        function printFile(dirname){
-            let path = cwd+dirname;
-            console.log("kek");
-            fetch(`/device/print/?path=${path}`)
-            .then(resp => {
-                if(resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
-                else console.log(`Failed to make directory '${path}'`)
-                files();
-            })
+
+        function remove(filename) {
+            path = cwd + filename;
+            xhrFetch(`/fm/remove/?path=${path}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/text'
+                    }
+                })
+                .then(function (resp) {
+                    if (resp.status == 200) console.log(`File '${path}' removed successfuly :3`)
+                    else console.log(`Failed to remove file '${path}'`)
+                    files();
+                })
         }
 
-        function chdir(name){
-            let oldcwd = cwd;
-            let cde =  document.getElementById("cwd");
+        function mkdir(dirname) {
+            path = cwd + dirname;
+            xhrFetch(`/fm/mkdir/?path=${path}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/text'
+                    }
+                })
+                .then(function (resp) {
+                    if (resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
+                    else console.log(`Failed to make directory '${path}'`)
+                    files();
+                })
+        }
+
+        function printFile(dirname) {
+            path = cwd + dirname;
+            console.log("kek");
+            xhrFetch(`/device/print/?path=${path}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/text'
+                    }
+                })
+                .then(function (resp) {
+                    if (resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
+                    else console.log(`Failed to make directory '${path}'`)
+                    files();
+                })
+        }
+
+        function chdir(name) {
+            oldcwd = cwd;
+            cde = document.getElementById("cwd");
             cwd += name;
             files()
-            .catch((err) => {
-                console.error("error changing directory to: ", cwd);
-                console.log("reverting back to: ", oldcwd);
-                cwd = oldcwd;
-                cde.innerText = cwd;
-            });
-            cde.innerText = cwd;
-        }
-        function chdir_back(){
-            if(cwd == "/") return;
-            let oldcwd = cwd;
-            let cde =  document.getElementById("cwd");
-            let len = cwd.length-2;
-            cwd = cwd.substring(0, cwd.lastIndexOf('/', len));
-            if(cwd.length == 0) cwd = "/";
-            console.log("changing directory to", cwd);
-            files()
-            .catch((err) => {
-                console.error("error changing directory to: ", cwd);
-                console.log("reverting back to: ", oldcwd);
-                cwd = oldcwd;
-                cde.innerText = cwd;
-            });
+                .catch(function (err) {
+                    console.error("error changing directory to: ", cwd);
+                    console.log("reverting back to: ", oldcwd);
+                    cwd = oldcwd;
+                    cde.innerText = cwd;
+                });
             cde.innerText = cwd;
         }
 
-        function file_on_click(el){
-            if(el.getAttribute("isDirectory") == "true") chdir(el.innerText);
+        function chdir_back() {
+            if (cwd == "/") return;
+            oldcwd = cwd;
+            cde = document.getElementById("cwd");
+            len = cwd.length - 2;
+            cwd = cwd.substring(0, cwd.lastIndexOf('/', len));
+            if (cwd.length == 0) cwd = "/";
+            console.log("changing directory to", cwd);
+            files()
+                .catch(function (err) {
+                    console.error("error changing directory to: ", cwd);
+                    console.log("reverting back to: ", oldcwd);
+                    cwd = oldcwd;
+                    cde.innerText = cwd;
+                });
+            cde.innerText = cwd;
+        }
+
+        function file_on_click(el) {
+            if (el.getAttribute("isDirectory") == "true") chdir(el.innerText);
             else return clipboard(el);
         }
 
-        let cwd = "/";
+        cwd = "/";
         const dirent_item = "dirent-item ";
         //when the icons are ready, insert them here
         /**
          * @param filename {string}
          * */
-        function create_file_element(filename){
-            
+        function create_file_element(filename) {
+
             dirent = document.createElement("div");
             dirent.setAttribute("class", "dirent");
-            let filesize="";
-            let isDirectory = (filename[filename.length-1] == '/');
-            {// file
-                let el = document.createElement("div");
-                let classes = dirent_item;
-    
-                if (isDirectory) classes+="dirent-dir ";
-                if(!isDirectory){
-                    filesize=filename.substring(filename.lastIndexOf("_")+1);
-                    filename=filename.substring(0, filename.lastIndexOf("_"));
+            filesize = "";
+            isDirectory = (filename[filename.length - 1] == '/'); { // file
+                el = document.createElement("div");
+                classes = dirent_item;
+
+                if (isDirectory) classes += "dirent-dir ";
+                if (!isDirectory) {
+                    filesize = filename.substring(filename.lastIndexOf("_") + 1);
+                    filename = filename.substring(0, filename.lastIndexOf("_"));
                 }
-                
+
                 el.setAttribute("isDirectory", isDirectory);
                 el.setAttribute("onclick", "file_on_click(this)");
                 el.setAttribute("class", classes);
 
                 el.appendChild(document.createTextNode(filename));
                 dirent.appendChild(el);
-            }
-            {//buttons
-                let classes = dirent_item + "dirent-image ";
-                if(!isDirectory){   //download
-                    let el = document.createElement("a");
+            } { //buttons
+                classes = dirent_item + "dirent-image ";
+                if (!isDirectory) { //download
+                    el = document.createElement("a");
                     el.setAttribute("class", classes);
                     //el.setAttribute("onclick", `download("${filename}")`);
                     el.setAttribute("href", `/fm/downloadFile/?filename=${filename}`);
-                    el.setAttribute('download','');
+                    el.setAttribute('download', '');
                     el.appendChild(document.createTextNode("DW"));
                     dirent.appendChild(el);
-                }
-                {   //print
-                    let el = document.createElement("div");
+                } { //print
+                    el = document.createElement("div");
                     el.setAttribute("class", classes);
                     el.appendChild(document.createTextNode("PR"));
                     el.setAttribute("onclick", `printFile("${filename}")`);
                     dirent.appendChild(el);
-                }
-                {   //remove
-                    let el = document.createElement("div");
+                } { //remove
+                    el = document.createElement("div");
                     el.setAttribute("class", classes);
                     el.setAttribute("onclick", `remove("${filename}")`);
                     el.appendChild(document.createTextNode("RM"));
@@ -140,67 +211,86 @@
             }
             return dirent;
         }
-        const rotate_rps=0.5;
-        const rotate_ups=20;
-        function rotate_file_load_icon(){
-            let fsi_el = document.getElementById("file-sync-icon");
-            let angle = 25;
-            let increment = (360*rotate_rps)/rotate_ups;
-            return setInterval(()=>{
+
+        const rotate_rps = 0.5;
+        const rotate_ups = 20;
+
+        function rotate_file_load_icon() {
+            fsi_el = document.getElementById("file-sync-icon");
+            angle = 25;
+            increment = (360 * rotate_rps) / rotate_ups;
+            return setInterval(function () {
                 fsi_el.setAttribute("style", `transform: rotate(${angle}deg);`);
-                angle+=increment;
-            }, 1000/20)
+                angle += increment;
+            }, 1000 / 20)
         }
-        let interval_id = 0;
-        function stop_file_load_icon(interval_id){
-            let fsi_el = document.getElementById("file-sync-icon");
+
+        interval_id = 0;
+
+        function stop_file_load_icon(interval_id) {
+            fsi_el = document.getElementById("file-sync-icon");
             fsi_el.setAttribute("style", '');
             clearInterval(interval_id);
         }
-        let wrong_timeout_id = null;
-        function set_wrong(){
+
+        wrong_timeout_id = null;
+
+        function set_wrong() {
             const wrong_class = "file-sync-wrong";
-            let element = document.getElementById("file-sync-icon");
+            element = document.getElementById("file-sync-icon");
             element.classList.add(wrong_class);
-            if(wrong_timeout_id != null){clearTimeout(wrong_timeout_id);wrong_timeout_id = null;}
-            wrong_timeout_id=setTimeout(()=>{
+            if (wrong_timeout_id != null) {
+                clearTimeout(wrong_timeout_id);
+                wrong_timeout_id = null;
+            }
+            wrong_timeout_id = setTimeout(function () {
                 wrong_timeout_id = null;
                 element.classList.remove(wrong_class);
             }, 5000)
         }
-        function refresh_files(js){
-            let df = document.getElementById("Directory Files");
 
-            console.log(js);
+        function refresh_files(js) {
+            df = document.getElementById("Directory Files");
 
-            df.replaceChildren();
-            js.forEach(element => {
+            df.innerHTML = "";
+
+            //df.replaceChildren();
+            js.forEach(function (element) {
                 console.log(element);
-                let e = create_file_element(element);
+                e = create_file_element(element);
                 df.appendChild(e);
             });
 
             stop_file_load_icon(interval_id);
         }
 
-        function files(){
-            alert('Button clicked!');
-            //document.getElementById('fetch').textContent = "listing";
-            /*return new Promise((resolve, reject) => {
+        function files() {
+            document.getElementById('fetch').textContent = "listing";
+
+            return new Promise(function (resolve, reject) {
                 interval_id = rotate_file_load_icon();
-                fetch(`/fm/ls/?path=${cwd}`)
-                .then(r=>{return r.json();})
-                .then(js => {return refresh_files(js)})
-                .catch(err => {
-                    document.getElementById('fetch').textContent = err;
+                xhrFetch(`/fm/ls/?path=${cwd}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/text'
+                        }
+                    })
+                    .then(function (r) {
+                        return r.json();
+                    })
+                    .then(function (js) {
+                        return refresh_files(js)
+                    })
+                    .catch(function (err) {
+                        document.getElementById('fetch').textContent = "error: " + err;
 
-                    console.error(err);
-                    set_wrong();
-                    stop_file_load_icon(interval_id);
+                        console.error(err);
+                        set_wrong();
+                        stop_file_load_icon(interval_id);
 
-                    reject(err);
-                });
-            })*/
+                        reject(err);
+                    });
+            })
         }
 
         /**
@@ -211,24 +301,27 @@
          * @param file.type {string} The mimetype of the file.
          * @param file.webkitRelativePath {string | ""} The rel-path of the file.
          */
-        function upload_file(file){
+        function upload_file(file) {
             console.log(`uploading file: '${file.name}' to path '${cwd}'`);
             const formData = new FormData();
             formData.append("file", file);
-            fetch(`/fm/uploadFile/?path=${cwd}`, {
-                method:"POST",
+            xhrFetch(`/fm/uploadFile/?path=${cwd}`, {
+                method: "POST",
                 body: formData
-            }).then(respz => {
+            }).then(function (respz) {
                 console.log(respz);
                 files();
-            }).catch(err => console.error(err));
+            }).catch(function (err) {
+                console.error(err)
+            });
         }
-        function dropHandler(ev){
+
+        function dropHandler(ev) {
             console.log("File(s) dropped", ev);
             ev.preventDefault();
             if (ev.dataTransfer.items) {
                 // Use DataTransferItemList interface to access the file(s)
-                [...ev.dataTransfer.items].forEach((item, i) => {
+                [...ev.dataTransfer.items].forEach(function (item, i) {
                     // If dropped items aren't files, reject them
                     if (item.kind === "file") {
                         upload_file(item.getAsFile());
@@ -236,11 +329,12 @@
                 });
             } else {
                 // Use DataTransfer interface to access the file(s)
-                [...ev.dataTransfer.files].forEach((file, i) => {
+                [...ev.dataTransfer.files].forEach(function (file, i) {
                     upload_file(file);
                 });
             }
         }
+
         function dragOverHandler(ev) {
             console.log("File(s) in drop zone", ev);
             // Prevent default behavior (Prevent file from being opened)
@@ -248,27 +342,28 @@
             //document.getElementById("drop-zone").setAttribute("")
         }
 
-        let dir_settings_percent = 80;
-        let dir_status_percent = 80;
+        dir_settings_percent = 80;
+        dir_status_percent = 80;
 
-        function refresh_dir_status(){
-            let dv = document.getElementById("dir-set-sep");
-            let st = document.getElementById("Status Bar");
+        function refresh_dir_status() {
+            dv = document.getElementById("dir-set-sep");
+            st = document.getElementById("Status Bar");
             dv.setAttribute("style", `width: ${dir_status_percent}%;`);
             st.setAttribute("style", `width: ${100-dir_status_percent}%;`);
         }
-        function resize_dir_stat(ev){
-            function update(ev1){
-                dir_status_percent = 100*ev1.clientY/document.body.clientHeight;
-                if(dir_status_percent < 1){
+
+        function resize_dir_stat(ev) {
+            function update(ev1) {
+                dir_status_percent = 100 * ev1.clientY / document.body.clientHeight;
+                if (dir_status_percent < 1) {
                     dir_status_percent = 1;
-                }
-                else if(dir_status_percent > 99){
+                } else if (dir_status_percent > 99) {
                     dir_status_percent = 99;
                 }
                 refresh_dir_status();
             }
-            function updateFinal(ev1){
+
+            function updateFinal(ev1) {
                 update(ev1);
                 document.removeEventListener("mouseup", updateFinal);
                 document.removeEventListener("mousemove", update);
@@ -277,132 +372,132 @@
             document.addEventListener("mousemove", update);
         }
 
-        function refresh_dir_set(){
-            let dv = document.getElementById("Directory View");
-            let sc = document.getElementById("Settings Column Resizer");
+        function refresh_dir_set() {
+            dv = document.getElementById("Directory View");
+            sc = document.getElementById("Settings Column Resizer");
             dv.setAttribute("style", `width: ${dir_settings_percent}%;`);
             sc.setAttribute("style", `width: ${100-dir_settings_percent}%;`);
         }
 
-        
+
         function resize_dir_set(ev) {
-        let dss = document.getElementById("dir-set-sep");
-        let pos_element = document.getElementById("Settings Column Resizer");
-        let rect = pos_element.getBoundingClientRect();
+            dss = document.getElementById("dir-set-sep");
+            pos_element = document.getElementById("Settings Column Resizer");
+            rect = pos_element.getBoundingClientRect();
 
-        let clientX = ev.clientX || (ev.touches && ev.touches[0].clientX);
+            clientX = ev.clientX || (ev.touches && ev.touches[0].clientX);
 
-        if (!clientX || clientX < rect.left - 5 || clientX > rect.left + 5) {
-            console.log("Cursor/touch not near the resizable line");
-            return; // Exit if cursor or touch is not near the resizable line
+            if (!clientX || clientX < rect.left - 5 || clientX > rect.left + 5) {
+                console.log("Cursor/touch not near the resizable line");
+                return; // Exit if cursor or touch is not near the resizable line
+            }
+
+            function update(ev1) {
+                currentX = ev1.clientX || (ev1.touches && ev1.touches[0].clientX);
+                if (!currentX) return;
+
+                dir_settings_percent = (100 * currentX) / dss.clientWidth;
+                dir_settings_percent = Math.max(1, Math.min(dir_settings_percent, 99)); // Clamp between 1% and 99%
+                refresh_dir_set();
+            }
+
+            function updateFinal(ev1) {
+                update(ev1);
+                document.removeEventListener("mouseup", updateFinal);
+                document.removeEventListener("mousemove", update);
+            }
+
+            document.addEventListener("mouseup", updateFinal);
+            document.addEventListener("mousemove", update);
+            document.addEventListener("touchend", updateFinal);
+            document.addEventListener("touchmove", update);
         }
 
-        function update(ev1) {
-            let currentX = ev1.clientX || (ev1.touches && ev1.touches[0].clientX);
-            if (!currentX) return;
+        // Attach both mousedown and touchstart
+        document.getElementById("Settings Column Resizer").addEventListener("mousedown", resize_dir_set);
+        document.getElementById("Settings Column Resizer").addEventListener("touchstart", resize_dir_set);
 
-            dir_settings_percent = (100 * currentX) / dss.clientWidth;
-            dir_settings_percent = Math.max(1, Math.min(dir_settings_percent, 99)); // Clamp between 1% and 99%
-            refresh_dir_set();
-        }
-
-        function updateFinal(ev1) {
-            update(ev1);
-            document.removeEventListener("mouseup", updateFinal);
-            document.removeEventListener("mousemove", update);
-            document.removeEventListener("touchend", updateFinal);
-            document.removeEventListener("touchmove", update);
-        }
-
-        document.addEventListener("mouseup", updateFinal);
-        document.addEventListener("mousemove", update);
-        document.addEventListener("touchend", updateFinal);
-        document.addEventListener("touchmove", update);
-    }
-
-    // Attach both mousedown and touchstart
-    document.getElementById("Settings Column Resizer").addEventListener("mousedown", resize_dir_set);
-    document.getElementById("Settings Column Resizer").addEventListener("touchstart", resize_dir_set);
-
-
-
-
-
-        let bars = []
-        window.addEventListener("load", ()=>{
+        bars = []
+        window.addEventListener("load", function () {
             console.log("loaded");
-            let sb = document.getElementById("Status Bar");
-            let width = sb.clientWidth;
-            let inc = width/sb.children.length;
+            sb = document.getElementById("Status Bar");
+            width = sb.clientWidth;
+            inc = width / sb.children.length;
             console.log(width, inc, sb);
-            for (let index = 0; index < sb.children.length; index++) {
+            for (index = 0; index < sb.children.length; index++) {
                 const element = sb.children[index];
                 element.setAttribute("style", `width: ${inc}px;`);
-                if(index != 0){bars.push(inc*index);}
+                if (index != 0) {
+                    bars.push(inc * index);
+                }
             }
             refresh_dir_set();
             files();
         })
 
-        function index_of_element(e){
+        function index_of_element(e) {
             const arr = e.parentElement.children;
-            for (let index = 0; index < arr.length; index++) {
-                if(arr[index] == e) return index;
+            for (index = 0; index < arr.length; index++) {
+                if (arr[index] == e) return index;
             }
             return null;
         }
 
-        function refresh_bars(){
-            let sb = document.getElementById("Status Bar");
-            let total = 0;
-            let last = 0;
-            for (let index = 0; index < bars.length; index++) {
-                const element = sb.children[index]; 
+        function refresh_bars() {
+            sb = document.getElementById("Status Bar");
+            total = 0;
+            last = 0;
+            for (index = 0; index < bars.length; index++) {
+                const element = sb.children[index];
                 const bar = bars[index];
                 console.log("bar:", bar);
                 console.log("bar-style", `width: ${bar}px;`);
                 element.setAttribute("style", `width: ${bar-total}px;`);
-                total+=bar;
-                if(index == bars.length-1){
-                    last=bar;
+                total += bar;
+                if (index == bars.length - 1) {
+                    last = bar;
                 }
             }
-            sb.children[sb.children.length-1].setAttribute("style", `width: ${sb.clientWidth-last}px;`);
+            sb.children[sb.children.length - 1].setAttribute("style", `width: ${sb.clientWidth-last}px;`);
         }
 
-        let bar_resize_ongoing = false;
-        function resize_vertical_bars(ev, index){
+        bar_resize_ongoing = false;
+
+        function resize_vertical_bars(ev, index) {
             console.log(ev);
-            if(ev.clientX > bars[index]+32 || ev.clientX < bars[index]-32) return;
+            if (ev.clientX > bars[index] + 32 || ev.clientX < bars[index] - 32) return;
 
             bar_resize_ongoing = true;
             ev.preventDefault();
 
-            function resize_bar(cursor_x){
-                if(index+1 < bars.length && bars[index+1]-8 < cursor_x){
-                    cursor_x = bars[index+1]-8;
+            function resize_bar(cursor_x) {
+                if (index + 1 < bars.length && bars[index + 1] - 8 < cursor_x) {
+                    cursor_x = bars[index + 1] - 8;
                 }
-                if(index >= 1 && bars[index - 1 ]+8 > cursor_x){
-                    cursor_x = bars[index - 1 ]+8;
+                if (index >= 1 && bars[index - 1] + 8 > cursor_x) {
+                    cursor_x = bars[index - 1] + 8;
                 }
-                let sbw = document.getElementById("Status Bar").clientWidth-8;
-                if(cursor_x > sbw){
+                sbw = document.getElementById("Status Bar").clientWidth - 8;
+                if (cursor_x > sbw) {
                     cursor_x = sbw;
                 }
-                if(cursor_x < 8){
+                if (cursor_x < 8) {
                     cursor_x = 8;
                 }
-                    //idk anymore
-                if((index+1 < bars.length && bars[index+1]-8 < cursor_x)|| index >= 1 && bars[index - 1 ]+8 > cursor_x){
+                //idk anymore
+                if ((index + 1 < bars.length && bars[index + 1] - 8 < cursor_x) || index >= 1 && bars[index - 1] + 8 >
+                    cursor_x) {
                     return;
                 }
                 bars[index] = cursor_x;
             }
-            function intermission_reszie(ev1){
+
+            function intermission_reszie(ev1) {
                 resize_bar(ev1.clientX);
                 refresh_bars();
             }
-            function final_resize(ev1){
+
+            function final_resize(ev1) {
                 resize_bar(ev1.clientX);
                 refresh_bars();
                 document.removeEventListener("mouseup", final_resize);
@@ -413,26 +508,26 @@
             document.addEventListener("mousemove", intermission_reszie);
         }
 
-        function begin_mkdir(){
-            let cd = document.getElementById("Directory Files");
-            
+        function begin_mkdir() {
+            cd = document.getElementById("Directory Files");
+
             /*
             div id="new-dir-dirent" class="dirent">
                 <label for="new-dir-name" class="new-dir-item">Directory Name</label>
                 <input class="new-dir-item new-dir-textfield" type="text" name="new-dir-name" id="new-dir-name" placeholder="Leave Empty to cancel">
             </div>
             */
-           const tf_placeholder = "Leave Empty to cancel";
-           const tf_name = "new-dir-name";
+            const tf_placeholder = "Leave Empty to cancel";
+            const tf_name = "new-dir-name";
 
-            let div = document.createElement('div');
+            div = document.createElement('div');
             div.id = "new-dir-dirent";
             div.classList.add("dirent");
-            let text_field_label = document.createElement('label');
+            text_field_label = document.createElement('label');
             text_field_label.setAttribute("for", tf_name);
             text_field_label.classList.add("new-dir-item");
             text_field_label.innerText = "Directory Name";
-            let text_field = document.createElement('input');
+            text_field = document.createElement('input');
             text_field.classList.add("new-dir-item", "new-dir-textfield");
             text_field.setAttribute("type", "text");
             text_field.setAttribute("name", tf_name);
@@ -443,9 +538,9 @@
             div.appendChild(text_field);
 
             cd.appendChild(div);
-            
-            text_field.addEventListener("focusout", (ev)=>{
-                let dirname = text_field.value;
+
+            text_field.addEventListener("focusout", function (ev) {
+                dirname = text_field.value;
                 text_field_label.remove();
                 text_field.remove();
                 div.remove();
@@ -455,66 +550,67 @@
             text_field.focus();
         }
 
-        function sendBooleanSetting(pos, state){
-            fetch(`/config/setDynamicConfig/?config=${pos}&status=${state}`, {
-                method:"get",
-            }).then(respz => {
+        function sendBooleanSetting(pos, state) {
+            xhrFetch(`/config/setDynamicConfig/?config=${pos}&status=${state}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/text'
+                }
+            }).then(function (respz) {
                 console.log(respz);
                 files();
-            }).catch(err => console.error(err));
-        }
-
-        function getBooleanSetting(){
-
-        }
-
-    </script>
-
-    <script>
-                function test(){
-            alert("this works");
+            }).catch(function (err) {
+                console.error(err)
+            });
         }
     </script>
 
 
     <!-- Progress etc. on the top as a bar -->
-        <div id="Status Bar" class="bar status-bar">
-            <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
-                <!--
+    <div id="Status Bar" class="bar status-bar">
+        <div id="1" class="resize-handle"
+            onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
+            <!--
                 Use this shit for uplad thginf
                 <form method='POST' action='/fm/uploadFile/' enctype='multipart/form-data'><input type='file' name='up-file'><input type='submit' value='Upload'></form>-->
-                <div class="status-item" ><div> <p id="fetch">Check Fetch Support</p></div></div>
-            </div>
-            <div id="1" class="resize-handle" onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
-                <div class="status-item" >
-                    <br>
-                    <canvas id="temperatures" style="width:100%;max-width:600px"></canvas>
-                </div>
-                
-            </div>
-            <div id="3" class="resize-handle">
-                <div class="status-item" style="position: relative;">
-                    <div class="cmd_controls">
-                        <div id="resume-button" >Scroll</div>
-                    </div>
-                    <div id="scroll-container"></div>
+            <div class="status-item">
+                <div>
+                    <p id="fetch">Check Fetch Support</p>
                 </div>
             </div>
         </div>
+        <div id="1" class="resize-handle"
+            onmousedown="if(!bar_resize_ongoing){resize_vertical_bars(event, index_of_element(this));}">
+            <div class="status-item">
+                <br>
+                <canvas id="temperatures" style="width:100%;max-width:600px"></canvas>
+            </div>
 
-        <div id="dir-set-sep" class="directory-setting-seperator">
-            <div id="Directory View" class="dir-view">
-                <div id="Current Directory" class="dir-pwd dirent">
-                    <button id="back" class="dir-pwd-item dirent-image unstyled-button">BK</button>
-                    <button id="mkdir" class="dir-pwd-item dirent-image unstyled-button">MD</button>
-
-                    <button id="file-sync-icon" class="dir-pwd-item dirent-image unstyled-button" onclick="test()">RF</button>
-
-
-                    <div id="cwd" class="dir-pwd-item">/</div>
+        </div>
+        <div id="3" class="resize-handle">
+            <div class="status-item" style="position: relative;">
+                <div class="cmd_controls">
+                    <div id="resume-button">Scroll</div>
                 </div>
-                <div id="Directory Files" class="dir-files">
-                    <!--
+                <div id="scroll-container"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="dir-set-sep" class="directory-setting-seperator">
+        <div id="Directory View" class="dir-view">
+            <div id="Current Directory" class="dir-pwd dirent">
+                <button id="back" class="dir-pwd-item dirent-image unstyled-button" onclick="chdir_back()">BK</button>
+                <button id="mkdir" class="dir-pwd-item dirent-image unstyled-button" onclick="mkdir()">MD</button>
+
+                <button id="file-sync-icon" class="dir-pwd-item dirent-image unstyled-button"
+                    onclick="files()">RF</button>
+
+
+                <div id="cwd" class="dir-pwd-item">/</div>
+            </div>
+            <div id="Directory Files" class="dir-files">
+                <!--
                     <div class="dirent">
                         <div class="dirent-item dirent-dir" isDirectory="true" onclick="file_on_click(this)">directory/</div>
                         <div class="dirent-item dirent-image">DW</div>
@@ -532,33 +628,86 @@
                         <input class="new-dir-item new-dir-textfield" type="text" name="new-dir-name" id="new-dir-name" placeholder="Leave Empty to cancel">
                         </div>
                         -->
-                        
 
-                </div>
-            </div>
-            <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">
-                <div id="Settings Column" class="bar settings-bar" >
-                    <div>Settings. Hover for more information</div>
-                    <br>
-                    <div>esp configuration</div>
-                    <div class="setting">
-                        <input type="checkbox" id="setting" name="debugViaSerial" value="0" onchange="sendBooleanSetting(0, +this.checked)" />
-                        <div title="esp sends debugging messages via serial. If you dont have pc connected to usb output of esp disable this.">debug via serial</div>
-                    </div>
 
-                    <div class="setting">
-                        <input type="checkbox" id="coding" name="interest" value="coding"  onchange="sendBooleanSetting(1, +this.checked)" />
-                        <div title="esp sends debugging log via socket to web client." >debug via web interface</div>
-                    </div>
-
-                    <div class="setting">
-                        <input type="checkbox" id="coding" name="interest" value="coding"  onchange="sendBooleanSetting(2, +this.checked)"/>
-                        <div title="When enabled esp is going to log sent commands via serial and/or socket">show sent commands</div>
-                    </div>
-
-                </div>
             </div>
         </div>
+        <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">
+            <div id="Settings Column" class="bar settings-bar">
+                <div>Settings. Hover for more information</div>
+                <br>
+                <div>esp configuration</div>
+                <label class="setting">
+                    <input type="checkbox" id="debugViaSerial" name="debugViaSerial" value="0"
+                        onchange="sendBooleanSetting(0, +this.checked)" />
+                    <div
+                        title="esp sends debugging messages via serial. If you dont have pc connected to usb output of esp disable this.">
+                        debug via serial</div>
+                        <span class="checkmark"></span>
+                </label>
+
+                <label class="setting">
+                    <input type="checkbox" id="debugViaWeb" name="debugViaWeb" value="coding"
+                        onchange="sendBooleanSetting(1, +this.checked)" />
+                    <div title="esp sends debugging log via socket to web client.">debug via web interface</div>
+                    <span class="checkmark"></span>
+                </label>
+
+                <label class="setting">
+                    <input type="checkbox" id="showSentCommands" name="showSentCommands" value="coding"
+                        onchange="sendBooleanSetting(2, +this.checked)" />
+                    <div title="When enabled esp is going to log sent commands via serial and/or socket">show sent
+                        commands</div>
+                        <span class="checkmark"></span>
+                </label>
+
+                <label class="setting">
+                    <input type="checkbox" id="queueStatus" name="queueStatus" value="coding"
+                        onchange="sendBooleanSetting(3, + this.checked)" />
+                    <div title="Shows how many commands in queue">show queue status</div>
+                    <span class="checkmark"></span>
+                </label>
+
+                
+                <label class="setting">
+                    <input type="checkbox" id="showFailedComamnds" name="showFailedComamnds" value="coding"
+                        onchange="sendBooleanSetting(4, + this.checked)" />
+                    <div title="">show failed commands</div>
+                    <span class="checkmark"></span>
+                </label>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Settings -->
+    <script>
+        function getSettings() {
+            xhrFetch('/config/getDynamicConfig/', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/text'
+                    }
+                })
+                .then(function (response) {
+                    return response.text();
+                })
+                .then(function (data) {
+                    console.log(typeof(data));
+                    reversed = data.split('').reverse().join('');
+                    console.log(reversed);
+                    return reversed;
+                })
+                .then(function(config){
+                    document.getElementById("debugViaSerial").checked = !!config[0];
+                    document.getElementById("debugViaWeb").checked = !!config[1];
+                    document.getElementById("showSentCommands").checked = !!config[2];
+                    document.getElementById("queueStatus").checked = !!config[3];
+                    document.getElementById("showFailedComamnds").checked = !!config[4];
+                })
+        }
+    </script>
+
     <!--Serial scrolling-->
     <script>
         var scrollContainer = document.getElementById('scroll-container');
@@ -566,17 +715,18 @@
 
         var isAutoScrolling = true;
         var userInteracted = false;
-        
+
         // Stop scrolling when user interacts
-        scrollContainer.addEventListener('scroll', () => {
-            if (!userInteracted && scrollContainer.scrollTop + scrollContainer.clientHeight < scrollContainer.scrollHeight) {
+        scrollContainer.addEventListener('scroll', function () {
+            if (!userInteracted && scrollContainer.scrollTop + scrollContainer.clientHeight < scrollContainer
+                .scrollHeight) {
                 isAutoScrolling = false;
                 userInteracted = true;
             }
         });
 
         // Resume scrolling on button press
-        resumeButton.addEventListener('click', () => {
+        resumeButton.addEventListener('click', function () {
             console.log("should scroll");
             isAutoScrolling = true;
             userInteracted = false;
@@ -587,55 +737,54 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
 
     <script>
-
         const xValues = [];
-        const nozzleTempData = [];
-        const nozzleTempTargerData = [];
-        const bedTempData = []; 
-        const bedTempTargetData = []; 
+        const nozzempData = [];
+        const nozzempTargerData = [];
+        const bedTempData = [];
+        const bedTempTargetData = [];
         const fanSpeedData = [];
-        
+
         const printerTempChart = new Chart("temperatures", {
-        type: "line",
-        data: {
-            labels: xValues,
-            datasets: [
-                { 
-                    data: nozzleTempData,
-                    borderColor: "#BD2D03",
-                    fill: false
-                }, 
-                { 
-                    data: nozzleTempTargerData,
-                    borderColor: "#F68462",
-                    fill: false
-                }, 
-                { 
-                    data: bedTempData,
-                    borderColor: "#107C99",
-                    fill: false
-                }, 
-                { 
-                    data: bedTempTargetData,
-                    borderColor: "#22C3EF",
-                    fill: false
-                }, 
-                { 
-                    data: fanSpeedData,
-                    borderColor: "#DDA512",
-                    fill: false
-                }, 
-            ]
+            type: "line",
+            data: {
+                labels: xValues,
+                datasets: [{
+                        data: nozzempData,
+                        borderColor: "#BD2D03",
+                        fill: false
+                    },
+                    {
+                        data: nozzempTargerData,
+                        borderColor: "#F68462",
+                        fill: false
+                    },
+                    {
+                        data: bedTempData,
+                        borderColor: "#107C99",
+                        fill: false
+                    },
+                    {
+                        data: bedTempTargetData,
+                        borderColor: "#22C3EF",
+                        fill: false
+                    },
+                    {
+                        data: fanSpeedData,
+                        borderColor: "#DDA512",
+                        fill: false
+                    },
+                ]
             },
             options: {
-                legend: { display: false}
+                legend: {
+                    display: false
+                }
             }
-            });
+        });
     </script>
-    
+
     <!--serial console-->
     <script>
-
         function parseSerial(data) {
             // Ensure the input is a string and contains key markers we expect
             if (typeof data !== 'string' || !data.includes("T:") || !data.includes("B:") || !data.includes("FAN0@")) {
@@ -662,8 +811,8 @@
                 const currentTime = xValues.length > 0 ? xValues[xValues.length - 1] + 1 : 0;
 
                 xValues.push(currentTime);
-                nozzleTempData.push(currentT);
-                nozzleTempTargerData.push(targetT);
+                nozzempData.push(currentT);
+                nozzempTargerData.push(targetT);
                 bedTempData.push(currentB);
                 bedTempTargetData.push(targetB);
                 fanSpeedData.push(fanSpeed);
@@ -680,8 +829,8 @@
 
                 if (xValues.length > 30) {
                     xValues.shift();
-                    nozzleTempData.shift();
-                    nozzleTempTargerData.shift()
+                    nozzempData.shift();
+                    nozzempTargerData.shift()
                     bedTempData.shift()
                     bedTempTargetData.shift()
                     fanSpeedData.shift();
@@ -705,11 +854,11 @@
         var connection = new WebSocket('ws://' + window.location.hostname + ':81/');
 
         connection.onopen = function () {
-        console.log('Connected to WebSocket');
+            console.log('Connected to WebSocket');
         };
 
         connection.onerror = function (error) {
-        console.log('WebSocket Error ', error);
+            console.log('WebSocket Error ', error);
         };
 
         connection.onmessage = function (e) {
@@ -727,14 +876,13 @@
                 scrollContainer.scrollTop = scrollContainer.scrollHeight;
             }
 
-            if(Console_array.length > Console_max_size) Console_array.pop();
+            if (Console_array.length > Console_max_size) Console_array.pop();
 
         };
 
         connection.onclose = function () {
-        console.log('WebSocket connection closed');
+            console.log('WebSocket connection closed');
         };
-
     </script>
 
 
@@ -743,4 +891,3 @@
 </body>
 
 </html>
-
