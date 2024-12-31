@@ -7,6 +7,7 @@
 #include "HardwareSerial.h"
 #include "webSocketClass.h"
 #include "H-Print.h"
+#include "dynamic_config.h"
 
 namespace TD {
 
@@ -15,6 +16,10 @@ namespace TD {
         
         size_t inQueue = 0;
         bool canWrite = true;
+
+        bool abortPrint;
+
+        size_t failed_commands;
 
         DevSerial(){}
 
@@ -36,19 +41,20 @@ namespace TD {
             #endif
         }
 
-        bool isCommand(const String& data){
-            if(data.startsWith("m") || data.startsWith("M") || data.startsWith("g") || data.startsWith("G")){
-                return true;
-            }
-            return false;
+        void changeBaundRate(int newRate){
+            serial->println("M575 B" + String(newRate));
+            delay(1000);
+            serial->end();
+            delay(1000);
+            #if defined(DEV_CUSTOM_SERIAL) && defined(ESP32)
+                serial->begin(newRate, SERIAL_8N1, 16, 17);
+            #else
+                serial->begin(newRate);
+            #endif
         }
 
         size_t println(const String& data){
-            
-            //if(isCommand(data))
-                inQueue++; 
-
-            Debugger::print("sent to printer: " + data);
+            inQueue++; 
             return serial->println(data);
         }
 
@@ -75,13 +81,26 @@ namespace TD {
             
             while( serial->available() && !(data = serial->readStringUntil('\n')).isEmpty()){
 
+<<<<<<< HEAD
+=======
+                if(memory.get_debug_sent_commands())
+                    Debugger::print("printer: " + data);
+
+>>>>>>> da3619a (quick commit -_-)
                 if(data.startsWith("ok")){
                     if(inQueue) 
                         inQueue--;
 
                     canWrite = true;
-                    Debugger::print("in queue: " + String(inQueue));
-                } else{
+                    if(memory.get_debug_in_queue())
+                        Debugger::print("in queue: " + String(inQueue));
+                
+                } else if(data.startsWith("echo: cold extrusion prevented")){
+                    abortPrint = true;
+                } else if(data.startsWith("echo:Unknown command:")){
+                    failed_commands++;
+                    if(memory.get_debug_show_failed_command())
+                    Debugger::print("command failed: " + data);
                 }
 
                 if(data.startsWith("echo:busy: processing")){
@@ -131,15 +150,17 @@ namespace TD {
             // Let's move to beginning after reading the file line count.
             file.seek(0);
 
-            #if DEBUG
-                DebDebugger::print("Line amount in gcode file: " + String(steps));
-            #endif
+            Debugger::print("Line amount in gcode file: " + String(steps));
 
             //recovery isn't supported right now. I have to think more how will it work.
             //if(shutdownProtection){
             //    recoveryFile = SDW::openFile("recoveryFile");
             //    }
             
+        }
+
+        bool isCommand(const String& data){
+            return (data.startsWith("M") || data.startsWith("G"));
         }
 
         void Handle(){
@@ -150,14 +171,13 @@ namespace TD {
             if(!printRunning) return;
 
             while(devSerial.inQueue < OUTPUT_QUEUE_LENGHT){
+                
                 String line;
-
                 bool readState = readGCodeFromSDCard(line);
 
                 if(!readState){
                     printRunning = false;
-                    Debugger::print("print finished");
-
+                    Debugger::print("print finished, " + String(devSerial.failed_commands));
                     return;
                 }
 
@@ -168,7 +188,7 @@ namespace TD {
                     line = line.substring(0, delimiterIndex);
                 }
 
-                if(line.isEmpty() || line == "") continue;
+                if(line.isEmpty() || !isCommand(line)) continue;
 
                 devSerial.println(line);
 
@@ -179,7 +199,8 @@ namespace TD {
 
                 if(currentStep >= steps){
                         printRunning = false;
-                        Debugger::print("print finished");
+                        Debugger::print("print finished, " + String(devSerial.failed_commands));
+                        return;
                     };
             }
         }

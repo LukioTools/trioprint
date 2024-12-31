@@ -8,6 +8,7 @@
 #include "Recovery.h"
 #include "Debug.h"
 #include "dynamic_config.h"
+#include "systemd.h"
 
 
 //When using esp32 you have to install SdFat library made by Bill Greiman and on esp8266 you must delete that one and use the built in sdat library.
@@ -23,6 +24,7 @@ void setup(){
     memory.begin();
 
     TD::devSerial.SerialBegin();
+    //TD::devSerial.changeBaundRate(250000);
 
     #if defined(ESP8266)
     ESP.wdtEnable(5000);
@@ -38,15 +40,7 @@ void setup(){
     WebServerW::begin();
     WebSocketW::begin();
 
-    Debugger::print("files in root: ");
-    Debugger::print(SDW::listDir("/"));
-
-    Debugger::print("filename type: ");
-    Debugger::print(USE_LONG_FILE_NAMES);
-    Debugger::print(" UTF8: ");
-    Debugger::print(USE_UTF8_LONG_NAMES);
-
-    //./xtensa-esp-elf-addr2line -fe /home/hiha/developer/arduino/trioprint/build/esp32.esp32.esp32/trioprint.ino.elf 0x40179b5f:0x3ffb2170 0x400e31a6:0x3ffb2190 0x400d2ee8:0x3ffb21b0 0x400d2f12:0x3ffb21d0 0x400d4a93:0x3ffb2210 0x400e672b:0x3ffb2270 0x4008d16e:0x3ffb2290
+    systemd::infopuller.begin(5, "M105");
 
     recoveryLine = RV::CheckForRecovering();
 
@@ -67,18 +61,26 @@ void loop(){
     WebServerW::handle();
     WebSocketW::Handle();
     TD::devSerial.Handle();
+    systemd::infopuller.handle();
 
     if(TD::printStarted){
 
         TD::printRunning = true;
         TD::printStarted = false;
+        TD::devSerial.inQueue = 0;
         WebSocketW::brodcastAllTXT("print started");
         printRunningCurrently = TD::GCode(TD::filename, false, 0);
         printRunningCurrently.printRunning = true;
     }
 
     if(TD::printRunning){
-        printRunningCurrently.Handle();
+        if(TD::devSerial.abortPrint) {
+            TD::printRunning = false;
+            TD::devSerial.abortPrint = false;
+            Debugger::print("print aborted");
+        }else{
+            printRunningCurrently.Handle();
+        }
     }
     
 }

@@ -81,6 +81,7 @@ namespace WRAPPPER_NAMESPACE
         }
 
         files[files.length()-1]=']';
+        folder.close();
         return files;
     }
 
@@ -91,6 +92,7 @@ namespace WRAPPPER_NAMESPACE
         }
 
         if (file.isDir()){
+            file.close();
             return nullptr;
         }
 
@@ -115,6 +117,7 @@ namespace WRAPPPER_NAMESPACE
         }
 
         if (file.isDir()){
+            file.close();
             return nullptr;
         }
 
@@ -139,7 +142,6 @@ namespace WRAPPPER_NAMESPACE
 
     String readFirstLine(FsFile& file){
         char data[100];
-        Debugger::print(file.fgets(data, 100));        
         return String(data);
     }
 
@@ -186,6 +188,10 @@ namespace WRAPPPER_NAMESPACE
 
     bool remove(const String& path){
       return SD.remove(path.c_str());
+    }
+
+    bool exists(const String& filename){
+        return SD.exists(filename);
     }
 
     int lineCount(FsFile& file){

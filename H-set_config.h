@@ -10,6 +10,9 @@ namespace Handlers {
         String status = server.arg("status"); // takes in 0/1 (=false/true);
 
         memory.set_bit(config.toInt(), status.toInt());
+        memory.saveToEEPROM();
+
+        Debugger::print("saving to eeprom");
 
         server.send(200, "text/plain", "command sent"); // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
     }

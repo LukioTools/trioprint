@@ -24,7 +24,6 @@ namespace WebServerW {
     inline static void handle(){server.handleClient();}
     
     void begin(){
-        Debugger::print("starting web server");
         server.on("/", HTTP_GET ,Handlers::Root);
         
         server.on("/server/status/", HTTP_GET ,Handlers::ServerStatus);
@@ -38,7 +37,7 @@ namespace WebServerW {
         server.on("/device/console/", HTTP_GET , Handlers::GetConsole);
         server.on("/device/recoveryStatus/", HTTP_GET, Handlers::RecoveryStatus);
 
-        server.on("/device/sendCommand/", HTTP_GET, Handlers::sendCommand);
+        server.on("/device/sendCommand", HTTP_GET, Handlers::sendCommand);
         
         server.on("/fm/ls/", HTTP_GET , Handlers::ListFolder);
         server.on("/fm/remove/", HTTP_GET ,Handlers::Remove);
