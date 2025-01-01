@@ -310,13 +310,6 @@ body{
     color: rgb(0, 17, 255);
 }
 
-.setting{
-    display: flex;
-    margin-top: 10px;
-}
-
-
-
 /* The setting */
 .setting {
     display: block;

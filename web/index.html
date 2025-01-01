@@ -417,7 +417,7 @@
         document.getElementById("Settings Column Resizer").addEventListener("mousedown", resize_dir_set);
         document.getElementById("Settings Column Resizer").addEventListener("touchstart", resize_dir_set);
 
-        bars = []
+        var bars = []
         window.addEventListener("load", function () {
             console.log("loaded");
             sb = document.getElementById("Status Bar");
@@ -461,7 +461,7 @@
             sb.children[sb.children.length - 1].setAttribute("style", `width: ${sb.clientWidth-last}px;`);
         }
 
-        bar_resize_ongoing = false;
+        var bar_resize_ongoing = false;
 
         function resize_vertical_bars(ev, index) {
             console.log(ev);
@@ -637,13 +637,14 @@
                 <div>Settings. Hover for more information</div>
                 <br>
                 <div>esp configuration</div>
+                <br>
                 <label class="setting">
                     <input type="checkbox" id="debugViaSerial" name="debugViaSerial" value="0"
                         onchange="sendBooleanSetting(0, +this.checked)" />
                     <div
                         title="esp sends debugging messages via serial. If you dont have pc connected to usb output of esp disable this.">
                         debug via serial</div>
-                        <span class="checkmark"></span>
+                    <span class="checkmark"></span>
                 </label>
 
                 <label class="setting">
@@ -658,7 +659,7 @@
                         onchange="sendBooleanSetting(2, +this.checked)" />
                     <div title="When enabled esp is going to log sent commands via serial and/or socket">show sent
                         commands</div>
-                        <span class="checkmark"></span>
+                    <span class="checkmark"></span>
                 </label>
 
                 <label class="setting">
@@ -668,7 +669,7 @@
                     <span class="checkmark"></span>
                 </label>
 
-                
+
                 <label class="setting">
                     <input type="checkbox" id="showFailedComamnds" name="showFailedComamnds" value="coding"
                         onchange="sendBooleanSetting(4, + this.checked)" />
@@ -681,7 +682,18 @@
     </div>
 
     <!-- Settings -->
+     
     <script>
+
+        function updateCheckboxState(checkboxId, isChecked) {
+            const checkbox = document.getElementById(checkboxId);
+            const checkmark = checkbox.nextElementSibling.nextElementSibling;
+
+            // Set the checkbox's checked property
+            checkbox.checked = !!(+isChecked);
+            console.log(isChecked);
+        }
+
         function getSettings() {
             xhrFetch('/config/getDynamicConfig/', {
                     method: 'GET',
@@ -693,17 +705,16 @@
                     return response.text();
                 })
                 .then(function (data) {
-                    console.log(typeof(data));
                     reversed = data.split('').reverse().join('');
-                    console.log(reversed);
                     return reversed;
                 })
-                .then(function(config){
-                    document.getElementById("debugViaSerial").checked = !!config[0];
-                    document.getElementById("debugViaWeb").checked = !!config[1];
-                    document.getElementById("showSentCommands").checked = !!config[2];
-                    document.getElementById("queueStatus").checked = !!config[3];
-                    document.getElementById("showFailedComamnds").checked = !!config[4];
+                .then(function (config) {
+                    console.log("config: " + config[0]);
+                    updateCheckboxState("debugViaSerial", config[0]);
+                    updateCheckboxState("debugViaWeb", config[1]);
+                    updateCheckboxState("showSentCommands", config[2]);
+                    updateCheckboxState("queueStatus", config[3]);
+                    updateCheckboxState("showFailedComamnds", config[4]);
                 })
         }
     </script>
