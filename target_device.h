@@ -81,12 +81,9 @@ namespace TD {
             
             while( serial->available() && !(data = serial->readStringUntil('\n')).isEmpty()){
 
-<<<<<<< HEAD
-=======
                 if(memory.get_debug_sent_commands())
                     Debugger::print("printer: " + data);
 
->>>>>>> da3619a (quick commit -_-)
                 if(data.startsWith("ok")){
                     if(inQueue) 
                         inQueue--;
@@ -192,8 +189,12 @@ namespace TD {
 
                 devSerial.println(line);
 
+                devSerial.Handle();
+
                 currentStep++;
-                Debugger::print("commands completed: " + String(currentStep) + "/" + String(steps));
+
+                if(currentStep % 20 = 0)
+                    Debugger::print("commands completed: " + String(currentStep) + "/" + String(steps));
 
 
 
