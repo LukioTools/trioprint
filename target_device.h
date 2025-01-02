@@ -200,11 +200,8 @@ namespace TD {
                 if(currentStep % 20 == 0)
                     Debugger::print("commands completed: " + String(currentStep) + "/" + String(steps));
 
-
-
                 if(currentStep >= steps){
-                        printRunning = false;
-                        Debugger::print("print finished, " + String(devSerial.failed_commands));
+                        printFinished();
                         return;
                     };
             }
