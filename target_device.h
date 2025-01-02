@@ -35,21 +35,9 @@ namespace TD {
 
         void SerialBegin(){
             #if defined(DEV_CUSTOM_SERIAL) && defined(ESP32)
-                serial->begin(115200, SERIAL_8N1, 16, 17);
+                serial->begin(DEV_CUSTOM_SERIAL);
             #else
-                serial->begin(115200);
-            #endif
-        }
-
-        void changeBaundRate(int newRate){
-            serial->println("M575 B" + String(newRate));
-            delay(1000);
-            serial->end();
-            delay(1000);
-            #if defined(DEV_CUSTOM_SERIAL) && defined(ESP32)
-                serial->begin(newRate, SERIAL_8N1, 16, 17);
-            #else
-                serial->begin(newRate);
+                serial->begin(DEV_SERIAL_BAUND_RATE);
             #endif
         }
 
@@ -74,20 +62,19 @@ namespace TD {
             return serial->write(c, size);
         }
 
+        void resetFailedCommands(){
+            failed_commands = 0;
+        }
+
         void Handle(){
 
             String data;
             if(!serial->available()) return;
             
             while( serial->available() && !(data = serial->readStringUntil('\n')).isEmpty()){
-
-                if(memory.get_debug_sent_commands())
-                    Debugger::print("printer: " + data);
-
                 if(data.startsWith("ok")){
                     if(inQueue) 
                         inQueue--;
-
                     canWrite = true;
                     if(memory.get_debug_in_queue())
                         Debugger::print("in queue: " + String(inQueue));
@@ -100,9 +87,14 @@ namespace TD {
                     Debugger::print("command failed: " + data);
                 }
 
+                if(!(data.startsWith("ok") && data.length() == 2))
+                    Debugger::print(data);
+
+
                 if(data.startsWith("echo:busy: processing")){
                     canWrite = false;
                 }
+
             }
         }
 
@@ -131,6 +123,7 @@ namespace TD {
 
         public:
         bool printRunning = false;
+        bool runEnd = false;
 
         GCode(){}
 
@@ -147,22 +140,21 @@ namespace TD {
             // Let's move to beginning after reading the file line count.
             file.seek(0);
 
-            Debugger::print("Line amount in gcode file: " + String(steps));
-
-            //recovery isn't supported right now. I have to think more how will it work.
-            //if(shutdownProtection){
-            //    recoveryFile = SDW::openFile("recoveryFile");
-            //    }
-            
         }
 
         bool isCommand(const String& data){
             return (data.startsWith("M") || data.startsWith("G"));
         }
 
+        void printFinished(){
+            printRunning = false;
+            Debugger::print("print finished, failed commands: " + String(devSerial.failed_commands));
+            devSerial.resetFailedCommands();
+        }
+
         void Handle(){
             if(!devSerial.canWrite) return;
-
+            
             if(devSerial.inQueue > OUTPUT_QUEUE_LENGHT) return;
 
             if(!printRunning) return;
@@ -170,11 +162,19 @@ namespace TD {
             while(devSerial.inQueue < OUTPUT_QUEUE_LENGHT){
                 
                 String line;
-                bool readState = readGCodeFromSDCard(line);
+                bool readState = false;
+
+                if(!runEnd){
+                    readState = readGCodeFromSDCard(line);
+                } else{
+                    if(END_COMMANDS[currentStep] != nullptr){
+                        line = END_COMMANDS[currentStep];
+                        readState = true;
+                    }
+                }
 
                 if(!readState){
-                    printRunning = false;
-                    Debugger::print("print finished, " + String(devSerial.failed_commands));
+                    printFinished();
                     return;
                 }
 
@@ -186,14 +186,18 @@ namespace TD {
                 }
 
                 if(line.isEmpty() || !isCommand(line)) continue;
+                
 
                 devSerial.println(line);
 
                 devSerial.Handle();
 
+                if(memory.get_debug_sent_commands())
+                    Debugger::print(line);
+
                 currentStep++;
 
-                if(currentStep % 20 = 0)
+                if(currentStep % 20 == 0)
                     Debugger::print("commands completed: " + String(currentStep) + "/" + String(steps));
 
 
@@ -204,6 +208,13 @@ namespace TD {
                         return;
                     };
             }
+        }
+
+        void stop(){
+            runEnd = true;
+            currentStep = 0;
+            steps = sizeof(END_COMMANDS) / sizeof(END_COMMANDS[0]); // Undefined behavior
+
         }
 
         private:
@@ -221,6 +232,8 @@ namespace TD {
             }
         }
     }; 
+
+    GCode printManager;
 
 }
 
