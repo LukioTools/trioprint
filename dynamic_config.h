@@ -15,17 +15,24 @@ struct Memory{
 
     Memory(){}
 
-    unsigned char boolean_config[3];
     /*
-    [0]:
-        0: debug: via serial
-        1: debug: via web interface
-        2: debug: sent commands to printer
-        3: debug: in queue
-        4: debug: show failed commands
-    [1]:
-    [2]:
-        puller frequency 0-255
+        [0]:
+            0: debug: via serial
+            1: debug: via web interface
+            2: debug: sent commands to printer
+            3: debug: in queue
+            4: debug: show failed commands
+            5: debug: show print progress
+        [1]:
+    */
+    unsigned char boolean_config[1];
+
+    // puller frequency 0-255
+    unsigned char puller_frequency[1];
+
+    unsigned char progress_report[1];
+    [3]:
+        how often progress shall be reported (when modulus = 0)
     */
 
     void begin(){
@@ -73,6 +80,20 @@ struct Memory{
         return get_bit(4);
     }
 
+    void set_debug_show_progress(bool status) {
+        set_bit(5, status);
+    }
+
+    bool get_debug_show_progress(){
+        return get_bit(5);
+    }
+
+
+
+    void set_debug_show_prgress_rate(char status){
+        set
+    }
+
     void set_bit(int pos, bool status){
        if (status) {
             boolean_config[0] |= (1 << pos); 
@@ -80,6 +101,10 @@ struct Memory{
             boolean_config[0] &= ~(1 << pos);
         }
         saveToEEPROM();
+    }
+
+    void set_char(int pos, char c){
+        
     }
 
     bool get_bit(int bit_position) {

@@ -135,14 +135,8 @@ namespace WRAPPPER_NAMESPACE
 
     }
     
-
     int readChunk(char* data, FsFile& file, uint32 chunkSize){
         return file.read(data, chunkSize);
-    }
-
-    String readFirstLine(FsFile& file){
-        char data[100];
-        return String(data);
     }
 
     bool WriteFile(const char* name, const uint8_t* fileData, size_t size){

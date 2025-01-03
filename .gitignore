@@ -10,3 +10,4 @@ config.h
 /web/compiled.html
 /web/compiled-minified.html
 /web/compiled.html.gz
+/web/test.html

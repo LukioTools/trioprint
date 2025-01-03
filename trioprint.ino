@@ -17,8 +17,6 @@ FsFile file;
 
 int recoveryLine = 0;
 
-TD::GCode printRunningCurrently;
-
 void setup(){
 
     memory.begin();
@@ -69,8 +67,8 @@ void loop(){
         TD::printStarted = false;
         TD::devSerial.inQueue = 0;
         WebSocketW::brodcastAllTXT("print started");
-        printRunningCurrently = TD::GCode(TD::filename, false, 0);
-        printRunningCurrently.printRunning = true;
+        TD::printManager = TD::GCode(TD::filename, false, 0);
+        TD::printManager.printRunning = true;
     }
 
     if(TD::printRunning){
@@ -79,7 +77,7 @@ void loop(){
             TD::devSerial.abortPrint = false;
             Debugger::print("print aborted");
         }else{
-            printRunningCurrently.Handle();
+            TD::printManager.Handle();
         }
     }
     
