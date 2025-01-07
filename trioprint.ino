@@ -11,7 +11,7 @@
 #include "systemd.h"
 
 
-//When using esp32 you have to install SdFat library made by Bill Greiman and on esp8266 you must delete that one and use the built in sdat library.
+//When using esp32 you have to install SdFat library made by Bill Greiman and on esp8266 you must delete that one and use the built in sdFat library.
 
 FsFile file;
 
@@ -61,6 +61,7 @@ void loop(){
     TD::devSerial.Handle();
     systemd::infopuller.handle();
 
+/*
     if(TD::printStarted){
 
         TD::printRunning = true;
@@ -79,7 +80,7 @@ void loop(){
         }else{
             TD::printManager.Handle();
         }
-    }
+    }*/
     
 }
 

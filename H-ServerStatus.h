@@ -11,7 +11,7 @@ namespace Handlers {
         responce 
             << "\"cardSize\":" << String(SDW::cardSize()) << ","
             << "\"freeSpace\":" << String(SDW::freeSize()) << ","
-            << "\"printStatus\":" << String(TD::isPrintting)
+            << "\"printStatus\":" << String(TD::printManager.printState)
             << "}";
         server.send(200, "text/plain", responce.str());
     }

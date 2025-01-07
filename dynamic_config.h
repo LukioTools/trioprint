@@ -28,10 +28,10 @@ struct Memory{
     unsigned char boolean_config[1];
 
     // puller frequency 0-255
-    unsigned char puller_frequency[1];
+    unsigned char puller_frequency;
 
-    unsigned char progress_report[1];
-    [3]:
+    unsigned char progress_report;
+    /*[3]:
         how often progress shall be reported (when modulus = 0)
     */
 
@@ -90,8 +90,8 @@ struct Memory{
 
 
 
-    void set_debug_show_prgress_rate(char status){
-        set
+    void set_debug_show_prgress_rate(unsigned char status){
+        progress_report = status;
     }
 
     void set_bit(int pos, bool status){
