@@ -1,7 +1,7 @@
-#include "Debug.h"
 #pragma once
 
 
+#include "Debug.h"
 #include "config.h"
 #include "SD_Manager.h"
 #include "HardwareSerial.h"

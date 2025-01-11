@@ -49,4 +49,19 @@ static constexpr uint64_t SD_SECTOR_SIZE = 512;
 // in gcode there are some comments and I have to remove them before sending the commands to printer.
 #define COMMENTCHAR ";"
 
+// Array of G-code commands
+static constexpr const char* END_COMMANDS[] = {
+    "M17",               // Engage stepper motors (optional)
+    "G91",               // Set to relative positioning
+    "G1 Z10 F300",       // Move nozzle up 10mm
+    "G90",               // Set to absolute positioning
+    "G0 X0 Y200 F6000",  // Move bed forward (adjust Y200 as needed)
+    "M104 S0",           // Turn off hotend heater
+    "M140 S0",           // Turn off bed heater
+    "M106 S0",           // Turn off fan
+    "M84"                // Disable stepper motors
+};
 
+static constexpr const char* EMS_COMMANDS[] = {
+    "M112",               
+};
