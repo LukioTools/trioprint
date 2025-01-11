@@ -14,18 +14,25 @@ namespace WRAPPPER_NAMESPACE
 
     template<bool dont_repeat = false>
     inline static bool init(SdCsPin_t chip_select_pin = PIN_SPI_SS){
+      int count = 0;
+      bool stop_trying = false;
     label:
         if (SD.begin(chip_select_pin, SD_SPI_SPEED)) {
+            
           SD.card()->readCSD(&csd);
           return true;
         }
-        else if(dont_repeat){
+        else if(dont_repeat || stop_trying){
             SD.initErrorHalt();
             Debugger::print("Failed to initialize SD, NOT retrying....");
             return false;
         }
         delay(15);
         Debugger::print("Failed to initialize SD, retrying.... CS pin is: " + String(PIN_SPI_SS));
+        count++;
+        if(count >= SD_CARD_CONNECTION_ATTEMPTS){
+            stop_trying = true;
+        }
         goto label;
     }
 

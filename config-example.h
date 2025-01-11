@@ -30,6 +30,7 @@ static constexpr uint64_t SD_SECTOR_SIZE = 512;
 
 // You can change it, if your sd card supports faster speeds. 
 #define SD_SPI_SPEED SD_SCK_MHZ(16) 
+#define SD_CARD_CONNECTION_ATTEMPTS 5
 #define FILE_CHUNK_SIZE 1024
 
 #define USE_UTF8_LONG_NAMES 1
@@ -44,7 +45,7 @@ static constexpr uint64_t SD_SECTOR_SIZE = 512;
 #define DEVSERIAL 0
 //#define DEV_CUSTOM_SERIAL 115200, SERIAL_8N1, 16, 17 //ONLY ESP32 SUPPORT. Use if the DEVSERIAL 0, 1, 2, 3 do not work.
 
-#define OUTPUT_QUEUE_LENGHT 15
+#define OUTPUT_QUEUE_LENGHT 1
 
 // in gcode there are some comments and I have to remove them before sending the commands to printer.
 #define COMMENTCHAR ";"

@@ -13,6 +13,7 @@
 #include "H-Root.h"
 #include "H-ServerStatus.h"
 #include "H-Stop.h"
+#include "H-ems.h"
 #include "H-UploadFile.h"
 #include "H-DevConsole.h"
 #include "H-Recovery.h"
@@ -31,7 +32,7 @@ namespace WebServerW {
         server.on("/device/print/", HTTP_GET , Handlers::Print);
         server.on("/device/pause/", HTTP_GET ,Handlers::Pause);
         server.on("/device/stop/", HTTP_GET ,Handlers::Stop);
-        server.on("/device/ems/", HTTP_GET ,Handlers::NotFound);
+        server.on("/device/ems/", HTTP_GET ,Handlers::Ems);
         server.on("/device/status/", HTTP_GET ,Handlers::PrintStatus);
         server.on("/device/ls/", HTTP_GET ,Handlers::NotFound);
         server.on("/device/console/", HTTP_GET , Handlers::GetConsole);

@@ -1,24 +1,13 @@
 #pragma once
 
+#include "target_device.h"
 #include "webServerClass.h"
 
-#ifndef FILE_CHUNK_SIZE
-#define FILE_CHUNK_SIZE 1024
-#endif
-
-namespace TD {
-    String filename = "";
-    bool printStarted = false;
-    bool printRunning = false;
-}
-
 using namespace WebServerW;
+using namespace TD;
 namespace Handlers {
     void Print(){
-        TD::filename = server.arg("path");
-        TD::printStarted = true;
-        server.send(200, "text/html", "Printing...");
-
-
+        printManager.start(server.arg("path"), false, 0);
+        WebServerW::server.send(200, "text/html", "Printing...");
     }
 }

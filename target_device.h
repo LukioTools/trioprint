@@ -111,7 +111,7 @@ class GCode {
   uint64_t steps = 0;
 
 
-  bool isCommand(const String& data) {
+  static bool isCommand(const String& data) {
     return (data.startsWith("M") || data.startsWith("G"));
   }
 
@@ -167,10 +167,13 @@ public:
     file = SDW::openFile(filename);
 
     char c;
+    String ln;
     while (file.read(&c, 1) == 1) {
-      if (c == '\n') {
-        steps++;
-      }
+        ln += c;
+        if (c == '\n') {
+            if(isCommand(ln))
+                steps++;
+        }
     }
     
     // Let's move to beginning after reading the file line count.

@@ -28,7 +28,7 @@ void setup(){
     ESP.wdtEnable(5000);
     #endif
 
-    #if defined(DEVSERIAL) &&  DEVSERIAL != 0
+    #if (defined(DEVSERIAL) &&  DEVSERIAL != 0) || defined(DEV_CUSTOM_SERIAL)
         Serial.begin(115200);
     #endif
 
