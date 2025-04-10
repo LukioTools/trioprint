@@ -5,7 +5,6 @@
 .vscode/ipch
 *.json
 
-config.h
 /web/compiled-minified.html.gz
 /web/compiled.html
 /web/compiled-minified.html
