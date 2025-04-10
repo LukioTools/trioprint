@@ -1,0 +1,43 @@
+Assuming the SD chip select pin is: 5
+Edit SD_CS_PIN to change the SD chip select pin.
+
+type any character to start
+init time: 2 ms
+
+Card type: SDHC
+sdSpecVer: 6.00
+HighSpeedMode: true
+
+Manufacturer ID: 0X6B
+OEM ID: QX
+Product: DSMXT
+Revision: 0.0
+Serial number: 0XB23
+Manufacturing date: 8/2023
+CID HEX: 6B515844534D58540000000B230178CF
+
+cardSize: 7989.10 MB (MB = 1,000,000 bytes)
+flashEraseSize: 128 blocks
+eraseSingleBlock: true
+dataAfterErase: ones
+CSD HEX: 400E00325B5900003B857F800A40002F
+
+OCR: 0XC0FF8000
+
+SD Partition Table
+part,boot,bgnCHS[3],type,endCHS[3],start,length
+1,0X0,0X82,0X3,0X0,0XB,0X48,0XFD,0XCB,8192,15595520
+2,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0,0
+3,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0,0
+4,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0X0,0,0
+
+Scanning FAT, please wait.
+
+Volume is FAT32
+sectorsPerCluster: 64
+fatStartSector:    12578
+dataStartSector:   16384
+clusterCount:      243552
+freeClusterCount:  243536
+
+type any character to start
