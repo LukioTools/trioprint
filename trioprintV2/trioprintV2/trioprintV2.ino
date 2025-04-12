@@ -31,6 +31,8 @@ void setup() {
   Serial.begin(115200);
   Serial.println("kek");
 
+  SDM::init();
+
   testBuffer = new RuntimeBuffer<char>(10);
 
   flashMemory::init();
