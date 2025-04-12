@@ -41,6 +41,15 @@ void begin() {
     }
   });
 
+  server->on("/createFile", HTTP_GET, [](AsyncWebServerRequest* request) {
+    const char* filename = "/example.txt";
+    const uint8_t* data = (uint8_t*)"kek";
+    if (SDM::WriteFile(filename, data, 3))
+      request->send(200, "text/plain", "file written");
+    else
+      request->send(404, "text/plain", "File not written");
+  });
+
   server->onNotFound([](AsyncWebServerRequest* request) {
     Serial.println("client hit unknown route");
     request->send(404, "text/plain", "Not Found");
