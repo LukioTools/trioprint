@@ -47,14 +47,14 @@ struct DeviceManager {
     if (serialConfig.serial == 1)
       serial = &Serial;
     else if (serialConfig.serial == 2)
-      serial = &Serial1;
-    else if (serialConfig.serial == 3)
       serial = &Serial2;
 
     if (serialConfig.custom) {
-      serial->begin(serialConfig.baud_rate, serialConfig.config, serialConfig.rx, serialConfig.tx);
+    Serial.println("custom");
+
+      serial->begin(serialConfig.baudRate, serialConfig.config, serialConfig.rx, serialConfig.tx);
     } else {
-      serial->begin(serialConfig.baud_rate);
+      serial->begin(serialConfig.baudRate);
     }
   }
 

@@ -57,10 +57,6 @@ void begin() {
   server = new AsyncWebServer(flashMemory::get<FLASH_MEMORY::WEB_SERVER_PORT>());
 
   Serial.printf("starting web server at port: %d\n", flashMemory::get<FLASH_MEMORY::WEB_SERVER_PORT>());
-  server->on("/", HTTP_GET, [](AsyncWebServerRequest* request) {
-    Serial.println("client connected");
-    request->send(200, "text/plain", "lel");
-  });
 
   server->on("/", HTTP_GET, Handlers::Root::Root);
 

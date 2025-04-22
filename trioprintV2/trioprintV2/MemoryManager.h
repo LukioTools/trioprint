@@ -131,7 +131,7 @@ enum NamesEeprom {
 };
 
 struct DevSerialConfig {
-  uint baud_rate, config;
+  uint baudRate, config;
   u_char serial, rx, tx;
   bool custom;
 };
