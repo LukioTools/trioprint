@@ -44,6 +44,8 @@
 #define DEBUG_SOCKET 
 #define DEBUG_SERIAL_INSTANCE Serial
 
+#define ROOT_FILE "compiled.html.gz"
+
 // Array of G-code commands
 static constexpr const char* END_COMMANDS[] = {
     "M17",               // Engage stepper motors (optional)
