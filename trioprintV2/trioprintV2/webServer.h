@@ -34,6 +34,8 @@ void begin() {
 
     if (fileData != nullptr) {
       // Send file content and then delete buffer
+      Serial.write(fileData, fileSize);
+      Serial.printf("\nsize was: %d\n", fileSize);
       request->send_P(200, "text/plain", fileData, fileSize);
       delete[] fileData;
     } else {

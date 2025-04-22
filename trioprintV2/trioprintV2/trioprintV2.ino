@@ -31,11 +31,10 @@ void setup() {
   Serial.begin(115200);
   Serial.println("kek");
 
-  SDM::init();
+  flashMemory::init();
 
   testBuffer = new RuntimeBuffer<char>(10);
 
-  flashMemory::init();
 
   flashMemory::set<0>((ushort)(80));
 
@@ -45,6 +44,16 @@ void setup() {
   strncpy(pwd, "Orava#19", WIFI_PWD_SIZE);
   flashMemory::set<FLASH_MEMORY::WIFI_SSID>(ssid);
   flashMemory::set<FLASH_MEMORY::WIFI_PWD>(pwd);
+  FLASH_MEMORY::Ep_sd_card_max_attempts attempts = 10;
+  //flashMemory::set<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(attempts);
+  flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>((FLASH_MEMORY::Ep_sd_spi_speed)16);
+
+  flashMemory::flush();
+
+  Serial.printf("save: %d\n", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>());
+
+  SDM::init();
+
 
   char carr[WIFI_SSID_SIZE];
   flashMemory::get<FLASH_MEMORY::WIFI_SSID>(carr);
@@ -53,7 +62,7 @@ void setup() {
 
   WiFiW::begin();
   OTAW::begin();
-  WSM.begin();  // Use global WSM
+  WSM.begin();
 
   WBW::begin();
 

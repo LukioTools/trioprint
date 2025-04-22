@@ -5,7 +5,7 @@
     #define uint8 uint8_t
     #define uint32 uint32_t
 
-    #define PIN_SPI_SS 17
+    #define PIN_SPI_SS 5
 #elif defined(ESP8266)
     // nothing here
 #endif
