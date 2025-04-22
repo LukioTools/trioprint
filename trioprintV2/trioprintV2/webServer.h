@@ -63,13 +63,12 @@ void ServerStatus(AsyncWebServerRequest* request) {
   responce
     << "\"cardSize\":" << String(SDM::cardSize()) << ","
     << "\"freeSpace\":" << String(SDM::freeSize()) << ","
-    << "\"printStatus\":" << String(deviceManager->printState)
     << "}";
   request->send(200, "text/plain", responce.str());
 }
 
 void sendCommand(AsyncWebServerRequest* request) {
-  String command = server.arg("command") + "\n";
+  String command = request->arg("command") + "\n";
   deviceManager->print(command);
   request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 }
@@ -108,7 +107,7 @@ void begin(DevM::DeviceManager* dm) {
 
   server->onNotFound(Handlers::notFound);
 
-  Handlers::Root : RootPreload();
+  Handlers::Root::RootPreload();
 
   server->begin();
 

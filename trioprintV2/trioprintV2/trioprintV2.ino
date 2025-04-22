@@ -72,7 +72,7 @@ void setup() {
   OTAW::begin();
   WSM.begin();
 
-  WBW::begin();
+  WBW::begin(&DM);
   DM.begin();
 
   GM.startPrint(&DM, "/example.txt");
