@@ -49,6 +49,13 @@ void setup() {
   //flashMemory::set<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(attempts);
   flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>((FLASH_MEMORY::Ep_sd_spi_speed)16);
 
+  FLASH_MEMORY::DevSerialConfig serialConfig;
+  serialConfig.baudRate = 115200;
+  serialConfig.custom = false;
+  serialConfig.serial = 2;
+
+  flashMemory::set<FLASH_MEMORY::DEVSERIAL>(serialConfig);
+
   flashMemory::flush();
 
   Serial.printf("save: %d\n", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>());
@@ -66,7 +73,6 @@ void setup() {
   WSM.begin();
 
   WBW::begin();
-  
   DM.begin();
 
   GM.startPrint(&DM, "/example.txt");
