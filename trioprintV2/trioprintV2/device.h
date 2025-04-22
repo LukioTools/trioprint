@@ -231,8 +231,7 @@ struct GCodeManager {
       if (!(deviceManager->availableInBuffer() >= line.length())) return;
 
       deviceManager->print(line);
-      Serial.println(line)<
-      currentStep++;
+      Serial.println(line) < currentStep++;
 
       if (currentStep >= steps) {
         printFinished();

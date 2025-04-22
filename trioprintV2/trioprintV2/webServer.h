@@ -12,11 +12,22 @@
 #include <AsyncTCP.h>
 #endif
 
+#include "StringStream.h"
+
 #include "config.h"
 
 namespace WBW {
 
+DevM::DeviceManager* deviceManager;
+
 namespace Handlers {
+
+
+
+void notFound(AsyncWebServerRequest* request) {
+  request->send(404, "text/plain", "not found");
+}
+
 namespace Root {
 char* root_cache_data = nullptr;
 std::size_t root_cache_size = -1;
@@ -35,7 +46,6 @@ void RootReloadCache() {
   RootClearCache();
   RootPreload();
 }
-
 void Root(AsyncWebServerRequest* request) {
   RootPreload();
   if (root_cache_data) {
@@ -48,12 +58,28 @@ void Root(AsyncWebServerRequest* request) {
 }
 }
 
+void ServerStatus(AsyncWebServerRequest* request) {
+  StringStream responce = "{";
+  responce
+    << "\"cardSize\":" << String(SDM::cardSize()) << ","
+    << "\"freeSpace\":" << String(SDM::freeSize()) << ","
+    << "\"printStatus\":" << String(deviceManager->printState)
+    << "}";
+  request->send(200, "text/plain", responce.str());
+}
+
+void sendCommand(AsyncWebServerRequest* request) {
+  String command = server.arg("command") + "\n";
+  deviceManager->print(command);
+  request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+}
 
 }
 
 static AsyncWebServer* server;
 
-void begin() {
+void begin(DevM::DeviceManager* dm) {
+  deviceManager = dm;
   server = new AsyncWebServer(flashMemory::get<FLASH_MEMORY::WEB_SERVER_PORT>());
 
   Serial.printf("starting web server at port: %d\n", flashMemory::get<FLASH_MEMORY::WEB_SERVER_PORT>());
@@ -64,37 +90,33 @@ void begin() {
 
   server->on("/", HTTP_GET, Handlers::Root::Root);
 
-  server->on("/file", HTTP_GET, [](AsyncWebServerRequest* request) {
-    const char* filename = "/example.txt";  // Change to your desired file
-    size_t fileSize = 0;
-    const uint8_t* fileData = (uint8_t*)SDM::readFile(filename, fileSize);
+  server->on("/server/status", HTTP_GET, Handlers::notFound);
+  server->on("/server/pause", HTTP_GET, Handlers::notFound);
+  server->on("/server/continue", HTTP_GET, Handlers::notFound);
+  server->on("/server/stop", HTTP_GET, Handlers::notFound);
+  server->on("/server/ems", HTTP_GET, Handlers::notFound);
+  server->on("/server/status", HTTP_GET, Handlers::notFound);
+  server->on("/server/console", HTTP_GET, Handlers::notFound);
+  server->on("/server/recoveryStatus", HTTP_GET, Handlers::notFound);
 
-    if (fileData != nullptr) {
-      // Send file content and then delete buffer
-      Serial.write(fileData, fileSize);
-      Serial.printf("\nsize was: %d\n", fileSize);
-      request->send_P(200, "text/plain", fileData, fileSize);
-      delete[] fileData;
-    } else {
-      request->send(404, "text/plain", "File not found or error reading file.");
-    }
-  });
+  server->on("/device/sendCommand", HTTP_GET, Handlers::notFound);
 
-  server->on("/createFile", HTTP_GET, [](AsyncWebServerRequest* request) {
-    const char* filename = "/example.txt";
-    const uint8_t* data = (uint8_t*)"kek";
-    if (SDM::WriteFile(filename, data, 3))
-      request->send(200, "text/plain", "file written");
-    else
-      request->send(404, "text/plain", "File not written");
-  });
+  server->on("/fm/ls", HTTP_GET, Handlers::notFound);
+  server->on("/fm/remove", HTTP_GET, Handlers::notFound);
+  server->on("/fm/mkdir", HTTP_GET, Handlers::notFound);
+  server->on("/fm/downloadFile", HTTP_GET, Handlers::notFound);
+  server->on("/fm/uploadFile", HTTP_GET, Handlers::notFound);
 
-  server->onNotFound([](AsyncWebServerRequest* request) {
-    Serial.println("client hit unknown route");
-    request->send(404, "text/plain", "Not Found");
-  });
+  server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
+  server->on("/config/getDynamicConfig", HTTP_GET, Handlers::notFound);
+
+  server->onNotFound(Handlers::notFound);
+
+  Handlers::Root : RootPreload();
 
   server->begin();
+
+  Serial.println("web server started successfully");
 }
 
 
