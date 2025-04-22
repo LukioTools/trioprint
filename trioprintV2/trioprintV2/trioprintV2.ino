@@ -23,6 +23,7 @@
 
 WebSocketManager WSM;
 DevM::GCodeManager GM;
+DevM::DeviceManager DM;
 
 RuntimeBuffer<char>* testBuffer = nullptr;
 
@@ -56,13 +57,13 @@ void setup() {
   WSM.begin();  // Use global WSM
 
   WBW::begin();
+  
+  DM.begin();
 
-  String kek = "#G12 blaah #kek";
-  Serial.println(GM.readLine(&kek));
-  Serial.print("Command: ");
-  Serial.println(kek);
+  GM.startPrint(&DM, "/example.txt");
 }
 
 
 void loop() {
+    GM.Handle();
 }

@@ -16,6 +16,41 @@
 
 namespace WBW {
 
+namespace Handlers {
+namespace Root {
+char* root_cache_data = nullptr;
+std::size_t root_cache_size = -1;
+
+void RootPreload() {
+  if (!root_cache_data) {
+    root_cache_data = SDM::readFile(ROOT_FILE, root_cache_size);
+    Serial.printf("Root cached (%p)[%i]!\n", root_cache_data, root_cache_size);
+  }
+}
+void RootClearCache() {
+  delete root_cache_data;
+  root_cache_data = nullptr;
+}
+void RootReloadCache() {
+  RootClearCache();
+  RootPreload();
+}
+
+void Root(AsyncWebServerRequest* request) {
+  RootPreload();
+  if (root_cache_data) {
+    AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response);
+  } else {
+    request->send(500, "text/plain", "file not fould");
+  }
+}
+}
+
+
+}
+
 static AsyncWebServer* server;
 
 void begin() {
@@ -26,6 +61,8 @@ void begin() {
     Serial.println("client connected");
     request->send(200, "text/plain", "lel");
   });
+
+  server->on("/", HTTP_GET, Handlers::Root::Root);
 
   server->on("/file", HTTP_GET, [](AsyncWebServerRequest* request) {
     const char* filename = "/example.txt";  // Change to your desired file
@@ -57,6 +94,7 @@ void begin() {
 
   server->begin();
 }
+
 
 // Helper macro for platform-specific sending (optional)
 #if defined(ESP8266)
