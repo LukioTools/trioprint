@@ -22,6 +22,8 @@ DevM::DeviceManager* deviceManager;
 
 namespace Handlers {
 
+
+
 void notFound(AsyncWebServerRequest* request) {
   request->send(404, "text/plain", "not found");
 }
@@ -62,10 +64,7 @@ void ServerStatus(AsyncWebServerRequest* request) {
   StringStream responce = "{";
   responce
     << "\"cardSize\":" << String(SDM::cardSize()) << ","
-    << "\"freeSpace\":" << String(SDM
-                                  :§
-                                  : freeSize())
-    << ","
+    << "\"freeSpace\":" << String(SDM::freeSize()) << ","
     << "}";
   Serial.println("4");
   request->send(200, "text/plain", responce.str());
@@ -77,11 +76,6 @@ void sendCommand(AsyncWebServerRequest* request) {
   String command = request->arg("command") + "\n";
   deviceManager->print(command);
   request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
-}
-
-void ListFolder() {
-  auto e = SDM::listDir(server.arg("path"));
-  server.send(200, "application/json", e.c_str());
 }
 
 }
@@ -107,7 +101,7 @@ void begin(DevM::DeviceManager* dm) {
 
   server->on("/device/sendCommand", HTTP_GET, Handlers::notFound);
 
-  server->on("/fm/ls", HTTP_GET, Handlers::ListFolder);
+  server->on("/fm/ls", HTTP_GET, Handlers::notFound);
   server->on("/fm/remove", HTTP_GET, Handlers::notFound);
   server->on("/fm/mkdir", HTTP_GET, Handlers::notFound);
   server->on("/fm/downloadFile", HTTP_GET, Handlers::notFound);
