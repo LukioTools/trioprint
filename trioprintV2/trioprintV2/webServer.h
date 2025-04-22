@@ -59,12 +59,17 @@ void Root(AsyncWebServerRequest* request) {
 }
 
 void ServerStatus(AsyncWebServerRequest* request) {
+  Serial.println("1");
+
   StringStream responce = "{";
   responce
     << "\"cardSize\":" << String(SDM::cardSize()) << ","
     << "\"freeSpace\":" << String(SDM::freeSize()) << ","
     << "}";
+  Serial.println("4");
   request->send(200, "text/plain", responce.str());
+  Serial.println("5");
+
 }
 
 void sendCommand(AsyncWebServerRequest* request) {
@@ -85,7 +90,7 @@ void begin(DevM::DeviceManager* dm) {
 
   server->on("/", HTTP_GET, Handlers::Root::Root);
 
-  server->on("/server/status", HTTP_GET, Handlers::notFound);
+  server->on("/server/status", HTTP_GET, Handlers::ServerStatus);
   server->on("/server/pause", HTTP_GET, Handlers::notFound);
   server->on("/server/continue", HTTP_GET, Handlers::notFound);
   server->on("/server/stop", HTTP_GET, Handlers::notFound);

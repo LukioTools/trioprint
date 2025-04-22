@@ -33,6 +33,7 @@ void setup() {
   Serial.println("kek");
 
   flashMemory::init();
+  
 
   testBuffer = new RuntimeBuffer<char>(10);
 
@@ -41,10 +42,13 @@ void setup() {
 
   char ssid[WIFI_SSID_SIZE] = {};
   char pwd[WIFI_PWD_SIZE] = {};
+  char ota_pwd[OTA_PWD_SIZE] = {};
   strncpy(ssid, "WS-TIMI-NET", WIFI_SSID_SIZE);
   strncpy(pwd, "Orava#19", WIFI_PWD_SIZE);
+  strncpy(ota_pwd, "12345678", OTA_PWD_SIZE);
   flashMemory::set<FLASH_MEMORY::WIFI_SSID>(ssid);
   flashMemory::set<FLASH_MEMORY::WIFI_PWD>(pwd);
+  flashMemory::set<FLASH_MEMORY::OTA_PWD>(ota_pwd);
   FLASH_MEMORY::Ep_sd_card_max_attempts attempts = 10;
   //flashMemory::set<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(attempts);
   flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>((FLASH_MEMORY::Ep_sd_spi_speed)16);
@@ -61,6 +65,10 @@ void setup() {
   Serial.printf("save: %d\n", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>());
 
   SDM::init();
+
+
+  Serial.printf("card size: %d\n", SDM::cardSize());
+  Serial.printf("free size: %d\n", SDM::freeSize());
 
 
   char carr[WIFI_SSID_SIZE];
@@ -81,4 +89,5 @@ void setup() {
 
 void loop() {
     GM.Handle();
+    OTAW::handle();
 }
