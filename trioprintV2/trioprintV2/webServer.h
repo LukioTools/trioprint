@@ -77,10 +77,9 @@ void sendCommand(AsyncWebServerRequest* request) {
   request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 }
 
-void ListFolder() {
-  auto e = SDW::listDir(server.arg("path"));
-  Debugger::print("listing files");
-  server.send(200, "application/json", e.c_str());
+void ListFolder(AsyncWebServerRequest* request) {
+  auto e = SDM::listDir(request->arg("path"));
+  request->send(200, "application/json", e.c_str());
 }
 
 }
