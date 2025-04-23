@@ -33,10 +33,8 @@ void setup() {
   Serial.println("kek");
 
   flashMemory::init();
-  
 
   testBuffer = new RuntimeBuffer<char>(10);
-
 
   flashMemory::set<0>((ushort)(80));
 
@@ -66,10 +64,8 @@ void setup() {
 
   SDM::init();
 
-
   Serial.printf("card size: %d\n", SDM::cardSize());
   Serial.printf("free size: %d\n", SDM::freeSize());
-
 
   char carr[WIFI_SSID_SIZE];
   flashMemory::get<FLASH_MEMORY::WIFI_SSID>(carr);
@@ -85,7 +81,6 @@ void setup() {
 
   GM.startPrint(&DM, "/example.txt");
 }
-
 
 void loop() {
     GM.Handle();
