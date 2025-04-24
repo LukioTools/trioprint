@@ -80,26 +80,88 @@ void ListFolder(AsyncWebServerRequest* request) {
   request->send(200, "application/json", e.c_str());
 }
 
-void DownloadFile() {
-  String filename = server.arg("filename");
-  FsFile file = SDW::openFile(filename);
-  uint64_t size = file.fileSize();
-
-  server.sendHeader("Content-Disposition", "attachment; filename=\"" + filename + '"');
-  server.setContentLength(CONTENT_LENGTH_UNKNOWN);
-  server.send(200, "application/octet-stream", "");
-
-  uint64_t currentSize = size;
-  char temp[FILE_CHUNK_SIZE];
-  while (currentSize > 0) {
-    int wroteSize = SDW::readChunk(temp, file, FILE_CHUNK_SIZE);
-    if (wroteSize <= 0) break;
-    delay(0);
-    server.sendContent(temp, wroteSize);
-    currentSize -= wroteSize;
-  }
-  server.sendContent("");
+void Remove(AsyncWebServerRequest* request) {
+  bool status = SDM::remove(request->arg("path"));
+  if (status) request->send(200, "text/plain", "File removed successfully");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+  else {
+    bool exists = SDM::exists(request->arg("path"));
+    request->send(500, "text/plain", "failed: " + request->arg("path") + " " + String(status) + " " + String(exists));
+  }  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 }
+
+void DownloadFile(AsyncWebServerRequest* request) {
+  if (!request->hasArg("filename")) {
+    request->send(400, "text/plain", "Missing filename parameter");
+    return;
+  }
+
+  String filename = request->arg("filename");
+  FsFile* file = new FsFile(SDM::openFile(filename));  // Allocate on heap
+  if (!file || !file->available()) {
+    delete file;
+    request->send(404, "text/plain", "File not found");
+    return;
+  }
+
+  AsyncWebServerResponse* response = request->beginChunkedResponse(
+    "application/octet-stream",
+    [file](uint8_t* buffer, size_t maxLen, size_t index) -> size_t {
+      if (!file->available()) {
+        file->close();
+        delete file;
+        return 0;
+      }
+      return file->read(buffer, maxLen);
+    });
+
+  response->addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+  request->send(response);
+}
+
+void Mkdir(AsyncWebServerRequest* request) {
+  if (SDM::mkdir(request->arg("path")))
+    request->send(200, "text/plain", "Directory created succesfully!");
+  else
+    request->send(500, "text/plain", "Failed to create a directory");
+}
+
+void Ems(AsyncWebServerRequest* request) {
+  deviceManager->ems();
+  request->send(200, "text/plain", "ems activated");
+}
+
+void SendCommand(AsyncWebServerRequest* request) {
+  String command = request->arg("command");
+  request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+}
+
+namespace Upload {
+FsFile upload_file;
+void UploadFile(AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final) {
+  const String& filepath = request->arg("path");
+  String fullpath = filepath.isEmpty() ? "/" : filepath;
+  fullpath += filename;
+
+  if (index == 0) {
+    Debugger::print("Opening file: " + filename + " ...");
+    upload_file = SDW::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
+  }
+
+  if (upload_file) {
+    size_t amount = upload_file.write(data, len);
+    Debugger::print("file Writing_" + String(fullpath.length()) + ", " + fullpath + ", " + String(amount) + "/" + String(len));
+  }
+
+  if (final) {
+    upload_file.close();
+    Debugger::print("File Upload handle was successful!");
+    if (filename == ROOT_FILE && fullpath == "/" + ROOT_FILE) {
+      RootReloadCache();
+    }
+  }
+}
+}
+
 
 }
 
@@ -117,21 +179,25 @@ void begin(DevM::DeviceManager* dm) {
   server->on("/server/pause", HTTP_GET, Handlers::notFound);
   server->on("/server/continue", HTTP_GET, Handlers::notFound);
   server->on("/server/stop", HTTP_GET, Handlers::notFound);
-  server->on("/server/ems", HTTP_GET, Handlers::notFound);
+  server->on("/server/ems", HTTP_GET, Handlers::Ems);
   server->on("/server/status", HTTP_GET, Handlers::notFound);
   server->on("/server/console", HTTP_GET, Handlers::notFound);
   server->on("/server/recoveryStatus", HTTP_GET, Handlers::notFound);
 
-  server->on("/device/sendCommand", HTTP_GET, Handlers::notFound);
+  server->on("/device/sendCommand", HTTP_GET, Handlers::SendCommand);
 
   server->on("/fm/ls", HTTP_GET, Handlers::ListFolder);
-  server->on("/fm/remove", HTTP_GET, Handlers::notFound);
+  server->on("/fm/remove", HTTP_GET, Handlers::Remove);
   server->on("/fm/mkdir", HTTP_GET, Handlers::notFound);
-  server->on("/fm/downloadFile", HTTP_GET, Handlers::notFound);
-  server->on("/fm/uploadFile", HTTP_GET, Handlers::notFound);
+  server->on("/fm/downloadFile", HTTP_GET, Handlers::DownloadFile);
+  server->on("/fm/uploadFile", HTTP_POST, Handlers::notFound);
 
   server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
-  server->on("/config/getDynamicConfig", HTTP_GET, Handlers::notFound);
+  server->on(
+    "/config/getDynamicConfig", HTTP_GET, [](AsyncWebServerRequest* request) {
+      request->send(200, "text/plain", "Upload complete");
+    },
+    Handlers::Upload::UploadFile);
 
   server->onNotFound(Handlers::notFound);
 
