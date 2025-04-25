@@ -168,8 +168,8 @@ void UploadFile(AsyncWebServerRequest* request, String filename, size_t index, u
 
   if (final) {
     upload_file.close();
-    if (filename == ROOT_FILE && fullpath == "/" + ROOT_FILE) {
-      Handlers::Root::RootReloadCache();
+    if (filename == ROOT_FILE && fullpath == String("/") + ROOT_FILE) {
+      Root::RootReloadCache();
     }
   }
 }
