@@ -420,9 +420,16 @@ int lineCount(FsFile& file) {
 
 
 namespace HANDLER {
+
+template<typename T, typename... Args>
+std::unique_ptr<T> make_unique(Args&&... args) {
+  return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
+}
 class Handler {
 public:
-  virtual void run() {Serial.println("kek should be handling shit, but I aint doing that");};
+  virtual void run() {
+    Serial.println("kek should be handling shit, but I aint doing that");
+  };
 };
 
 class WebRootLoad : public Handler {
@@ -470,12 +477,12 @@ public:
 };
 
 class HandlerManager {
-  FixedBuffer<Handler, 10> handlers;
+  FixedBuffer<std::unique_ptr<Handler>, 10> handlers;
   int count = 0;
 
 public:
-  void addHandler(Handler h) {
-    handlers.push_back(h);
+  void addHandler(std::unique_ptr<Handler> h) {
+    handlers.push_back(std::move(h));
   }
 
   void removeHandler(uint8_t idx) {
@@ -488,8 +495,7 @@ public:
     }
     Serial.printf("thre is: %d \n", handlers.size());
 
-    for (int i = 0; i < handlers.size(); i++) {
-      Handler* h = handlers.read();
+    for (auto& h : handlers) {
       h->run();
     }
   }

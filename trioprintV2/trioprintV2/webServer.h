@@ -13,7 +13,7 @@
 #endif
 
 #include "StringStream.h"
-
+#include "stdExtension.h"
 #include "config.h"
 
 namespace WBW {
@@ -51,9 +51,8 @@ void Root(AsyncWebServerRequest* request) {
   } else {
     Serial.println("o fuck root not found");
     //AsyncWebServerRequestPtr
-    AsyncWebServerRequestPtr r = request->pause();
-    SDM::HANDLER::WebRootLoad SDRequest(request->pause(), &root_cache_data, &root_cache_size);
-    SDM::HANDLER::SDHandlerManager.addHandler(SDRequest);
+    auto SDRequest = std::make_unique<SDM::HANDLER::WebRootLoad>(request->pause(), &root_cache_data, &root_cache_size);
+    SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
   }
 }
 }

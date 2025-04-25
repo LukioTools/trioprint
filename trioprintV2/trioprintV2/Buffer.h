@@ -40,7 +40,7 @@ public:
     if (index >= size()) return false;
 
     for (uint8_t i = index; i < size() - 1; ++i) {
-      event[mBegin + i] = event[mBegin + i + 1];
+      event[mBegin + i] = std::move(event[mBegin + i + 1]);
     }
 
     mEnd -= 1;
@@ -52,7 +52,7 @@ public:
 
     uint8_t s = size();
     for (int i = 0; i < s; i++) {
-      event[i] = event[mBegin + i];
+      event[i] = std::move(event[mBegin + i]);
     }
     mBegin = 0;
     mEnd = s;
@@ -71,7 +71,7 @@ public:
     if (size() == Tsize) return -1;
 
     auto temp = end();
-    *temp = data;
+    *temp = std::move(data);
     increase(1);
 
     return 1;
@@ -82,7 +82,7 @@ public:
     if (size() == Tsize) return -1;
 
     auto temp = end();
-    *temp = data;
+    *temp = std::move(data);
     increase(1);
 
     return 1;
