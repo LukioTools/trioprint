@@ -10,6 +10,9 @@
 #include <EEPROM.h>
 #endif
 
+#include <ESPAsyncWebServer.h>
+#include <AsyncTCP.h>
+
 #define EEPROM_SIZE 512  // Define the EEPROM size for ESP32
 
 namespace EPRM {
@@ -176,6 +179,8 @@ using flashMemory = EPRM::DynamicMemory<0,
 
 #define WRAPPPER_NAMESPACE SDM
 namespace WRAPPPER_NAMESPACE {
+
+
 SdFs SD;
 csd_t csd;
 
@@ -242,7 +247,7 @@ String listDir(String path) {
   sdCardAvailable = false;
   FsFile folder = SD.open(path);
   if (!folder) {
-  sdCardAvailable = true;
+    sdCardAvailable = true;
     return "Failed to open directory";
   };
   if (!folder.isDirectory()) return "Not a directory";
@@ -341,16 +346,16 @@ bool WriteFile(const char* name, const uint8_t* fileData, size_t size) {
 }
 
 /*
-    bool WriteFile(FsFile& name, const uint8_t* fileData, size_t size){
-      FsFile file = SD.open(name, oflag_t(O_WRITE | O_CREAT));
-      if(file.write(fileData, size) == size){
+      bool WriteFile(FsFile& name, const uint8_t* fileData, size_t size){
+        FsFile file = SD.open(name, oflag_t(O_WRITE | O_CREAT));
+        if(file.write(fileData, size) == size){
+          file.close();
+          return true;
+        }
         file.close();
-        return true;
+        return false;
       }
-      file.close();
-      return false;
-    }
-*/
+  */
 FsFile openFile(const char* name) {
   sdCardAvailable = false;
   return SD.open(name, oflag_t(O_RDWR | O_CREAT));
@@ -402,5 +407,51 @@ int lineCount(FsFile& file) {
   }
   sdCardAvailable = true;
   return lc;
+}
+
+
+namespace HANDLER {
+class Handler {
+public:
+  virtual void run(){};
+};
+
+class WebRootLoad : public Handler {
+
+  AsyncWebServerRequestPtr request;
+
+  char** root_cache_data = nullptr;
+  std::size_t* root_cache_size = nullptr;
+
+public:
+  WebRootLoad(AsyncWebServerRequestPtr r, char** rcd, std::size_t* rcs)
+    : request(r), root_cache_data(rcd), root_cache_size(rcs) {}
+
+  void run() override {
+    *root_cache_data = readFile(ROOT_FILE, *root_cache_size);
+  }
+};
+
+class GCodeInit : public Handler {
+  char* stage = nullptr;
+  FsFile* file = nullptr;
+  size_t BUFFER_SIZE;
+  size_t* bufferPos = nullptr;
+  size_t* bufferLength = nullptr;
+  char* buffer = nullptr;
+
+public:
+  GCodeInit(char* d, FsFile* f, size_t bs, size_t* bp, size_t* bl, char* b)
+    : stage(d), file(f), BUFFER_SIZE(bs), bufferPos(bp), bufferLength(bl), buffer(b) {
+      *stage = 0;
+    }
+
+  void run() override {
+    *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
+    *stage = 2;
+  }
+};
+
+
 }
 }  // namespace WRAPPPER_NAMESPACE

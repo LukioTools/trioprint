@@ -30,31 +30,26 @@ namespace Root {
 char* root_cache_data = nullptr;
 std::size_t root_cache_size = -1;
 
-void RootPreload() {
-  if (!root_cache_data) {
-    while(!SDM::sdCardAvailable) {};
-    root_cache_data = SDM::readFile(ROOT_FILE, root_cache_size);
-    Serial.printf("Root cached (%p)[%i]!\n", root_cache_data, root_cache_size);
-  }
+void RootLoadCache() {
 }
+
 void RootClearCache() {
   delete root_cache_data;
   root_cache_data = nullptr;
 }
 void RootReloadCache() {
   RootClearCache();
-  RootPreload();
+  RootLoadCache();
 }
 void Root(AsyncWebServerRequest* request) {
-  Serial.println("root started");
-  RootPreload();
-  Serial.println("root preload done");
   if (root_cache_data) {
     AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
-    response->addHeader("Content-Encoding", "gzip");
+      response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   } else {
-    request->send(500, "text/plain", "file not fould");
+    //AsyncWebServerRequestPtr
+    AsyncWebServerRequestPtr r = request->pause();
+    SDM::HANDLER::WebRootLoad SDRequest(request->pause(), &root_cache_data, &root_cache_size);
   }
 }
 }
@@ -77,7 +72,7 @@ void sendCommand(AsyncWebServerRequest* request) {
   gcodeManager->deviceManager->print(command);
   request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 }
- 
+
 void ListFolder(AsyncWebServerRequest* request) {
   auto e = SDM::listDir(request->arg("path"));
   request->send(200, "application/json", e.c_str());
@@ -129,7 +124,7 @@ void Mkdir(AsyncWebServerRequest* request) {
 }
 
 void print(AsyncWebServerRequest* request) {
-  if(!request->hasArg("path")) {
+  if (!request->hasArg("path")) {
     request->send(400, "text/plain", "missing filepath");
     return;
   }
@@ -138,7 +133,7 @@ void print(AsyncWebServerRequest* request) {
   String filename = request->arg("path");
   Serial.println("has path argument: " + filename);
 
-  if(gcodeManager == nullptr)
+  if (gcodeManager == nullptr)
     request->send(500, "text/plain", "gcode manager not found. reboot device");
 
   Serial.println("gcode manager is found");
@@ -146,7 +141,6 @@ void print(AsyncWebServerRequest* request) {
   gcodeManager->startPrint(filename);
   Serial.println("print started");
   request->send(200, "text/plain", "Started print: " + filename);
-
 }
 
 void Ems(AsyncWebServerRequest* request) {
@@ -221,8 +215,6 @@ void begin(DevM::GCodeManager* dm) {
     Handlers::Upload::UploadFile);
 
   server->onNotFound(Handlers::notFound);
-
-  Handlers::Root::RootPreload();
 
   server->begin();
 

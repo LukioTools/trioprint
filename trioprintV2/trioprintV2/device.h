@@ -184,45 +184,45 @@ struct GCodeManager {
 
   String initLine;
 
-void initPrint() {
-  const size_t BUFFER_SIZE = 128;
-  static char buffer[BUFFER_SIZE];
-  static size_t bufferPos = 0;
-  static size_t bufferLength = 0;
+  void initPrint() {
+    const size_t BUFFER_SIZE = 128;
+    static char buffer[BUFFER_SIZE];
+    static size_t bufferPos = 0;
+    static size_t bufferLength = 0;
+    static char stage = 1;
 
-  // Only read a new buffer if all previous characters are processed
-  if (bufferPos >= bufferLength) {
-    if(!SDM::sdCardAvailable) return;
-    bufferLength = file.readBytes(buffer, BUFFER_SIZE);
-    bufferPos = 0;
-
-    if (bufferLength == 0) {
-      // End of file reached
-      file.seek(0);  // Reset to beginning
-      printState = PRINTING;
-      Serial.println("File read completed. Total steps: " + String(steps));
-      return;
-    }
-  }
-
-  // Process current buffer until end
-  while (bufferPos < bufferLength) {
-    char c = buffer[bufferPos++];
-    initLine += c;
-
-    if (c == '\n') {
-      if (isCommand(initLine)) {
-        steps++;
-        Serial.println("steps");
+    if (bufferPos >= bufferLength) {
+      if (stage == 1)
+        SDM::HANDLER::GCodeInit init(&stage, &file, BUFFER_SIZE, &bufferPos, &bufferLength, buffer);
+      if (stage == 2) {
+        if (bufferLength == 0) {
+          file.seek(0);
+          printState = PRINTING;
+          Serial.println("File read completed. Total steps: " + String(steps));
+          return;
+        }
       }
-      initLine = "";
+      bufferPos = 0;
     }
 
-    // Optional: early exit to limit processing time per loop iteration
-    // Uncomment below if needed for ultra-lightweight processing
-    // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
+    // Process current buffer until end
+    while (bufferPos < bufferLength) {
+      char c = buffer[bufferPos++];
+      initLine += c;
+
+      if (c == '\n') {
+        if (isCommand(initLine)) {
+          steps++;
+          Serial.println("steps");
+        }
+        initLine = "";
+      }
+
+      // Optional: early exit to limit processing time per loop iteration
+      // Uncomment below if needed for ultra-lightweight processing
+      // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
+    }
   }
-}
 
 
 
