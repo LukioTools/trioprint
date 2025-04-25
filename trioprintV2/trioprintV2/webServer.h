@@ -126,7 +126,7 @@ void Mkdir(AsyncWebServerRequest* request) {
 }
 
 void Ems(AsyncWebServerRequest* request) {
-  deviceManager->ems();
+  //deviceManager->ems();
   request->send(200, "text/plain", "ems activated");
 }
 
@@ -143,20 +143,17 @@ void UploadFile(AsyncWebServerRequest* request, String filename, size_t index, u
   fullpath += filename;
 
   if (index == 0) {
-    Debugger::print("Opening file: " + filename + " ...");
-    upload_file = SDW::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
+    upload_file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
   }
 
   if (upload_file) {
     size_t amount = upload_file.write(data, len);
-    Debugger::print("file Writing_" + String(fullpath.length()) + ", " + fullpath + ", " + String(amount) + "/" + String(len));
   }
 
   if (final) {
     upload_file.close();
-    Debugger::print("File Upload handle was successful!");
-    if (filename == ROOT_FILE && fullpath == "/" + ROOT_FILE) {
-      RootReloadCache();
+    if (filename == ROOT_FILE && fullpath == String("/") + ROOT_FILE) {
+      Root::RootReloadCache();
     }
   }
 }
