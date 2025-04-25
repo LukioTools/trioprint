@@ -32,6 +32,7 @@ std::size_t root_cache_size = -1;
 
 void RootPreload() {
   if (!root_cache_data) {
+    while(!SDM::sdCardAvailable) {};
     root_cache_data = SDM::readFile(ROOT_FILE, root_cache_size);
     Serial.printf("Root cached (%p)[%i]!\n", root_cache_data, root_cache_size);
   }
@@ -45,7 +46,9 @@ void RootReloadCache() {
   RootPreload();
 }
 void Root(AsyncWebServerRequest* request) {
+  Serial.println("root started");
   RootPreload();
+  Serial.println("root preload done");
   if (root_cache_data) {
     AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
     response->addHeader("Content-Encoding", "gzip");
@@ -131,12 +134,17 @@ void print(AsyncWebServerRequest* request) {
     return;
   }
 
+
   String filename = request->arg("path");
+  Serial.println("has path argument: " + filename);
 
   if(gcodeManager == nullptr)
     request->send(500, "text/plain", "gcode manager not found. reboot device");
 
+  Serial.println("gcode manager is found");
+
   gcodeManager->startPrint(filename);
+  Serial.println("print started");
   request->send(200, "text/plain", "Started print: " + filename);
 
 }
@@ -190,7 +198,7 @@ void begin(DevM::GCodeManager* dm) {
 
   server->on("/server/status", HTTP_GET, Handlers::ServerStatus);
 
-  server->on("/device/print", HTTP_GET, Handlers::notFound);
+  server->on("/device/print", HTTP_GET, Handlers::print);
   server->on("/device/pause", HTTP_GET, Handlers::notFound);
   server->on("/device/continue", HTTP_GET, Handlers::notFound);
   server->on("/device/stop", HTTP_GET, Handlers::notFound);

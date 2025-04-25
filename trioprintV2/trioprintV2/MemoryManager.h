@@ -17,11 +17,15 @@ namespace EPRM {
 // Primary template.
 /// Define a member typedef @c type to one of two argument types.
 template<bool _Cond, typename _Iftrue, typename _Iffalse>
-struct conditional { using type = _Iftrue; };
+struct conditional {
+  using type = _Iftrue;
+};
 
 // Partial specialization for false.
 template<typename _Iftrue, typename _Iffalse>
-struct conditional<false, _Iftrue, _Iffalse> { using type = _Iffalse; };
+struct conditional<false, _Iftrue, _Iffalse> {
+  using type = _Iffalse;
+};
 
 
 template<std::size_t Index, typename... SholdBeEmpty>
@@ -175,6 +179,8 @@ namespace WRAPPPER_NAMESPACE {
 SdFs SD;
 csd_t csd;
 
+bool sdCardAvailable = true;
+
 template<bool dont_repeat = false>
 inline static bool init(SdCsPin_t chip_select_pin = PIN_SPI_SS) {
   int count = 0;
@@ -233,8 +239,12 @@ freebyte_return_t refreshFreeSizeCache() {
 }
 
 String listDir(String path) {
+  sdCardAvailable = false;
   FsFile folder = SD.open(path);
-  if (!folder) return "Failed to open directory";
+  if (!folder) {
+  sdCardAvailable = true;
+    return "Failed to open directory";
+  };
   if (!folder.isDirectory()) return "Not a directory";
 
   String files = "[ ";
@@ -251,17 +261,21 @@ String listDir(String path) {
 
   files[files.length() - 1] = ']';
   folder.close();
+  sdCardAvailable = true;
   return files;
 }
 
 char* readFile(const char* filename, size_t& fileSize) {
+  sdCardAvailable = false;
   FsFile file = SD.open(filename, oflag_t(O_READ));
   if (!file) {
+    sdCardAvailable = true;
     return nullptr;
   }
 
   if (file.isDir()) {
     file.close();
+    sdCardAvailable = true;
     return nullptr;
   }
 
@@ -270,21 +284,26 @@ char* readFile(const char* filename, size_t& fileSize) {
   if (file.read(fileData, fileSize) != (long)fileSize) {
     delete[] fileData;
     file.close();
+    sdCardAvailable = true;
     return nullptr;
   }
 
   file.close();
+  sdCardAvailable = true;
   return fileData;
 }
 
 char* readFile(const char* filename) {
+  sdCardAvailable = false;
   FsFile file = SD.open(filename, oflag_t(O_READ));
   if (!file) {
+    sdCardAvailable = true;
     return nullptr;
   }
 
   if (file.isDir()) {
     file.close();
+    sdCardAvailable = true;
     return nullptr;
   }
 
@@ -293,24 +312,31 @@ char* readFile(const char* filename) {
   if (file.read(fileData, fileSize) != (long)fileSize) {
     delete[] fileData;
     file.close();
+    sdCardAvailable = true;
     return nullptr;
   }
 
   file.close();
+  sdCardAvailable = true;
   return fileData;
 }
 
 int readChunk(char* data, FsFile& file, uint32 chunkSize) {
+  sdCardAvailable = false;
   return file.read(data, chunkSize);
+  sdCardAvailable = true;
 }
 
 bool WriteFile(const char* name, const uint8_t* fileData, size_t size) {
+  sdCardAvailable = false;
   FsFile file = SD.open(name, oflag_t(O_WRITE | O_CREAT));
   if (file.write(fileData, size) == size) {
     file.close();
+    sdCardAvailable = true;
     return true;
   }
   file.close();
+  sdCardAvailable = true;
   return false;
 }
 
@@ -326,39 +352,55 @@ bool WriteFile(const char* name, const uint8_t* fileData, size_t size) {
     }
 */
 FsFile openFile(const char* name) {
+  sdCardAvailable = false;
   return SD.open(name, oflag_t(O_RDWR | O_CREAT));
+  sdCardAvailable = true;
 }
 
 FsFile openFile(const String& name) {
+  sdCardAvailable = false;
   return SD.open(name.c_str(), oflag_t(O_RDWR | O_CREAT));
+  sdCardAvailable = true;
 }
 
 bool mkdir(const char* path) {
+  sdCardAvailable = false;
   return SD.mkdir(path, true);
+  sdCardAvailable = true;
 }
 
 bool mkdir(const String& path) {
+  sdCardAvailable = false;
   return SD.mkdir(path.c_str(), true);
+  sdCardAvailable = true;
 }
 
 bool remove(const char* path) {
+  sdCardAvailable = false;
   return SD.remove(path);
+  sdCardAvailable = true;
 }
 
 bool remove(const String& path) {
+  sdCardAvailable = false;
   return SD.remove(path.c_str());
+  sdCardAvailable = true;
 }
 
 bool exists(const String& filename) {
+  sdCardAvailable = false;
   return SD.exists(filename);
+  sdCardAvailable = true;
 }
 
 int lineCount(FsFile& file) {
+  sdCardAvailable = false;
   int lc = 0;
   char line[100];
   while (file.fgets(line, sizeof(line)) > 0) {
     lc++;
   }
+  sdCardAvailable = true;
   return lc;
 }
 }  // namespace WRAPPPER_NAMESPACE

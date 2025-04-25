@@ -50,7 +50,7 @@ struct DeviceManager {
       serial = &Serial2;
 
     if (serialConfig.custom) {
-    Serial.println("custom");
+      Serial.println("custom");
 
       serial->begin(serialConfig.baudRate, serialConfig.config, serialConfig.rx, serialConfig.tx);
     } else {
@@ -123,6 +123,7 @@ struct GCodeManager {
 
   enum PrintState {
     NOT_PRINTING,
+    INITIALIZING,
     PRINTING,
     PAUSE,
     END,
@@ -172,21 +173,59 @@ struct GCodeManager {
     shutdownProtection = sP;
     currentStep = cS;
 
+    Serial.println("opening file...");
     file = SDM::openFile(filename);
+    Serial.println("file opened");
 
-    char c;
-    String ln;
     steps = 0;
 
-    while (file.read(&c, 1) == 1) {
-      ln += c;
-      if (c == '\n')
-        if (isCommand(ln))
-          steps++;
-    }
-    file.seek(0);
-    printState = PRINTING;
+    printState = INITIALIZING;
   }
+
+  String initLine;
+
+void initPrint() {
+  const size_t BUFFER_SIZE = 128;
+  static char buffer[BUFFER_SIZE];
+  static size_t bufferPos = 0;
+  static size_t bufferLength = 0;
+
+  // Only read a new buffer if all previous characters are processed
+  if (bufferPos >= bufferLength) {
+    if(!SDM::sdCardAvailable) return;
+    bufferLength = file.readBytes(buffer, BUFFER_SIZE);
+    bufferPos = 0;
+
+    if (bufferLength == 0) {
+      // End of file reached
+      file.seek(0);  // Reset to beginning
+      printState = PRINTING;
+      Serial.println("File read completed. Total steps: " + String(steps));
+      return;
+    }
+  }
+
+  // Process current buffer until end
+  while (bufferPos < bufferLength) {
+    char c = buffer[bufferPos++];
+    initLine += c;
+
+    if (c == '\n') {
+      if (isCommand(initLine)) {
+        steps++;
+        Serial.println("steps");
+      }
+      initLine = "";
+    }
+
+    // Optional: early exit to limit processing time per loop iteration
+    // Uncomment below if needed for ultra-lightweight processing
+    // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
+  }
+}
+
+
+
 
   void stop() {
     steps = sizeof(END_COMMANDS) / sizeof(END_COMMANDS[0]);
@@ -207,6 +246,12 @@ struct GCodeManager {
   }
 
   void Handle() {
+
+    if (printState == INITIALIZING) {
+      initPrint();
+      return;
+    }
+
     if (printState == NOT_PRINTING) return;
 
     if (deviceManager->spacesLeftInBuffer() < 1) return;
