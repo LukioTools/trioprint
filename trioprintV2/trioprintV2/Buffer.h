@@ -1,7 +1,7 @@
 #pragma once
 #include "config.h"
 
-template<typename bufferType, int Tsize>
+template<typename bufferType, uint8_t Tsize>
 class FixedBuffer {
   bufferType event[Tsize];
   uint8_t mBegin = 0;
@@ -25,9 +25,8 @@ public:
   }
 
   bufferType* peek() {
-    if (size < 1) return nullptr;
-    String* t = reinterpret_cast<String*>(begin());
-    return t;
+    if (size() < 1) return nullptr;
+    return begin();
   }
 
   bufferType* read() {
@@ -68,6 +67,17 @@ public:
   }
 
   int write(bufferType data) {
+    finalize();
+    if (size() == Tsize) return -1;
+
+    auto temp = end();
+    *temp = data;
+    increase(1);
+
+    return 1;
+  }
+
+  int push_back(bufferType data) {
     finalize();
     if (size() == Tsize) return -1;
 

@@ -4,6 +4,8 @@
 #include <SdFat.h>
 #include <type_traits>
 
+#include "Buffer.h"
+
 #if defined(ESP8266)
 #include <ESP_EEPROM.h>
 #else
@@ -372,35 +374,35 @@ FsFile openFile(const String& name) {
 
 bool mkdir(const char* path) {
   sdCardAvailable = false;
-  bool temp = SD.mkdir(path, true); 
+  bool temp = SD.mkdir(path, true);
   sdCardAvailable = true;
   return temp;
 }
 
 bool mkdir(const String& path) {
   sdCardAvailable = false;
-  bool temp = SD.mkdir(path.c_str(), true); 
+  bool temp = SD.mkdir(path.c_str(), true);
   sdCardAvailable = true;
   return temp;
 }
 
 bool remove(const char* path) {
   sdCardAvailable = false;
-  bool temp = SD.remove(path); 
+  bool temp = SD.remove(path);
   sdCardAvailable = true;
   return temp;
 }
 
 bool remove(const String& path) {
   sdCardAvailable = false;
-  bool temp = SD.remove(path.c_str()); 
+  bool temp = SD.remove(path.c_str());
   sdCardAvailable = true;
   return temp;
 }
 
 bool exists(const String& filename) {
   sdCardAvailable = false;
-  bool temp = SD.exists(filename); 
+  bool temp = SD.exists(filename);
   sdCardAvailable = true;
   return temp;
 }
@@ -436,6 +438,14 @@ public:
 
   void run() override {
     *root_cache_data = readFile(ROOT_FILE, *root_cache_size);
+
+    if (request.expired()) return;
+
+    if (auto req = request.lock()) {
+      AsyncWebServerResponse* response = req->beginResponse(200, "text/html", (uint8_t*)*root_cache_data, *root_cache_size);  //Sends 404 File Not Found
+      response->addHeader("Content-Encoding", "gzip");
+      req->send(response);
+    }
   }
 };
 
@@ -450,8 +460,8 @@ class GCodeInit : public Handler {
 public:
   GCodeInit(char* d, FsFile* f, size_t bs, size_t* bp, size_t* bl, char* b)
     : stage(d), file(f), BUFFER_SIZE(bs), bufferPos(bp), bufferLength(bl), buffer(b) {
-      *stage = 0;
-    }
+    *stage = 0;
+  }
 
   void run() override {
     *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
@@ -459,6 +469,26 @@ public:
   }
 };
 
+class HandlerManager {
+  FixedBuffer<Handler, 10> handlers;
+  int count = 0;
 
+  void addHandler(Handler h) {
+    handlers.push_back(h);
+  }
+
+  void removeHandler(uint8_t idx) {
+    handlers.pop(idx);
+  }
+
+  void handle() {
+    if(handlers.size() == 0) return;
+
+    for(int i = 0; i < handlers.size(); i++) {
+      Handler* h = handlers.read();
+      h->run();
+    }
+  }
+};
 }
 }  // namespace WRAPPPER_NAMESPACE

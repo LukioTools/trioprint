@@ -44,7 +44,7 @@ void RootReloadCache() {
 void Root(AsyncWebServerRequest* request) {
   if (root_cache_data) {
     AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
-      response->addHeader("Content-Encoding", "gzip");
+    response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   } else {
     //AsyncWebServerRequestPtr
