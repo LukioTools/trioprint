@@ -18,7 +18,7 @@
 
 namespace WBW {
 
-DevM::DeviceManager* deviceManager;
+DevM::GCodeManager* gcodeManager;
 
 namespace Handlers {
 
@@ -71,7 +71,7 @@ void ServerStatus(AsyncWebServerRequest* request) {
 
 void sendCommand(AsyncWebServerRequest* request) {
   String command = request->arg("command") + "\n";
-  deviceManager->print(command);
+  gcodeManager->deviceManager->print(command);
   request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
 }
 
@@ -125,8 +125,24 @@ void Mkdir(AsyncWebServerRequest* request) {
     request->send(500, "text/plain", "Failed to create a directory");
 }
 
+void print(AsyncWebServerRequest* request) {
+  if(!request->hasArg("path")) {
+    request->send(400, "text/plain", "missing filepath");
+    return;
+  }
+
+  String filename = request->arg("path");
+
+  if(gcodeManager == nullptr)
+    request->send(500, "text/plain", "gcode manager not found. reboot device");
+
+  gcodeManager->startPrint(filename);
+  request->send(200, "text/plain", "Started print: " + filename);
+
+}
+
 void Ems(AsyncWebServerRequest* request) {
-  deviceManager->ems();
+  gcodeManager->ems();
   request->send(200, "text/plain", "ems activated");
 }
 
@@ -167,8 +183,8 @@ void UploadFile(AsyncWebServerRequest* request, String filename, size_t index, u
 
 static AsyncWebServer* server;
 
-void begin(DevM::DeviceManager* dm) {
-  deviceManager = dm;
+void begin(DevM::GCodeManager* dm) {
+  gcodeManager = dm;
   server = new AsyncWebServer(flashMemory::get<FLASH_MEMORY::WEB_SERVER_PORT>());
 
   Serial.printf("starting web server at port: %d\n", flashMemory::get<FLASH_MEMORY::WEB_SERVER_PORT>());
@@ -176,14 +192,14 @@ void begin(DevM::DeviceManager* dm) {
   server->on("/", HTTP_GET, Handlers::Root::Root);
 
   server->on("/server/status", HTTP_GET, Handlers::ServerStatus);
-  server->on("/server/pause", HTTP_GET, Handlers::notFound);
-  server->on("/server/continue", HTTP_GET, Handlers::notFound);
-  server->on("/server/stop", HTTP_GET, Handlers::notFound);
-  server->on("/server/ems", HTTP_GET, Handlers::Ems);
-  server->on("/server/status", HTTP_GET, Handlers::notFound);
-  server->on("/server/console", HTTP_GET, Handlers::notFound);
-  server->on("/server/recoveryStatus", HTTP_GET, Handlers::notFound);
 
+  server->on("/device/print", HTTP_GET, Handlers::notFound);
+  server->on("/device/pause", HTTP_GET, Handlers::notFound);
+  server->on("/device/continue", HTTP_GET, Handlers::notFound);
+  server->on("/device/stop", HTTP_GET, Handlers::notFound);
+  server->on("/device/ems", HTTP_GET, Handlers::Ems);
+  server->on("/device/console", HTTP_GET, Handlers::notFound);
+  server->on("/device/recoveryStatus", HTTP_GET, Handlers::notFound);
   server->on("/device/sendCommand", HTTP_GET, Handlers::SendCommand);
 
   server->on("/fm/ls", HTTP_GET, Handlers::ListFolder);

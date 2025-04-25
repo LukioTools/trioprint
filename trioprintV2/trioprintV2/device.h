@@ -136,6 +136,10 @@ struct GCodeManager {
     return data.startsWith("M") || data.startsWith("G");
   }
 
+  void attachDeviceManager(DeviceManager* dm) {
+    deviceManager = dm;
+  }
+
   bool trimLine(String* line) {
     if (line->startsWith(COMMENTCHAR)) return false;
     int delimiterIndex = line->indexOf(COMMENTCHAR);
@@ -163,8 +167,7 @@ struct GCodeManager {
     return readLineFromSdCard(line);
   }
 
-  void startPrint(DeviceManager* dm, String fn, bool sP = false, uint64_t cS = 0) {
-    deviceManager = dm;
+  void startPrint(String fn, bool sP = false, uint64_t cS = 0) {
     filename = fn;
     shutdownProtection = sP;
     currentStep = cS;
