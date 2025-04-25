@@ -169,6 +169,7 @@ struct GCodeManager {
   }
 
   void startPrint(String fn, bool sP = false, uint64_t cS = 0) {
+    Serial.println("kek");
     filename = fn;
     shutdownProtection = sP;
     currentStep = cS;
@@ -247,7 +248,9 @@ struct GCodeManager {
 
   void Handle() {
 
+
     if (printState == INITIALIZING) {
+      Serial.println("init");
       initPrint();
       return;
     }

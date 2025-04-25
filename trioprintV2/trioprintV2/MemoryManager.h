@@ -358,44 +358,51 @@ bool WriteFile(const char* name, const uint8_t* fileData, size_t size) {
   */
 FsFile openFile(const char* name) {
   sdCardAvailable = false;
-  return SD.open(name, oflag_t(O_RDWR | O_CREAT));
+  FsFile temp = SD.open(name, oflag_t(O_RDWR | O_CREAT));
   sdCardAvailable = true;
+  return temp;
 }
 
 FsFile openFile(const String& name) {
   sdCardAvailable = false;
-  return SD.open(name.c_str(), oflag_t(O_RDWR | O_CREAT));
+  FsFile temp = SD.open(name.c_str(), oflag_t(O_RDWR | O_CREAT));
   sdCardAvailable = true;
+  return temp;
 }
 
 bool mkdir(const char* path) {
   sdCardAvailable = false;
-  return SD.mkdir(path, true);
+  bool temp = SD.mkdir(path, true); 
   sdCardAvailable = true;
+  return temp;
 }
 
 bool mkdir(const String& path) {
   sdCardAvailable = false;
-  return SD.mkdir(path.c_str(), true);
+  bool temp = SD.mkdir(path.c_str(), true); 
   sdCardAvailable = true;
+  return temp;
 }
 
 bool remove(const char* path) {
   sdCardAvailable = false;
-  return SD.remove(path);
+  bool temp = SD.remove(path); 
   sdCardAvailable = true;
+  return temp;
 }
 
 bool remove(const String& path) {
   sdCardAvailable = false;
-  return SD.remove(path.c_str());
+  bool temp = SD.remove(path.c_str()); 
   sdCardAvailable = true;
+  return temp;
 }
 
 bool exists(const String& filename) {
   sdCardAvailable = false;
-  return SD.exists(filename);
+  bool temp = SD.exists(filename); 
   sdCardAvailable = true;
+  return temp;
 }
 
 int lineCount(FsFile& file) {
