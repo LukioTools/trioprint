@@ -78,7 +78,7 @@ void setup() {
 
   DM.begin();
 
-  GM.attachDeviceManager(DM);
+  GM.attachDeviceManager(&DM);
 
   WBW::begin(&GM);
 }
