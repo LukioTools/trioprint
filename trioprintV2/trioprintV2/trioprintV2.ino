@@ -76,10 +76,11 @@ void setup() {
   OTAW::begin();
   WSM.begin();
 
-  WBW::begin(&DM);
   DM.begin();
 
-  GM.startPrint(&DM, "/example.txt");
+  GM.attachDeviceManager(DM);
+
+  WBW::begin(&GM);
 }
 
 void loop() {
