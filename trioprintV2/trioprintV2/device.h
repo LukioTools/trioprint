@@ -5,6 +5,7 @@
 #include "MemoryManager.h"
 #include "HardwareSerial.h"
 #include "Buffer.h"
+#include "stdExtension.h"
 
 namespace DevM {
 
@@ -193,8 +194,10 @@ struct GCodeManager {
     static char stage = 1;
 
     if (bufferPos >= bufferLength) {
-      if (stage == 1)
-        SDM::HANDLER::GCodeInit init(&stage, &file, BUFFER_SIZE, &bufferPos, &bufferLength, buffer);
+      if (stage == 1) {
+        auto SDRequest = std::make_unique<SDM::HANDLER::GCodeInit>(&stage, &file, BUFFER_SIZE, &bufferPos, &bufferLength, buffer);
+        SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
+      }
       if (stage == 2) {
         if (bufferLength == 0) {
           file.seek(0);
