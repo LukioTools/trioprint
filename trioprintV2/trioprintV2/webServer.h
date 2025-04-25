@@ -47,6 +47,7 @@ void RootReloadCache() {
 }
 void Root(AsyncWebServerRequest* request) {
   Serial.println("root started");
+  delay(1000);
   RootPreload();
   Serial.println("root preload done");
   if (root_cache_data) {

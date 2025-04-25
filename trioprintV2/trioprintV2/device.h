@@ -169,6 +169,7 @@ struct GCodeManager {
   }
 
   void startPrint(String fn, bool sP = false, uint64_t cS = 0) {
+    Serial.println("kek");
     filename = fn;
     shutdownProtection = sP;
     currentStep = cS;
@@ -184,45 +185,46 @@ struct GCodeManager {
 
   String initLine;
 
-void initPrint() {
-  const size_t BUFFER_SIZE = 128;
-  static char buffer[BUFFER_SIZE];
-  static size_t bufferPos = 0;
-  static size_t bufferLength = 0;
+  void initPrint() {
+    const size_t BUFFER_SIZE = 128;
+    static char buffer[BUFFER_SIZE];
+    static size_t bufferPos = 0;
+    static size_t bufferLength = 0;
 
-  // Only read a new buffer if all previous characters are processed
-  if (bufferPos >= bufferLength) {
-    if(!SDM::sdCardAvailable) return;
-    bufferLength = file.readBytes(buffer, BUFFER_SIZE);
-    bufferPos = 0;
+    // Only read a new buffer if all previous characters are processed
+    Serial.printf("pos: %d, len: %d, sd card: %d \n", bufferPos, bufferLength, (int)SDM::sdCardAvailable);
+    if (bufferPos >= bufferLength) {
+      if (!SDM::sdCardAvailable) return;
+      bufferLength = file.readBytes(buffer, BUFFER_SIZE);
+      bufferPos = 0;
 
-    if (bufferLength == 0) {
-      // End of file reached
-      file.seek(0);  // Reset to beginning
-      printState = PRINTING;
-      Serial.println("File read completed. Total steps: " + String(steps));
-      return;
-    }
-  }
-
-  // Process current buffer until end
-  while (bufferPos < bufferLength) {
-    char c = buffer[bufferPos++];
-    initLine += c;
-
-    if (c == '\n') {
-      if (isCommand(initLine)) {
-        steps++;
-        Serial.println("steps");
+      if (bufferLength == 0) {
+        // End of file reached
+        file.seek(0);  // Reset to beginning
+        printState = PRINTING;
+        Serial.println("File read completed. Total steps: " + String(steps));
+        return;
       }
-      initLine = "";
     }
 
-    // Optional: early exit to limit processing time per loop iteration
-    // Uncomment below if needed for ultra-lightweight processing
-    // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
+    // Process current buffer until end
+    while (bufferPos < bufferLength) {
+      char c = buffer[bufferPos++];
+      initLine += c;
+
+      if (c == '\n') {
+        if (isCommand(initLine)) {
+          steps++;
+          Serial.println("steps");
+        }
+        initLine = "";
+      }
+
+      // Optional: early exit to limit processing time per loop iteration
+      // Uncomment below if needed for ultra-lightweight processing
+      // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
+    }
   }
-}
 
 
 
@@ -247,7 +249,9 @@ void initPrint() {
 
   void Handle() {
 
+
     if (printState == INITIALIZING) {
+      Serial.println("init");
       initPrint();
       return;
     }
