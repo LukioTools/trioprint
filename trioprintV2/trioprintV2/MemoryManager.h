@@ -495,8 +495,9 @@ public:
     }
     Serial.printf("thre is: %d \n", handlers.size());
 
-    for (auto& h : handlers) {
-      h->run();
+    while (auto handler = handlers.read()) {  // 'read()' returns the first handler and removes it from the buffer
+      handler->run();
+      // You can check if you need to perform additional removal logic or leave it to read() which already removes the item
     }
   }
 };
