@@ -473,6 +473,7 @@ class HandlerManager {
   FixedBuffer<Handler, 10> handlers;
   int count = 0;
 
+public:
   void addHandler(Handler h) {
     handlers.push_back(h);
   }
@@ -482,13 +483,16 @@ class HandlerManager {
   }
 
   void handle() {
-    if(handlers.size() == 0) return;
+    if (handlers.size() == 0) return;
 
-    for(int i = 0; i < handlers.size(); i++) {
+    for (int i = 0; i < handlers.size(); i++) {
       Handler* h = handlers.read();
       h->run();
     }
   }
 };
+
+HandlerManager SDHandlerManager;
+
 }
 }  // namespace WRAPPPER_NAMESPACE

@@ -86,4 +86,5 @@ void setup() {
 void loop() {
     GM.Handle();
     OTAW::handle();
+    SDM::HANDLER::SDHandlerManager.handle();
 }

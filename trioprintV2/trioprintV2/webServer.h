@@ -50,6 +50,7 @@ void Root(AsyncWebServerRequest* request) {
     //AsyncWebServerRequestPtr
     AsyncWebServerRequestPtr r = request->pause();
     SDM::HANDLER::WebRootLoad SDRequest(request->pause(), &root_cache_data, &root_cache_size);
+    SDM::HANDLER::SDHandlerManager.addHandler(SDRequest);
   }
 }
 }
