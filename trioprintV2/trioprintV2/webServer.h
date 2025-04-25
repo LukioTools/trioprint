@@ -42,11 +42,14 @@ void RootReloadCache() {
   RootLoadCache();
 }
 void Root(AsyncWebServerRequest* request) {
+  Serial.println("root called");
   if (root_cache_data) {
+    Serial.println("kek, root found");
     AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   } else {
+    Serial.println("o fuck root not found");
     //AsyncWebServerRequestPtr
     AsyncWebServerRequestPtr r = request->pause();
     SDM::HANDLER::WebRootLoad SDRequest(request->pause(), &root_cache_data, &root_cache_size);

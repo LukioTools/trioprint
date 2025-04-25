@@ -422,7 +422,7 @@ int lineCount(FsFile& file) {
 namespace HANDLER {
 class Handler {
 public:
-  virtual void run(){};
+  virtual void run() {Serial.println("kek should be handling shit, but I aint doing that");};
 };
 
 class WebRootLoad : public Handler {
@@ -483,7 +483,10 @@ public:
   }
 
   void handle() {
-    if (handlers.size() == 0) return;
+    if (handlers.size() == 0) {
+      return;
+    }
+    Serial.printf("thre is: %d \n", handlers.size());
 
     for (int i = 0; i < handlers.size(); i++) {
       Handler* h = handlers.read();
