@@ -460,6 +460,7 @@ class WebListDir : public Handler {
   AsyncWebServerRequestPtr requestPtr;
   String filename;
 
+  public:
   WebListDir(AsyncWebServerRequestPtr r, String fn)
     : requestPtr(r), filename(fn) {}
 
