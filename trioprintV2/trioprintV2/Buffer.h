@@ -1,5 +1,6 @@
 #pragma once
 #include "config.h"
+#include <optional>
 
 template<typename bufferType, uint8_t Tsize>
 class FixedBuffer {
@@ -8,7 +9,11 @@ class FixedBuffer {
   uint8_t mEnd = 0;
 
 public:
-  uint8_t size() {
+  bool empty() const {
+    return size() == 0;
+  }
+
+  uint8_t size() const {
     return mEnd - mBegin;
   }
 
@@ -34,6 +39,16 @@ public:
     if (p)
       mBegin += 1;
     return p;
+  }
+
+  bufferType pop_front() {
+    bufferType temp = std::move(event[mBegin]);
+    ++mBegin;
+    return temp;
+  }
+
+  bool hasNext() const {
+    return size() > 0;
   }
 
   bool pop(uint8_t index) {
