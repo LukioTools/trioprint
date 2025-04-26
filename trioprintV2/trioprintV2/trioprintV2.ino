@@ -85,7 +85,15 @@ void setup() {
 }
 
 void loop() {
-    GM.Handle();
-    OTAW::handle();
-    SDM::HANDLER::SDHandlerManager.handle();
+  //Serial.println("1");
+  auto start = millis();
+  GM.Handle();
+  //Serial.printf("gcode handler: %d ", millis() - start);
+  start = millis();
+  OTAW::handle();
+  //Serial.printf("ota: %d ", millis() - start);
+  start = millis();
+  SDM::HANDLER::SDHandlerManager.handle();
+  Serial.printf("sd handler Manager: %d\n", millis() - start);
+  start = millis();
 }

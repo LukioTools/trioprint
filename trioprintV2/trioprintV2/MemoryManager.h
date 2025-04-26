@@ -497,9 +497,11 @@ public:
   }
 
   void run() override {
-    Serial.println("starting to read in fuck");
+    //Serial.println("starting to read in fuck");
+    Serial.println("o fuck I'm reading\n");
     *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
-    Serial.println("read done in fuck");
+    Serial.printf("and the fucking buffer size is: %d\n", *bufferLength);
+    //Serial.println("read done in fuck");
     *stage = 1;
   }
 };
@@ -522,11 +524,11 @@ public:
     if (handlers.size() == 0) {
       return;
     }
-    Serial.printf("there is: %d \n", handlers.size());
+    //Serial.printf("there is: %d \n", handlers.size());
 
     while (handlers.hasNext()) {
       auto handler = handlers.pop_front();
-      handler->run();
+      handler->run(); 
     }
   }
 };
