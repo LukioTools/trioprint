@@ -500,7 +500,7 @@ public:
     Serial.println("starting to read in fuck");
     *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
     Serial.println("read done in fuck");
-    *stage = 1;
+    *stage = 3;
   }
 };
 
