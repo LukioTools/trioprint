@@ -522,7 +522,7 @@ public:
     if (handlers.size() == 0) {
       return;
     }
-    Serial.printf("thre is: %d \n", handlers.size());
+    Serial.printf("there is: %d \n", handlers.size());
 
     while (auto handler = handlers.read()) {  // 'read()' returns the first handler and removes it from the buffer
       if (handler == nullptr) {

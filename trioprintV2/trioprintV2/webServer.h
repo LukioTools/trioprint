@@ -49,11 +49,11 @@ void Root(AsyncWebServerRequest* request) {
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   } else {
-    Serial.println("o fuck root not found");
+    Serial.println("o fuck root not found"); 
     //AsyncWebServerRequestPtr
     auto SDRequest = std::make_unique<SDM::HANDLER::WebRootLoad>(request->pause(), &root_cache_data, &root_cache_size);
     SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
-  }
+  } 
 }
 }
 
