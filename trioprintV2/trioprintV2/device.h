@@ -199,27 +199,17 @@ struct GCodeManager {
       if (stage == 1) {
         auto SDRequest = std::make_unique<SDM::HANDLER::GCodeInit>(&stage, &file, BUFFER_SIZE, &bufferPos, &bufferLength, buffer);
         SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
-<<<<<<< HEAD
-        stage = 0;
-      } else {
-        Serial.printf("current stage: %d\n and length: %d", stage, bufferLength);
-=======
         stage = 2;
       } else if (stage == 2) {
         
       } else if (stage == 3) {
->>>>>>> 3891a00671757b0175b7aa3daacea8a9f028e640
         if (bufferLength == 0) {
           file.seek(0);
           printState = PRINTING;
           Serial.println("File read completed. Total steps: " + String(steps));
           return;
         }
-<<<<<<< HEAD
-        stage = 1;
-=======
         stage == 1;
->>>>>>> 3891a00671757b0175b7aa3daacea8a9f028e640
         bufferPos = 0;
       }
     }
