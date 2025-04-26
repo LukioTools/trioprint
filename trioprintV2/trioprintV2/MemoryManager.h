@@ -467,7 +467,7 @@ class WebListDir : public Handler {
   void run() override {
     auto e = SDM::listDir(filename);
     if (auto request = requestPtr.lock()) {
-      request->send(200, "plain/text", e.c_str());
+      request->send(200, "plain/text", e);
     }
   }
 };
