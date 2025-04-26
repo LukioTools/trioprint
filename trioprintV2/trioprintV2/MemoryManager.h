@@ -471,8 +471,10 @@ public:
   }
 
   void run() override {
+    Serial.println("starting to read in fuck");
     *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
-    *stage = 2;
+    Serial.println("read done in fuck");
+    *stage = 1;
   }
 };
 
@@ -497,7 +499,7 @@ public:
 
     while (auto handler = handlers.read()) {  // 'read()' returns the first handler and removes it from the buffer
       (*handler)->run();
-      
+
       // You can check if you need to perform additional removal logic or leave it to read() which already removes the item
     }
   }
