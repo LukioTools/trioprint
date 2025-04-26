@@ -449,6 +449,10 @@ public:
     if (requestPtr.expired()) return;
 
     if (auto request = requestPtr.lock()) {
+      if (!request) {
+        Serial.println("Couldn't lock request");
+        return;
+      }
       AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)*root_cache_data, *root_cache_size);  //Sends 404 File Not Found
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
@@ -468,6 +472,10 @@ public:
     auto e = SDM::listDir(filename);
     if (requestPtr.expired()) return;
     if (auto request = requestPtr.lock()) {
+      if (!request) {
+        Serial.println("Couldn't lock request");
+        return;
+      }
       request->send(200, "plain/text", e);
     }
   }
@@ -517,6 +525,10 @@ public:
     Serial.printf("thre is: %d \n", handlers.size());
 
     while (auto handler = handlers.read()) {  // 'read()' returns the first handler and removes it from the buffer
+      if (handler == nullptr) {
+        Serial.println("handler was nullptr, skip");
+        continue;
+      }
       (*handler)->run();
 
       // You can check if you need to perform additional removal logic or leave it to read() which already removes the item
