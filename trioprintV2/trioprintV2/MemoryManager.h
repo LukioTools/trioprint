@@ -460,12 +460,13 @@ class WebListDir : public Handler {
   AsyncWebServerRequestPtr requestPtr;
   String filename;
 
-  public:
+public:
   WebListDir(AsyncWebServerRequestPtr r, String fn)
     : requestPtr(r), filename(fn) {}
 
   void run() override {
     auto e = SDM::listDir(filename);
+    if (requestPtr.expired()) return;
     if (auto request = requestPtr.lock()) {
       request->send(200, "plain/text", e);
     }
