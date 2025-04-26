@@ -524,14 +524,9 @@ public:
     }
     Serial.printf("thre is: %d \n", handlers.size());
 
-    while (auto handler = handlers.read()) {  // 'read()' returns the first handler and removes it from the buffer
-      if (handler == nullptr) {
-        Serial.println("handler was nullptr, skip");
-        continue;
-      }
-      (*handler)->run();
-
-      // You can check if you need to perform additional removal logic or leave it to read() which already removes the item
+    while (handlers.hasNext()) {
+      auto handler = handlers.pop_front();
+      handler->run();
     }
   }
 };
