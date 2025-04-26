@@ -77,8 +77,8 @@ void sendCommand(AsyncWebServerRequest* request) {
 }
 
 void ListFolder(AsyncWebServerRequest* request) {
-  auto e = SDM::listDir(request->arg("path"));
-  request->send(200, "application/json", e.c_str());
+  auto SDRequest = std::make_unique<SDM::HANDLER::WebListDir>(request->pause(), request->arg("path"));
+  SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }
 
 void Remove(AsyncWebServerRequest* request) {

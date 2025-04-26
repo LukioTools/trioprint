@@ -434,27 +434,43 @@ public:
 
 class WebRootLoad : public Handler {
 
-  AsyncWebServerRequestPtr request;
+  AsyncWebServerRequestPtr requestPtr;
 
   char** root_cache_data = nullptr;
   std::size_t* root_cache_size = nullptr;
 
 public:
   WebRootLoad(AsyncWebServerRequestPtr r, char** rcd, std::size_t* rcs)
-    : request(r), root_cache_data(rcd), root_cache_size(rcs) {}
+    : requestPtr(r), root_cache_data(rcd), root_cache_size(rcs) {}
 
   void run() override {
     *root_cache_data = readFile(ROOT_FILE, *root_cache_size);
 
-    if (request.expired()) return;
+    if (requestPtr.expired()) return;
 
-    if (auto req = request.lock()) {
-      AsyncWebServerResponse* response = req->beginResponse(200, "text/html", (uint8_t*)*root_cache_data, *root_cache_size);  //Sends 404 File Not Found
+    if (auto request = requestPtr.lock()) {
+      AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)*root_cache_data, *root_cache_size);  //Sends 404 File Not Found
       response->addHeader("Content-Encoding", "gzip");
-      req->send(response);
+      request->send(response);
     }
   }
 };
+
+class WebListDir : public Handler {
+  AsyncWebServerRequestPtr requestPtr;
+  String filename;
+
+  WebListDir(AsyncWebServerRequestPtr r, String fn)
+    : requestPtr(r), filename(fn) {}
+
+  void run() override {
+    auto e = SDM::listDir(filename);
+    if (auto request = requestPtr.lock()) {
+      request->send(200, "plain/text", e.c_str());
+    }
+  }
+};
+
 
 class GCodeInit : public Handler {
   char* stage = nullptr;
@@ -475,6 +491,7 @@ public:
     *stage = 2;
   }
 };
+
 
 class HandlerManager {
   FixedBuffer<std::unique_ptr<Handler>, 10> handlers;
