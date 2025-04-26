@@ -500,14 +500,8 @@ public:
     //Serial.println("starting to read in fuck");
     Serial.println("o fuck I'm reading\n");
     *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
-<<<<<<< HEAD
-    Serial.printf("and the fucking buffer size is: %d\n", *bufferLength);
-    //Serial.println("read done in fuck");
-    *stage = 1;
-=======
     Serial.println("read done in fuck");
     *stage = 3;
->>>>>>> 3891a00671757b0175b7aa3daacea8a9f028e640
   }
 };
 
