@@ -193,6 +193,8 @@ struct GCodeManager {
     static size_t bufferLength = 0;
     static char stage = 1;
 
+    static size_t readAmount;
+
     Serial.printf("current stage: %d, bufferPos: %d and length: %d\n", stage, bufferPos, bufferLength);
 
     if (bufferPos >= bufferLength) {
@@ -201,7 +203,7 @@ struct GCodeManager {
         SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
         stage = 2;
       } else if (stage == 2) {
-        
+
       } else if (stage == 3) {
         if (bufferLength == 0) {
           file.seek(0);
@@ -218,6 +220,7 @@ struct GCodeManager {
     while (bufferPos < bufferLength) {
       char c = buffer[bufferPos++];
       initLine += c;
+      readAmount++;
 
       if (c == '\n') {
         if (isCommand(initLine)) {
@@ -226,11 +229,12 @@ struct GCodeManager {
         }
         initLine = "";
       }
-
       // Optional: early exit to limit processing time per loop iteration
       // Uncomment below if needed for ultra-lightweight processing
       // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
     }
+    stage = 1;
+    Serial.printf("read amount: %f\n", (float)readAmount / 1000);
   }
 
 
