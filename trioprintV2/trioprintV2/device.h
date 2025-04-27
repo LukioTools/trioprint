@@ -14,7 +14,7 @@ struct DeviceManager {
     Offline,
     Idle,
     Busy,
-    Printing,
+    CommandSuccess,
     ColdExtrusion,
     Error,
   };
@@ -44,7 +44,10 @@ struct DeviceManager {
 
   void begin() {
     FLASH_MEMORY::DevSerialConfig serialConfig = flashMemory::get<FLASH_MEMORY::DEVSERIAL>();
-    commandSizebuffer = new RuntimeBuffer<size_t>(flashMemory::get<FLASH_MEMORY::PRINTER_BUFFER_SIZE>());
+    commandSizebuffer = new RuntimeBuffer<size_t>(flashMemory::get<FLASH_MEMORY::PRINTER_COMMAND_SIZE>());
+
+    Serial.printf("serial baundrate: %d\n", serialConfig.baudRate);
+
     if (serialConfig.serial == 1)
       serial = &Serial;
     else if (serialConfig.serial == 2)
@@ -62,8 +65,10 @@ struct DeviceManager {
   size_t print(const String& data) {
     commandSizebuffer->finalize();
     if (spacesLeftInBuffer() >= 1 && availableInBuffer() >= data.length()) {
-      commandSizebuffer->write(data.length());
-      return serial->print(data);
+      Serial.println("print something");
+      auto len = serial->print(data);
+      commandSizebuffer->write(len);
+      return len;
     }
     return 0;
   }
@@ -71,8 +76,9 @@ struct DeviceManager {
   size_t write(const uint8_t* c, const size_t size) {
     commandSizebuffer->finalize();
     if (spacesLeftInBuffer() >= 1 && availableInBuffer() >= size) {
-      commandSizebuffer->write(size);
-      return serial->write(c, size);
+      auto len = serial->write(c, size);
+      commandSizebuffer->write(len);
+      return len;
     }
     return 0;
   }
@@ -89,11 +95,12 @@ struct DeviceManager {
 
     while (serial->available()) {
       data = serial->readStringUntil('\n');
+      Serial.println(data);
       if (data.isEmpty()) continue;
       if (data.startsWith("ok")) {
         commandSizebuffer->read();
         commandSizebuffer->finalize();
-        return Printing;
+        return CommandSuccess;
       } else if (data.startsWith("echo: cold extrusion prevented")) {
         return ColdExtrusion;
       } else if (data.startsWith("echo:Unknown command:")) {
@@ -151,7 +158,7 @@ struct GCodeManager {
     return !(line->isEmpty() || !isCommand(*line));
   }
 
-  bool readLineFromSdCard(String* output) {
+  bool readLineFromSdCard(String* output, uint* size) {
     *output = "";
     while (true) {
       int d = file.read();
@@ -162,11 +169,12 @@ struct GCodeManager {
         return true;
       }
       *output += (char)d;
+      *size = *size + 1;
     }
   }
 
-  bool readLine(String* line) {
-    return readLineFromSdCard(line);
+  bool readLine(String* line, uint* size) {
+    return readLineFromSdCard(line, size);
   }
 
   void startPrint(String fn, bool sP = false, uint64_t cS = 0) {
@@ -251,7 +259,14 @@ struct GCodeManager {
     steps = 0;
   }
 
+  uint64_t last = 324324;
+
   void Handle() {
+
+    if (last != currentStep) {
+      Serial.printf("steps done: %d\n", currentStep);
+      last = currentStep;
+    }
 
 
     if (printState == INITIALIZING) {
@@ -259,34 +274,60 @@ struct GCodeManager {
       return;
     }
 
-    if (printState == NOT_PRINTING) return;
+    if (printState == NOT_PRINTING) {
+      return;
+    };
 
-    if (deviceManager->spacesLeftInBuffer() < 1) return;
+    if (deviceManager->spacesLeftInBuffer() < 1) {
+      //Serial.printf("no spaces left in buffer: %d\n", deviceManager->spacesLeftInBuffer());
+      return;
+    }
 
-    if (deviceManager->availableInBuffer() == 0) return;
+    if (deviceManager->availableInBuffer() < 1) {
+      //Serial.println("printers buffer is full: ");
+      return;
+    }
+
+    Serial.printf("spaces left: %d, free in printer's buffer: %d, current step: %d, file pos: %d\n", deviceManager->spacesLeftInBuffer(), deviceManager->availableInBuffer(), currentStep, file.curPosition());
 
 
     while (deviceManager->spacesLeftInBuffer() > 0) {
       String line;
       bool readState = false;
 
-      readState = readLine(&line);
+      uint size = 0;
+
+      Serial.printf("before: %d \n", file.curPosition());
+      readState = readLine(&line, &size);
+      Serial.printf("after: %d and size: %d\n", file.curPosition(), size);
 
       if (!readState) {
         printFinished();
+        Serial.println("print finished");
         return;
       }
 
-      if (!trimLine(&line)) continue;
+      if (!trimLine(&line)) {
+        Serial.println("trimming failed");
+        continue;
+      }
 
-      if (!isCommand(line)) continue;
+      if (!isCommand(line)) {
+        Serial.println("isn't a command");
+        continue;
+      }
 
       line += '\n';
 
-      if (!(deviceManager->availableInBuffer() >= line.length())) return;
+      if (!(deviceManager->availableInBuffer() >= line.length())) {
+        Serial.printf("too long, current pos: %d, size: %d, seek: %d\n", file.curPosition(), size, file.curPosition() - size + 1);
+        file.seek(file.curPosition() - size - 1);
+        Serial.printf("too long, current pos after: %d\n", file.curPosition());
+        return;
+      }
 
-      deviceManager->print(line);
-      Serial.println(line) < currentStep++;
+      currentStep++;
+      Serial.printf("wrote: %d\n", deviceManager->print(line));
 
       if (currentStep >= steps) {
         printFinished();
