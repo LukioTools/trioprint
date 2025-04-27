@@ -8,7 +8,7 @@
 #include "Buffer.h"
 #include "webServer.h"
 
-WebSocketManager WSM;
+
 DevM::GCodeManager GM;
 DevM::DeviceManager DM;
 

@@ -428,7 +428,7 @@ std::unique_ptr<T> make_unique(Args&&... args) {
 class Handler {
 public:
   virtual void run() {
-    Serial.println("kek should be handling shit, but I aint doing that");
+    Serial.println("kek should be handling sd card shit, but I aint doing that because the sauce was lost on the way");
   };
 };
 
@@ -444,8 +444,8 @@ public:
     : requestPtr(r), root_cache_data(rcd), root_cache_size(rcs) {}
 
   void run() override {
+    if (requestPtr.expired()) return;
     *root_cache_data = readFile(ROOT_FILE, *root_cache_size);
-
     if (requestPtr.expired()) return;
 
     if (auto request = requestPtr.lock()) {
@@ -469,11 +469,11 @@ public:
     : requestPtr(r), filename(fn) {}
 
   void run() override {
+    if (requestPtr.expired()) return;
     auto e = SDM::listDir(filename);
     if (requestPtr.expired()) return;
     if (auto request = requestPtr.lock()) {
       if (!request) {
-        Serial.println("Couldn't lock request");
         return;
       }
       request->send(200, "plain/text", e);
@@ -520,11 +520,10 @@ public:
     if (handlers.size() == 0) {
       return;
     }
-    //Serial.printf("there is: %d \n", handlers.size());
 
     while (handlers.hasNext()) {
       auto handler = handlers.pop_front();
-      handler->run(); 
+      handler->run();
     }
   }
 };

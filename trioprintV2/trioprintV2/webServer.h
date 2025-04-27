@@ -66,7 +66,7 @@ void ServerStatus(AsyncWebServerRequest* request) {
 void sendCommand(AsyncWebServerRequest* request) {
   String command = request->arg("command") + "\n";
   gcodeManager->deviceManager->print(command);
-  request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+  request->send(200, "text/plain", "command sent");
 }
 
 void ListFolder(AsyncWebServerRequest* request) {
@@ -76,12 +76,11 @@ void ListFolder(AsyncWebServerRequest* request) {
 
 void Remove(AsyncWebServerRequest* request) {
   bool status = SDM::remove(request->arg("path"));
-  if (status) request->send(200, "text/plain", "File removed successfully");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+  if (status) request->send(200, "text/plain", "File removed successfully");
   else {
     bool exists = SDM::exists(request->arg("path"));
     request->send(500, "text/plain", "failed: " + request->arg("path") + " " + String(status) + " " + String(exists));
-  }  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
-}
+  }  
 
 void DownloadFile(AsyncWebServerRequest* request) {
   if (!request->hasArg("filename")) {
@@ -127,15 +126,12 @@ void print(AsyncWebServerRequest* request) {
 
 
   String filename = request->arg("path");
-  Serial.println("has path argument: " + filename);
 
   if (gcodeManager == nullptr)
     request->send(500, "text/plain", "gcode manager not found. reboot device");
 
-  Serial.println("gcode manager is found");
 
   gcodeManager->startPrint(filename);
-  Serial.println("print started");
   request->send(200, "text/plain", "Started print: " + filename);
 }
 
@@ -172,8 +168,6 @@ void UploadFile(AsyncWebServerRequest* request, String filename, size_t index, u
   }
 }
 }
-
-
 }
 
 static AsyncWebServer* server;
