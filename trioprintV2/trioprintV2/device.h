@@ -170,14 +170,11 @@ struct GCodeManager {
   }
 
   void startPrint(String fn, bool sP = false, uint64_t cS = 0) {
-    Serial.println("kek");
     filename = fn;
     shutdownProtection = sP;
     currentStep = cS;
 
-    Serial.println("opening file...");
     file = SDM::openFile(filename);
-    Serial.println("file opened");
 
     steps = 0;
 
@@ -187,15 +184,13 @@ struct GCodeManager {
   String initLine;
 
   void initPrint() {
-    const size_t BUFFER_SIZE = 128;
+    const size_t BUFFER_SIZE = 512;
     static char buffer[BUFFER_SIZE];
     static size_t bufferPos = 0;
     static size_t bufferLength = 0;
     static char stage = 1;
 
     static size_t readAmount;
-
-    Serial.printf("current stage: %d, bufferPos: %d and length: %d\n", stage, bufferPos, bufferLength);
 
     if (bufferPos >= bufferLength) {
       if (stage == 1) {
@@ -225,7 +220,6 @@ struct GCodeManager {
       if (c == '\n') {
         if (isCommand(initLine)) {
           steps++;
-          Serial.println("steps");
         }
         initLine = "";
       }
@@ -234,7 +228,6 @@ struct GCodeManager {
       // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
     }
     stage = 1;
-    Serial.printf("read amount: %f\n", (float)readAmount / 1000);
   }
 
 

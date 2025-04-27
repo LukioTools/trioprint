@@ -497,10 +497,7 @@ public:
   }
 
   void run() override {
-    //Serial.println("starting to read in fuck");
-    Serial.println("o fuck I'm reading\n");
     *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
-    Serial.println("read done in fuck");
     *stage = 3;
   }
 };

@@ -31,7 +31,6 @@ RuntimeBuffer<char>* testBuffer = nullptr;
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("kek");
 
   flashMemory::init();
 
@@ -85,15 +84,8 @@ void setup() {
 }
 
 void loop() {
-  //Serial.println("1");
-  auto start = millis();
   GM.Handle();
-  //Serial.printf("gcode handler: %d ", millis() - start);
-  start = millis();
   OTAW::handle();
-  //Serial.printf("ota: %d ", millis() - start);
-  start = millis();
   SDM::HANDLER::SDHandlerManager.handle();
-  Serial.printf("sd handler Manager: %d\n", millis() - start);
-  start = millis();
+  Serial.printf("free memory size: %d", esp_get_free_heap_size());
 }

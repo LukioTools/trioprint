@@ -42,15 +42,11 @@ void RootReloadCache() {
   RootLoadCache();
 }
 void Root(AsyncWebServerRequest* request) {
-  Serial.println("root called");
   if (root_cache_data) {
-    Serial.println("kek, root found");
     AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   } else {
-    Serial.println("o fuck root not found"); 
-    //AsyncWebServerRequestPtr
     auto SDRequest = std::make_unique<SDM::HANDLER::WebRootLoad>(request->pause(), &root_cache_data, &root_cache_size);
     SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
   } 
@@ -58,16 +54,13 @@ void Root(AsyncWebServerRequest* request) {
 }
 
 void ServerStatus(AsyncWebServerRequest* request) {
-  Serial.println("1");
 
   StringStream responce = "{";
   responce
     << "\"cardSize\":" << String(SDM::cardSize()) << ","
     << "\"freeSpace\":" << String(SDM::freeSize()) << ","
     << "}";
-  Serial.println("4");
   request->send(200, "text/plain", responce.str());
-  Serial.println("5");
 }
 
 void sendCommand(AsyncWebServerRequest* request) {
