@@ -21,7 +21,6 @@ void setup(){
     memory.begin();
 
     TD::devSerial.SerialBegin();
-    //TD::devSerial.changeBaundRate(250000);
 
     #if defined(ESP8266)
     ESP.wdtEnable(5000);
