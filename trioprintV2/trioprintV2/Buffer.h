@@ -253,6 +253,3 @@ public:
     return event[mBegin + index];
   }
 };
-
-struct PrinterBuffer {
-};
