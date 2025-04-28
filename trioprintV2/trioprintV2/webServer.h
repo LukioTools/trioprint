@@ -21,7 +21,6 @@ namespace WBW {
 DevM::GCodeManager* gcodeManager;
 
 namespace Handlers {
-
 void notFound(AsyncWebServerRequest* request) {
   request->send(404, "text/plain", "not found");
 }
@@ -53,7 +52,7 @@ void Root(AsyncWebServerRequest* request) {
 }
 }
 
-void ServerStatus(AsyncWebServerRequest* request) {
+void serverStatus(AsyncWebServerRequest* request) {
 
   StringStream responce = "{";
   responce
@@ -69,12 +68,12 @@ void sendCommand(AsyncWebServerRequest* request) {
   request->send(200, "text/plain", "command sent");
 }
 
-void ListFolder(AsyncWebServerRequest* request) {
+void listFolder(AsyncWebServerRequest* request) {
   auto SDRequest = std::make_unique<SDM::HANDLER::WebListDir>(request->pause(), request->arg("path"));
   SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }
 
-void Remove(AsyncWebServerRequest* request) {
+void remove(AsyncWebServerRequest* request) {
   bool status = SDM::remove(request->arg("path"));
   if (status) request->send(200, "text/plain", "File removed successfully");
   else {
@@ -83,7 +82,7 @@ void Remove(AsyncWebServerRequest* request) {
   }
 }
 
-void DownloadFile(AsyncWebServerRequest* request) {
+void downloadFile(AsyncWebServerRequest* request) {
   if (!request->hasArg("filename")) {
     request->send(400, "text/plain", "Missing filename parameter");
     return;
@@ -112,7 +111,7 @@ void DownloadFile(AsyncWebServerRequest* request) {
   request->send(response);
 }
 
-void Mkdir(AsyncWebServerRequest* request) {
+void mkdir(AsyncWebServerRequest* request) {
   if (SDM::mkdir(request->arg("path")))
     request->send(200, "text/plain", "Directory created succesfully!");
   else
@@ -136,19 +135,33 @@ void print(AsyncWebServerRequest* request) {
   request->send(200, "text/plain", "Started print: " + filename);
 }
 
-void Ems(AsyncWebServerRequest* request) {
+void ems(AsyncWebServerRequest* request) {
   gcodeManager->ems();
   request->send(200, "text/plain", "ems activated");
 }
 
-void SendCommand(AsyncWebServerRequest* request) {
-  String command = request->arg("command");
-  request->send(200, "text/plain", "command sent");  // Send HTTP status 404 (Not Found) when there's no handler for the URI in the request
+void pause(AsyncWebServerRequest* request) {
+  if (request->hasArg("isCommand")) {
+    DevM::GCodeManager::PrintState state = gcodeManager->pause();
+    if (state == DevM::GCodeManager::PRINTING)
+      request->send(200, "text/plain", "running");
+    else if (state == DevM::GCodeManager::PAUSE)
+      request->send(200, "text/plain", "paused");
+  } else {
+    if (gcodeManager->printState != DevM::GCodeManager::PAUSE)
+      request->send(200, "text/plain", "running");
+    else
+      request->send(200, "text/plain", "paused");
+  }
+}
+
+void stop(AsyncWebServerRequest* request) {
+  request->send(200, "text/plain", String(gcodeManager->stop();));
 }
 
 namespace Upload {
 FsFile upload_file;
-void UploadFile(AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final) {
+void uploadFile(AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final) {
   const String& filepath = request->arg("path");
   String fullpath = filepath.isEmpty() ? "/" : filepath;
   fullpath += filename;
@@ -181,29 +194,28 @@ void begin(DevM::GCodeManager* dm) {
 
   server->on("/", HTTP_GET, Handlers::Root::Root);
 
-  server->on("/server/status", HTTP_GET, Handlers::ServerStatus);
+  server->on("/server/status", HTTP_GET, Handlers::serverStatus);
 
   server->on("/device/print", HTTP_GET, Handlers::print);
-  server->on("/device/pause", HTTP_GET, Handlers::notFound);
-  server->on("/device/continue", HTTP_GET, Handlers::notFound);
-  server->on("/device/stop", HTTP_GET, Handlers::notFound);
-  server->on("/device/ems", HTTP_GET, Handlers::Ems);
+  server->on("/device/pause", HTTP_GET, Handlers::pause);
+  server->on("/device/stop", HTTP_GET, Handlers::stop);
+  server->on("/device/ems", HTTP_GET, Handlers::ems);
   server->on("/device/console", HTTP_GET, Handlers::notFound);
   server->on("/device/recoveryStatus", HTTP_GET, Handlers::notFound);
-  server->on("/device/sendCommand", HTTP_GET, Handlers::SendCommand);
+  server->on("/device/sendCommand", HTTP_GET, Handlers::sendCommand);
 
-  server->on("/fm/ls", HTTP_GET, Handlers::ListFolder);
-  server->on("/fm/remove", HTTP_GET, Handlers::Remove);
-  server->on("/fm/mkdir", HTTP_GET, Handlers::notFound);
-  server->on("/fm/downloadFile", HTTP_GET, Handlers::DownloadFile);
-  server->on("/fm/uploadFile", HTTP_POST, Handlers::notFound);
-
-  server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
+  server->on("/fm/ls", HTTP_GET, Handlers::listFolder);
+  server->on("/fm/remove", HTTP_GET, Handlers::remove);
+  server->on("/fm/mkdir", HTTP_GET, Handlers::mkdir);
+  server->on("/fm/downloadFile", HTTP_GET, Handlers::downloadFile);
   server->on(
-    "/config/getDynamicConfig", HTTP_GET, [](AsyncWebServerRequest* request) {
+    "/fm/uploadFile", HTTP_GET, [](AsyncWebServerRequest* request) {
       request->send(200, "text/plain", "Upload complete");
     },
-    Handlers::Upload::UploadFile);
+    Handlers::Upload::uploadFile);
+
+  server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
+  server->on("/config/getDynamicConfig", HTTP_GET, Handler::notFound);
 
   server->onNotFound(Handlers::notFound);
 

@@ -131,8 +131,8 @@ struct GCodeManager {
     NOT_PRINTING,
     INITIALIZING,
     PRINTING,
-    PAUSE,
     END,
+    PAUSE,
     STOP,
     EMS,
   };
@@ -172,7 +172,19 @@ struct GCodeManager {
   }
 
   bool readLine(String* line, uint* size) {
-    return readLineFromSdCard(line, size);
+    if (printState == PRINTING)
+      return readLineFromSdCard(line, size);
+    else if (printState == PAUSE)
+      return false;
+    else if (printState == STOP) {
+      *line = String(END_COMMANDS[currentStep]);
+      *size = (*line).length();
+      return true;
+    } else if (printState == EMS) {
+      *line = String(EMS_COMMANDS[currentStep]);
+      *size = (*line).length();
+      return true;
+    }
   }
 
   void startPrint(String fn, bool sP = false, uint64_t cS = 0) {
@@ -237,16 +249,30 @@ struct GCodeManager {
 
 
 
-  void stop() {
-    steps = sizeof(END_COMMANDS) / sizeof(END_COMMANDS[0]);
-    currentStep = 0;
-    printState = STOP;
+  bool stop() {
+    if (printState == PRINTING || printState == PAUSE) {
+      steps = sizeof(END_COMMANDS) / sizeof(END_COMMANDS[0]);
+      currentStep = 0;
+      printState = STOP;
+      return true;
+    }
+    return false;
   }
 
   void ems() {
     steps = sizeof(EMS_COMMANDS) / sizeof(EMS_COMMANDS[0]);
     currentStep = 0;
     printState = EMS;
+  }
+
+  PrintState pause() {
+    if (printState == PRINTING) {
+      printState = PAUSE;
+      return printState;
+    } else if (printState == PAUSE) {
+      printState = PRINTING;
+      return printState;
+    }
   }
 
   void printFinished() {
