@@ -168,7 +168,7 @@ void uploadFile(AsyncWebServerRequest* request, String filename, size_t index, u
 
   Serial.printf("uploading file to sd card: filename: %s, len:%d", fullpath, len);
 
-    if (index == 0) {
+  if (index == 0) {
     upload_file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
   }
 
@@ -210,11 +210,8 @@ void begin(DevM::GCodeManager* dm) {
   server->on("/fm/remove", HTTP_GET, Handlers::remove);
   server->on("/fm/mkdir", HTTP_GET, Handlers::mkdir);
   server->on("/fm/downloadFile", HTTP_GET, Handlers::downloadFile);
-  server->on(
-    "/fm/uploadFile", HTTP_GET, [](AsyncWebServerRequest* request) {
-      request->send(200, "text/plain", "Upload complete");
-    },
-    Handlers::Upload::uploadFile);
+        server.on("/fm/uploadFile/", HTTP_POST, [](){ request->send(200); },                          // Send status 200 (OK) to tell the client we are ready to receive
+        Handlers::Upload::uploadFile);
 
   server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
   server->on("/config/getDynamicConfig", HTTP_GET, Handlers::notFound);
