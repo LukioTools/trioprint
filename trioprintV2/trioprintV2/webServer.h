@@ -156,7 +156,7 @@ void pause(AsyncWebServerRequest* request) {
 }
 
 void stop(AsyncWebServerRequest* request) {
-  request->send(200, "text/plain", String(gcodeManager->stop();));
+  request->send(200, "text/plain", String(gcodeManager->stop()));
 }
 
 namespace Upload {
@@ -166,7 +166,9 @@ void uploadFile(AsyncWebServerRequest* request, String filename, size_t index, u
   String fullpath = filepath.isEmpty() ? "/" : filepath;
   fullpath += filename;
 
-  if (index == 0) {
+  Serial.printf("uploading file to sd card: filename: %s, len:%d", fullpath, len);
+
+    if (index == 0) {
     upload_file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
   }
 
@@ -215,7 +217,7 @@ void begin(DevM::GCodeManager* dm) {
     Handlers::Upload::uploadFile);
 
   server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
-  server->on("/config/getDynamicConfig", HTTP_GET, Handler::notFound);
+  server->on("/config/getDynamicConfig", HTTP_GET, Handlers::notFound);
 
   server->onNotFound(Handlers::notFound);
 
