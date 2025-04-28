@@ -51,8 +51,8 @@ void setup() {
 
 
   flashMemory::set<FLASH_MEMORY::PRINTER_TIMEOUT>(1000);
-  flashMemory::set<FLASH_MEMORY::PRINTER_BUFFER_SIZE>(50);
-  flashMemory::set<FLASH_MEMORY::PRINTER_COMMAND_SIZE>(5);
+  flashMemory::set<FLASH_MEMORY::PRINTER_BUFFER_SIZE>(1152);
+  flashMemory::set<FLASH_MEMORY::PRINTER_COMMAND_SIZE>(12);
   
   
 

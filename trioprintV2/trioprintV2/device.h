@@ -93,7 +93,6 @@ struct DeviceManager {
     while (serial->available()) {
       String data;
       data = serial->readStringUntil('\n');
-      Serial.println(data);
       WSM.broadcastAllTXT(data);
       if (data.isEmpty()) continue;
       if (data.startsWith("ok")) {
@@ -186,6 +185,7 @@ struct GCodeManager {
     steps = 0;
 
     printState = INITIALIZING;
+    Serial.println("print started");
   }
 
   String initLine;
@@ -230,9 +230,6 @@ struct GCodeManager {
         }
         initLine = "";
       }
-      // Optional: early exit to limit processing time per loop iteration
-      // Uncomment below if needed for ultra-lightweight processing
-      // if (processedChars++ >= MAX_CHARS_PER_LOOP) break;
     }
     stage = 1;
   }
@@ -305,7 +302,10 @@ struct GCodeManager {
         return;
       }
 
+      deviceManager->print(line);
+
       currentStep++;
+      //Serial.printf("spaces left: %d, available bytes: %d, steps done: %d\n", deviceManager->spacesLeftInBuffer(), deviceManager->availableInBuffer(), currentStep);
 
       if (currentStep >= steps) {
         printFinished();
