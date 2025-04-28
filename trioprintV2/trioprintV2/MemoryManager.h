@@ -395,16 +395,16 @@ class WebRootLoad : public Handler {
 
   AsyncWebServerRequestPtr requestPtr;
 
-  char** root_cache_data = nullptr;
-  std::size_t* root_cache_size = nullptr;
+  char* root_cache_data;
+  std::size_t& root_cache_size;
 
 public:
-  WebRootLoad(AsyncWebServerRequestPtr r, char** rcd, std::size_t* rcs)
+  WebRootLoad(AsyncWebServerRequestPtr r, char* rcd, std::size_t& rcs)
     : requestPtr(r), root_cache_data(rcd), root_cache_size(rcs) {}
 
   void run() override {
     if (requestPtr.expired()) return;
-    *root_cache_data = readFile(ROOT_FILE, *root_cache_size);
+    root_cache_data = readFile(ROOT_FILE, root_cache_size);
     if (requestPtr.expired()) return;
 
     if (auto request = requestPtr.lock()) {
@@ -412,7 +412,7 @@ public:
         Serial.println("Couldn't lock request");
         return;
       }
-      AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)*root_cache_data, *root_cache_size);  //Sends 404 File Not Found
+      AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
     }
@@ -421,10 +421,10 @@ public:
 
 class WebListDir : public Handler {
   AsyncWebServerRequestPtr requestPtr;
-  String filename;
+  const String& filename;
 
 public:
-  WebListDir(AsyncWebServerRequestPtr r, String fn)
+  WebListDir(AsyncWebServerRequestPtr r, const String& fn)
     : requestPtr(r), filename(fn) {}
 
   void run() override {
@@ -440,24 +440,66 @@ public:
   }
 };
 
-
-class GCodeInit : public Handler {
-  char* stage = nullptr;
-  FsFile* file = nullptr;
-  size_t BUFFER_SIZE;
-  size_t* bufferPos = nullptr;
-  size_t* bufferLength = nullptr;
-  char* buffer = nullptr;
+class WebUploadfile : public Handler {
+  AsyncWebServerRequestPtr requestPtr;
+  FsFile& file;
+  const String& filename;
+  const size_t& index;
+  uint8_t* data;
+  const size_t& len;
+  const bool& final;
 
 public:
-  GCodeInit(char* d, FsFile* f, size_t bs, size_t* bp, size_t* bl, char* b)
+  WebUploadfile(AsyncWebServerRequestPtr r, FsFile& f, const String& fn, const size_t& i, uint8_t* d, const size_t& l, const bool& fi)
+    : requestPtr(r), file(f), filename(fn), index(i), data(d), len(l), final(fi) {}
+
+  void run() override {
+    if (requestPtr.expired()) {
+      return;
+    }
+
+    if (auto request = requestPtr.lock()) {
+      const String& filepath = request->arg("path");
+      String fullpath = filepath.isEmpty() ? "/" : filepath;
+      fullpath += filename;
+
+      Serial.printf("Uploading file to SD card: filename: %s, len: %d\n", fullpath.c_str(), len);
+
+      if (index == 0) {
+        file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
+      }
+
+      if (file) {
+        size_t amount = file.write(data, len);
+        (void)amount;  // Suppress unused variable warning if necessary
+      }
+
+      if (final) {
+        file.close();
+      }
+
+      request->send(200);
+    }
+  }
+};
+
+class GCodeInit : public Handler {
+  char& stage;
+  FsFile& file;
+  const size_t BUFFER_SIZE;
+  size_t& bufferPos;
+  size_t& bufferLength;
+  char* buffer;  // still raw pointer because it is a dynamic array
+
+public:
+  GCodeInit(char& d, FsFile& f, size_t bs, size_t& bp, size_t& bl, char* b)
     : stage(d), file(f), BUFFER_SIZE(bs), bufferPos(bp), bufferLength(bl), buffer(b) {
-    *stage = 0;
+    stage = 0;
   }
 
   void run() override {
-    *bufferLength = file->readBytes(buffer, BUFFER_SIZE);
-    *stage = 3;
+    bufferLength = file.readBytes(buffer, BUFFER_SIZE);
+    stage = 3;
   }
 };
 

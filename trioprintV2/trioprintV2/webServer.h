@@ -46,7 +46,7 @@ void Root(AsyncWebServerRequest* request) {
     response->addHeader("Content-Encoding", "gzip");
     request->send(response);
   } else {
-    auto SDRequest = std::make_unique<SDM::HANDLER::WebRootLoad>(request->pause(), &root_cache_data, &root_cache_size);
+    auto SDRequest = std::make_unique<SDM::HANDLER::WebRootLoad>(request->pause(), root_cache_data, root_cache_size);
     SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
   }
 }
@@ -161,27 +161,9 @@ void stop(AsyncWebServerRequest* request) {
 
 namespace Upload {
 FsFile upload_file;
-void uploadFile(AsyncWebServerRequest* request, String filename, size_t index, uint8_t* data, size_t len, bool final) {
-  const String& filepath = request->arg("path");
-  String fullpath = filepath.isEmpty() ? "/" : filepath;
-  fullpath += filename;
-
-  Serial.printf("uploading file to sd card: filename: %s, len:%d\n", fullpath, len);
-
-  if (index == 0) {
-    upload_file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
-  }
-
-  if (upload_file) {
-    size_t amount = upload_file.write(data, len);
-  }
-
-  if (final) {
-    upload_file.close();
-    if (filename == ROOT_FILE && fullpath == String("/") + ROOT_FILE) {
-      Root::RootReloadCache();
-    }
-  }
+void uploadFile(AsyncWebServerRequest* request, const String& filename, const size_t& index, uint8_t* data, const size_t& len, const bool& final) {
+  auto SDRequest = std::make_unique<SDM::HANDLER::WebUploadfile>(request->pause(), upload_file, filename, index, data, len, final);
+  SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }
 }
 }
@@ -210,10 +192,11 @@ void begin(DevM::GCodeManager* dm) {
   server->on("/fm/remove", HTTP_GET, Handlers::remove);
   server->on("/fm/mkdir", HTTP_GET, Handlers::mkdir);
   server->on("/fm/downloadFile", HTTP_GET, Handlers::downloadFile);
-  server->on("/fm/uploadFile/", HTTP_POST, [](AsyncWebServerRequest* request) {
-    request->send(200);
-  },  // Send status 200 (OK) to tell the client we are ready to receive
-             Handlers::Upload::uploadFile);
+  server->on(
+    "/fm/uploadFile/", HTTP_POST, [](AsyncWebServerRequest* request) {
+      request->send(200);
+    },  // Send status 200 (OK) to tell the client we are ready to receive
+    Handlers::Upload::uploadFile);
 
   server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
   server->on("/config/getDynamicConfig", HTTP_GET, Handlers::notFound);
