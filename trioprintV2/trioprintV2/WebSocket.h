@@ -6,11 +6,11 @@
 
 struct WebSocketManager {
 
-  AsyncWebServer server;
-  AsyncWebSocket ws;
+  AsyncWebServer *server;
+  AsyncWebSocket *ws;
 
-  WebSocketManager()
-    : server(flashMemory::get<FLASH_MEMORY::WEB_SOCKET_PORT>()), ws("/ws") {
+  WebSocketManager() {
+    // constructor body (if needed)
   }
 
   void onWebSocketEvent(AsyncWebSocket *server,
@@ -50,7 +50,11 @@ struct WebSocketManager {
   }
 
   void begin() {
-    ws.onEvent([this](AsyncWebSocket *server,
+
+    server = new AsyncWebServer(flashMemory::get<FLASH_MEMORY::WEB_SOCKET_PORT>());
+    ws = new AsyncWebSocket("/");
+
+    (*ws).onEvent([this](AsyncWebSocket *server,
                       AsyncWebSocketClient *client,
                       AwsEventType type,
                       void *arg,
@@ -60,18 +64,19 @@ struct WebSocketManager {
     });
 
     Serial.printf("starting socket server, port: %d\n", flashMemory::get<FLASH_MEMORY::WEB_SOCKET_PORT>());
-    server.addHandler(&ws);
-    server.begin();
+    (*server).addHandler(ws);
+    (*server).begin();
     Serial.println("socket server started");
   }
 
   bool broadcastAllTXT(String &data) {
-    return ws.textAll(data);
+    return (*ws).textAll(data);
   }
 
   bool broadcastAllTXT(const char *data) {
-    return ws.textAll(data);
+    return (*ws).textAll(data);
   }
 };
 
 WebSocketManager WSM;
+

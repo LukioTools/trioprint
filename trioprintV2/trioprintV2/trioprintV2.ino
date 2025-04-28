@@ -8,11 +8,25 @@
 #include "Buffer.h"
 #include "webServer.h"
 
+//#define PORT 80
+//#define WEB_SOCKET_PORT 81
+//static constexpr uint64_t SD_SECTOR_SIZE = 512;
+//#define FILE_CHUNK_SIZE 1024
+//#define SD_SPI_SPEED SD_SCK_MHZ(16)
+//#define SD_CARD_CONNECTION_ATTEMPTS 5
+//#define DEVSERIAL 0
+//#define DEV_CUSTOM_SERIAL 115200, SERIAL_8N1, 16, 17 //ONLY ESP32 SUPPORT. Use if the DEVSERIAL 0, 1, 2, 3 do not work.
+
+//#define WIFI_SSID_SIZE 16
+//#define WIFI_PWD_SIZE 16
+//#define OTA_PWD_SIZE 16
+//#define WEB_NAME_SIZE 10
 
 DevM::GCodeManager GM;
 DevM::DeviceManager DM;
 
 RuntimeBuffer<char>* testBuffer = nullptr;
+
 
 void setup() {
   Serial.begin(250000);
@@ -60,6 +74,14 @@ void setup() {
 
   SDM::init();
 
+  Serial.printf("card size: %d\n", SDM::cardSize());
+  Serial.printf("free size: %d\n", SDM::freeSize());
+
+  char carr[WIFI_SSID_SIZE];
+  flashMemory::get<FLASH_MEMORY::WIFI_SSID>(carr);
+  Serial.println(carr);
+  Serial.println(flashMemory::flush() ? "EEPROM commit success" : "EEPROM commit failed");
+
   WiFiW::begin();
   OTAW::begin();
   WSM.begin();
@@ -99,7 +121,6 @@ void loop() {
     deviceOldStatus = deviceStatus;
   }
   */
-
   GM.Handle();
   OTAW::handle();
   SDM::HANDLER::SDHandlerManager.handle();

@@ -49,7 +49,7 @@ void Root(AsyncWebServerRequest* request) {
   } else {
     auto SDRequest = std::make_unique<SDM::HANDLER::WebRootLoad>(request->pause(), &root_cache_data, &root_cache_size);
     SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
-  } 
+  }
 }
 }
 
@@ -80,7 +80,8 @@ void Remove(AsyncWebServerRequest* request) {
   else {
     bool exists = SDM::exists(request->arg("path"));
     request->send(500, "text/plain", "failed: " + request->arg("path") + " " + String(status) + " " + String(exists));
-  }  
+  }
+}
 
 void DownloadFile(AsyncWebServerRequest* request) {
   if (!request->hasArg("filename")) {

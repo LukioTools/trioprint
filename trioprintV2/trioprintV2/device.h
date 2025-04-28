@@ -1,11 +1,12 @@
-#include "esp32-hal.h"
 #pragma once
+#include "esp32-hal.h"
 
 #include "config.h"
 #include "MemoryManager.h"
 #include "HardwareSerial.h"
 #include "Buffer.h"
 #include "stdExtension.h"
+#include "WebSocket.h"
 
 namespace DevM {
 
@@ -81,7 +82,6 @@ struct DeviceManager {
   }
 
   PrinterStatus read() {
-    String data;
 
     if (!serial->available()) {
       if (millis() - lastResponse >= flashMemory::get<FLASH_MEMORY::PRINTER_TIMEOUT>()) {
@@ -91,8 +91,10 @@ struct DeviceManager {
     }
 
     while (serial->available()) {
+      String data;
       data = serial->readStringUntil('\n');
       Serial.println(data);
+      WSM.broadcastAllTXT(data);
       if (data.isEmpty()) continue;
       if (data.startsWith("ok")) {
         commandSizebuffer->read();
