@@ -211,7 +211,7 @@ void begin(DevM::GCodeManager* dm) {
   server->on("/fm/mkdir", HTTP_GET, Handlers::mkdir);
   server->on("/fm/downloadFile", HTTP_GET, Handlers::downloadFile);
   server->on(
-    "/fm/uploadFile", HTTP_GET, [](AsyncWebServerRequest* request) {
+    "/fm/uploadFile/", HTTP_GET, [](AsyncWebServerRequest* request) {
       request->send(200, "text/plain", "Upload complete");
     },
     Handlers::Upload::uploadFile);
