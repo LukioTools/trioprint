@@ -470,15 +470,8 @@ public:
       if (fullpath.isEmpty()) fullpath = "/";
       fullpath += filename;
 
-<<<<<<< HEAD
-      //Serial.printf("Uploading file to SD card: filename: %s, len: %d\n", fullpath.c_str(), len);
-      if (!opened && index == 0) {
-        file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
-        opened = true;
-=======
       if (index == 0) {
         FsFile file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
->>>>>>> dd451b45a94ddb094adac27692221276926b0937
 
         if (!file) {
           request->send(500, "text/plain", "Failed to open file");

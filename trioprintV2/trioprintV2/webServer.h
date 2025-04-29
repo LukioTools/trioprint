@@ -163,12 +163,7 @@ void stop(AsyncWebServerRequest* request) {
 namespace Upload {
 TinyMap<String, std::shared_ptr<FsFile>, 10> activeUploads;
 void uploadFile(AsyncWebServerRequest* request, const String& filename, const size_t& index, uint8_t* data, const size_t& len, const bool& final) {
-<<<<<<< HEAD
-  Serial.println("kek");
-  auto SDRequest = std::make_unique<SDM::HANDLER::WebUploadfile>(request->pause(), filename, index, data, len, final);
-=======
   auto SDRequest = std::make_unique<SDM::HANDLER::WebUploadfile>(request->pause(), activeUploads, filename, index, data, len, final);
->>>>>>> dd451b45a94ddb094adac27692221276926b0937
   SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }
 }
