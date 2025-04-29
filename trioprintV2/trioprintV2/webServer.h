@@ -89,27 +89,8 @@ void downloadFile(AsyncWebServerRequest* request) {
     return;
   }
 
-  String filename = request->arg("filename");
-  FsFile* file = new FsFile(SDM::openFile(filename));  // Allocate on heap
-  if (!file || !file->available()) {
-    delete file;
-    request->send(404, "text/plain", "File not found");
-    return;
-  }
-
-  AsyncWebServerResponse* response = request->beginChunkedResponse(
-    "application/octet-stream",
-    [file](uint8_t* buffer, size_t maxLen, size_t index) -> size_t {
-      if (!file->available()) {
-        file->close();
-        delete file;
-        return 0;
-      }
-      return file->read(buffer, maxLen);
-    });
-
-  response->addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-  request->send(response);
+  auto SDRequest = std::make_unique<SDM::HANDLER::WebDownloadfile>(request->pause());
+  SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }
 
 void mkdir(AsyncWebServerRequest* request) {

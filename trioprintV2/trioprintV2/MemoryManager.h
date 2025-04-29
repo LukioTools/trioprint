@@ -501,6 +501,39 @@ public:
   }
 };
 
+class WebDownloadfile : public Handler {
+
+  AsyncWebServerRequestPtr requestPtr;
+
+  WebDownloadfile(AsyncWebServerRequestPtr r)
+    : requestPtr(r) {}
+
+  void run() override {
+    String filename = request->arg("filename");
+    FsFile* file = new FsFile(SDM::openFile(filename));  // Allocate on heap
+    if (!file || !file->available()) {
+      delete file;
+      request->send(404, "text/plain", "File not found");
+      return;
+    }
+
+    AsyncWebServerResponse* response = request->beginChunkedResponse(
+      "application/octet-stream",
+      [file](uint8_t* buffer, size_t maxLen, size_t index) -> size_t {
+        if (!file->available()) {
+          file->close();
+          delete file;
+          return 0;
+        }
+        return file->read(buffer, maxLen);
+      });
+
+    response->addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
+    request->send(response);
+  }
+
+}
+
 class GCodeInit : public Handler {
   char& stage;
   FsFile& file;
