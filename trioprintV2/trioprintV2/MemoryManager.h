@@ -463,6 +463,8 @@ public:
       return;
     }
 
+
+
     if (auto request = requestPtr.lock()) {
       String fullpath = request->arg("path");
       if (fullpath.isEmpty()) fullpath = "/";
