@@ -348,15 +348,18 @@ FsFile openFile(const String& name) {
 }
 
 bool mkdir(const char* path) {
-  return SD.mkdir(path, true);;
+  return SD.mkdir(path, true);
+  ;
 }
 
 bool mkdir(const String& path) {
-  return SD.mkdir(path.c_str(), true);;
+  return SD.mkdir(path.c_str(), true);
+  ;
 }
 
 bool remove(const char* path) {
-  return SD.remove(path);;
+  return SD.remove(path);
+  ;
 }
 
 bool remove(const String& path) {
@@ -442,16 +445,17 @@ public:
 
 class WebUploadfile : public Handler {
   AsyncWebServerRequestPtr requestPtr;
-  FsFile& file;
-  const String& filename;
-  const size_t& index;
+  FsFile file;
+  String filename;
+  size_t index;
   uint8_t* data;
-  const size_t& len;
-  const bool& final;
+  size_t len;
+  bool final;
+  bool opened = false;
 
 public:
-  WebUploadfile(AsyncWebServerRequestPtr r, FsFile& f, const String& fn, const size_t& i, uint8_t* d, const size_t& l, const bool& fi)
-    : requestPtr(r), file(f), filename(fn), index(i), data(d), len(l), final(fi) {}
+  WebUploadfile(AsyncWebServerRequestPtr r, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
+    : requestPtr(r), filename(fn), index(i), data(d), len(l), final(fi) {}
 
   void run() override {
     if (requestPtr.expired()) {
@@ -459,26 +463,28 @@ public:
     }
 
     if (auto request = requestPtr.lock()) {
-      const String& filepath = request->arg("path");
-      String fullpath = filepath.isEmpty() ? "/" : filepath;
+      String fullpath = request->arg("path");
+      if (fullpath.isEmpty()) fullpath = "/";
       fullpath += filename;
 
-      Serial.printf("Uploading file to SD card: filename: %s, len: %d\n", fullpath.c_str(), len);
-
-      if (index == 0) {
+      if (!opened && index == 0) {
         file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
+        opened = true;
+
+        if (!file) {
+          request->send(500, "text/plain", "Failed to open file");
+          return;
+        }
       }
 
       if (file) {
-        size_t amount = file.write(data, len);
-        (void)amount;  // Suppress unused variable warning if necessary
+        file.write(data, len);
       }
 
-      if (final) {
+      if (final && file) {
         file.close();
+        request->send(200, "text/plain", "Upload complete");
       }
-
-      request->send(200);
     }
   }
 };
