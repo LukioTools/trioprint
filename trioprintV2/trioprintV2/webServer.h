@@ -161,6 +161,7 @@ void stop(AsyncWebServerRequest* request) {
 
 namespace Upload {
 void uploadFile(AsyncWebServerRequest* request, const String& filename, const size_t& index, uint8_t* data, const size_t& len, const bool& final) {
+  Serial.println("kek");
   auto SDRequest = std::make_unique<SDM::HANDLER::WebUploadfile>(request->pause(), filename, index, data, len, final);
   SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }

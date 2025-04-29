@@ -462,11 +462,14 @@ public:
       return;
     }
 
+
+
     if (auto request = requestPtr.lock()) {
       String fullpath = request->arg("path");
       if (fullpath.isEmpty()) fullpath = "/";
       fullpath += filename;
 
+      //Serial.printf("Uploading file to SD card: filename: %s, len: %d\n", fullpath.c_str(), len);
       if (!opened && index == 0) {
         file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
         opened = true;
