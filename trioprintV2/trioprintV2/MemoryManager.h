@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #include "config.h"
 #include <SdFat.h>
@@ -14,6 +15,7 @@
 
 #include <ESPAsyncWebServer.h>
 #include <AsyncTCP.h>
+#include "TinyMap.h"
 
 #define EEPROM_SIZE 512  // Define the EEPROM size for ESP32
 
@@ -445,17 +447,16 @@ public:
 
 class WebUploadfile : public Handler {
   AsyncWebServerRequestPtr requestPtr;
-  FsFile file;
   String filename;
   size_t index;
   uint8_t* data;
   size_t len;
   bool final;
-  bool opened = false;
+  TinyMap<String, std::shared_ptr<FsFile>, 10>& activeUploads;
 
 public:
-  WebUploadfile(AsyncWebServerRequestPtr r, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
-    : requestPtr(r), filename(fn), index(i), data(d), len(l), final(fi) {}
+  WebUploadfile(AsyncWebServerRequestPtr r, TinyMap<String, std::shared_ptr<FsFile>, 10>& au, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
+    : requestPtr(r), activeUploads(au), filename(fn), index(i), data(d), len(l), final(fi) {}
 
   void run() override {
     if (requestPtr.expired()) {
@@ -467,22 +468,33 @@ public:
       if (fullpath.isEmpty()) fullpath = "/";
       fullpath += filename;
 
-      if (!opened && index == 0) {
-        file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
-        opened = true;
+      if (index == 0) {
+        FsFile file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
 
         if (!file) {
           request->send(500, "text/plain", "Failed to open file");
           return;
         }
+        activeUploads[fullpath] = std::make_shared<FsFile>(std::move(file));
       }
 
-      if (file) {
-        file.write(data, len);
+      auto it = activeUploads.find(fullpath);
+      if (it == activeUploads.end()) {
+        request->send(500, "text/plain", "Upload session not found");
+        return;
       }
 
-      if (final && file) {
-        file.close();
+      std::shared_ptr<FsFile> file = it->second;
+
+      if (!(*file)) {
+        request->send(500, "text/plain", "file object not found");
+        return;
+      }
+
+      file->write(data, len);
+
+      if (final) {
+        file->close();
         request->send(200, "text/plain", "Upload complete");
       }
     }

@@ -15,6 +15,7 @@
 #include "StringStream.h"
 #include "stdExtension.h"
 #include "config.h"
+#include "TinyMap.h"
 
 namespace WBW {
 
@@ -160,8 +161,9 @@ void stop(AsyncWebServerRequest* request) {
 }
 
 namespace Upload {
+TinyMap<String, std::shared_ptr<FsFile>, 10> activeUploads;
 void uploadFile(AsyncWebServerRequest* request, const String& filename, const size_t& index, uint8_t* data, const size_t& len, const bool& final) {
-  auto SDRequest = std::make_unique<SDM::HANDLER::WebUploadfile>(request->pause(), filename, index, data, len, final);
+  auto SDRequest = std::make_unique<SDM::HANDLER::WebUploadfile>(request->pause(), activeUploads, filename, index, data, len, final);
   SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }
 }
