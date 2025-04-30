@@ -574,14 +574,14 @@ public:
 
     int bytesRead = file.read(buffer, sizeof(buffer));
 
-    if (bytesRead == 0) {
+    if (bytesRead == -1 || bytesRead == 0) {
       Serial.println("file sent");
       file.close();
       client->close();
       return true;
     }
 
-    Serial.printf("sending file: %d", bytesRead);
+    Serial.printf("sending file: %d\n", bytesRead);
     client->write((char*)buffer, bytesRead);
     return false;
   }
