@@ -414,7 +414,6 @@ public:
 
     if (auto request = requestPtr.lock()) {
       if (!request) {
-        Serial.println("Couldn't lock request");
         return true;
       }
       AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
@@ -588,7 +587,7 @@ public:
 
     if (bytesRead == -1 || bytesRead == 0) {
       size_t filesize = file.size();
-      Serial.printf("file sent: sent bytes %d and file size: %d, count:%d", bytesSent, filesize, count);
+      //Serial.printf("file sent: sent bytes %d and file size: %d, count:%d", bytesSent, filesize, count);
       file.close();
       client->close();
       return true;
@@ -607,10 +606,6 @@ public:
 
       buffer.consume(sent);
       bytesSent += sent;
-
-      if (sent != buffer.size()) {
-        Serial.printf("sending file: %d\n", sent);
-      }
     }
 
 
@@ -662,7 +657,6 @@ public:
       auto handler = handlers.peek();
       bool stage = (*handler)->run();
       if (stage) {
-        Serial.println("popping request");
         handlers.pop(i - shift);
         shift++;
       }
