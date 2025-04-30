@@ -511,6 +511,7 @@ class WebDownloadfile : public Handler {
   AsyncClient* client;
   uint8_t buffer[1000];
   bool start = true;
+  bool metaSent = false;
 
 public:
   WebDownloadfile(AsyncWebServerRequestPtr r)
@@ -544,12 +545,22 @@ public:
       }
     }
 
+    if (!metaSent) {  // <--- NEW: send filename and filesize
+      String filename = requestPtr.lock()->arg("filename");
+      size_t filesize = file.size();
+      String meta = "FILENAME:" + filename + "\n" + "SIZE:" + String(filesize) + "\n";
+      client->write(meta.c_str(), meta.length());
+      metaSent = true;
+      Serial.println("Meta sent: " + meta);
+      return false;
+    }
+
 
     if (!(client->connected())) {
       Serial.println("client disconnected");
-      return true;}
+      return true;
+    }
 
-    file.
     int bytesRead = file.read(buffer, sizeof(buffer));
 
     if (bytesRead == 0) {
