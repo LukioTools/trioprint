@@ -511,7 +511,8 @@ class WebDownloadfile : public Handler {
   AsyncClient* client;
   uint8_t buffer[1000];
   bool start = true;
-  bool metaSent = false;
+  bool headersSent = false;
+  String filename;
 
 public:
   WebDownloadfile(AsyncWebServerRequestPtr r)
@@ -526,7 +527,7 @@ public:
       }
       if (auto request = requestPtr.lock()) {
         if (!file) {
-          String filename = request->arg("filename");
+          filename = request->arg("filename");
           file = SDM::openFile(filename);
           if (!file || !file.available()) {
             request->send(500, "text/plain", "File not found");
@@ -545,15 +546,25 @@ public:
       }
     }
 
-    if (!metaSent) {  // <--- NEW: send filename and filesize
-      String filename = requestPtr.lock()->arg("filename");
+    if (!headersSent) {
       size_t filesize = file.size();
-      String meta = "FILENAME:" + filename + "\n" + "SIZE:" + String(filesize) + "\n";
-      client->write(meta.c_str(), meta.length());
-      metaSent = true;
-      Serial.println("Meta sent: " + meta);
+
+      String headers =
+        "HTTP/1.1 200 OK\r\n"
+        "Content-Type: application/octet-stream\r\n"
+        "Content-Disposition: attachment; filename=\""
+        + filename + "\"\r\n"
+                     "Content-Length: "
+        + String(filesize) + "\r\n"
+                             "Connection: close\r\n"
+                             "\r\n";
+
+      client->write(headers.c_str(), headers.length());
+      headersSent = true;
+      Serial.println("[WebDownloadfile] HTTP headers sent");
       return false;
     }
+
 
 
     if (!(client->connected())) {
