@@ -518,6 +518,7 @@ public:
 
   bool run() override {
     if (requestPtr.expired()) {
+      Serial.println("request expired");
       return true;
     }
 
@@ -527,6 +528,7 @@ public:
         file = SDM::openFile(filename);
         if (!file || !file.available()) {
           request->send(500, "text/plain", "File not found");
+          Serial.println("file not found");
           return true;
         }
       }
@@ -534,12 +536,18 @@ public:
       if (start) {
         start = false;
         client = request->client();
-        if (!client) return true;
+        if (!client) {
+          Serial.println("client not found");
+          return true;
+        }
 
         request->send(200, "application/octet-stream");
       }
 
-      if (!(client->connected())) return true;
+      if (!(client->connected())) {
+        Serial.println("client disconnected");
+        return true;
+      }
 
       int bytesRead = file.read(buffer, sizeof(buffer));
 
@@ -550,10 +558,11 @@ public:
         return true;
       }
 
-      Serial.printf("sending file: %d", bytesRead);
+      Serial.printf("sending file: %d\n", bytesRead);
       client->write((char*)buffer, bytesRead);
       return false;
     }
+    Serial.println("request not found");
     return true;
   }
 };
@@ -600,7 +609,10 @@ public:
     int shift = 0;
     for (int i = 0; i < handlers.size(); i++) {
       auto handler = handlers.peek();
-      if ((*handler)->run()) {
+      bool stage = (*handler)->run();
+      Serial.println(stage);
+      if (stage) {
+        Serial.println("popping request");
         handlers.pop(i - shift);
         shift++;
       }
