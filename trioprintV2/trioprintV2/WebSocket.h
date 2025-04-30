@@ -29,7 +29,7 @@ struct WebSocketManager {
 #if defined(DEBUG_SERIAL)
         Serial.printf("WebSocket client #%u disconnected\n", client->id());
 #endif
-        break;
+        break;  
       case WS_EVT_DATA:
         {
           AwsFrameInfo *info = (AwsFrameInfo *)arg;

@@ -391,7 +391,7 @@ std::unique_ptr<T> make_unique(Args&&... args) {
 }
 class Handler {
 public:
-  virtual void run() {
+  virtual bool run() {  //return true when task is completed and can be removed
     Serial.println("kek should be handling sd card shit, but I aint doing that because the sauce was lost on the way");
   };
 };
@@ -407,20 +407,21 @@ public:
   WebRootLoad(AsyncWebServerRequestPtr r, char* rcd, std::size_t& rcs)
     : requestPtr(r), root_cache_data(rcd), root_cache_size(rcs) {}
 
-  void run() override {
-    if (requestPtr.expired()) return;
+  bool run() override {
+    if (requestPtr.expired()) return true;
     root_cache_data = readFile(ROOT_FILE, root_cache_size);
-    if (requestPtr.expired()) return;
+    if (requestPtr.expired()) return true;
 
     if (auto request = requestPtr.lock()) {
       if (!request) {
         Serial.println("Couldn't lock request");
-        return;
+        return true;
       }
       AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
     }
+    return true;
   }
 };
 
@@ -432,16 +433,17 @@ public:
   WebListDir(AsyncWebServerRequestPtr r, const String& fn)
     : requestPtr(r), filename(fn) {}
 
-  void run() override {
-    if (requestPtr.expired()) return;
+  bool run() override {
+    if (requestPtr.expired()) return true;
     auto e = SDM::listDir(filename);
-    if (requestPtr.expired()) return;
+    if (requestPtr.expired()) return true;
     if (auto request = requestPtr.lock()) {
       if (!request) {
-        return;
+        return true;
       }
       request->send(200, "plain/text", e);
     }
+    return true;
   }
 };
 
@@ -458,12 +460,10 @@ public:
   WebUploadfile(AsyncWebServerRequestPtr r, TinyMap<String, std::shared_ptr<FsFile>, 10>& au, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
     : requestPtr(r), activeUploads(au), filename(fn), index(i), data(d), len(l), final(fi) {}
 
-  void run() override {
+  bool run() override {
     if (requestPtr.expired()) {
-      return;
+      return true;
     }
-
-
 
     if (auto request = requestPtr.lock()) {
       String fullpath = request->arg("path");
@@ -475,7 +475,7 @@ public:
 
         if (!file) {
           request->send(500, "text/plain", "Failed to open file");
-          return;
+          return true;
         }
         activeUploads[fullpath] = std::make_shared<FsFile>(std::move(file));
       }
@@ -483,14 +483,14 @@ public:
       auto it = activeUploads.find(fullpath);
       if (it == activeUploads.end()) {
         request->send(500, "text/plain", "Upload session not found");
-        return;
+        return true;
       }
 
       std::shared_ptr<FsFile> file = it->second;
 
       if (!(*file)) {
         request->send(500, "text/plain", "file object not found");
-        return;
+        return true;
       }
 
       file->write(data, len);
@@ -500,41 +500,63 @@ public:
         request->send(200, "text/plain", "Upload complete");
       }
     }
+    return true;
   }
 };
 
 class WebDownloadfile : public Handler {
 
   AsyncWebServerRequestPtr requestPtr;
+  FsFile file;
+  AsyncClient* client;
+  uint8_t buffer[1000];
+  bool start = true;
 
+public:
   WebDownloadfile(AsyncWebServerRequestPtr r)
     : requestPtr(r) {}
 
-  void run() override {
-    String filename = request->arg("filename");
-    FsFile* file = new FsFile(SDM::openFile(filename));  // Allocate on heap
-    if (!file || !file->available()) {
-      delete file;
-      request->send(404, "text/plain", "File not found");
-      return;
+  bool run() override {
+    if (requestPtr.expired()) {
+      return true;
     }
 
-    AsyncWebServerResponse* response = request->beginChunkedResponse(
-      "application/octet-stream",
-      [file](uint8_t* buffer, size_t maxLen, size_t index) -> size_t {
-        if (!file->available()) {
-          file->close();
-          delete file;
-          return 0;
+    if (auto request = requestPtr.lock()) {
+      if (!file) {
+        String filename = request->arg("filename");
+        file = SDM::openFile(filename);
+        if (!file || !file.available()) {
+          request->send(500, "text/plain", "File not found");
+          return true;
         }
-        return file->read(buffer, maxLen);
-      });
+      }
 
-    response->addHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
-    request->send(response);
+      if (start) {
+        start = false;
+        client = request->client();
+        if (!client) return true;
+
+        request->send(200, "application/octet-stream");
+      }
+
+      if (!(client->connected())) return true;
+
+      int bytesRead = file.read(buffer, sizeof(buffer));
+
+      if (bytesRead == 0) {
+        Serial.println("file sent");
+        file.close();
+        client->close();
+        return true;
+      }
+
+      Serial.printf("sending file: %d", bytesRead);
+      client->write((char*)buffer, bytesRead);
+      return false;
+    }
+    return true;
   }
-
-}
+};
 
 class GCodeInit : public Handler {
   char& stage;
@@ -550,12 +572,12 @@ public:
     stage = 0;
   }
 
-  void run() override {
+  bool run() override {
     bufferLength = file.readBytes(buffer, BUFFER_SIZE);
     stage = 3;
+    return true;
   }
 };
-
 
 class HandlerManager {
   FixedBuffer<std::unique_ptr<Handler>, 10> handlers;
@@ -575,14 +597,17 @@ public:
       return;
     }
 
-    while (handlers.hasNext()) {
-      auto handler = handlers.pop_front();
-      handler->run();
+    int shift = 0;
+    for (int i = 0; i < handlers.size(); i++) {
+      auto handler = handlers.peek();
+      if ((*handler)->run()) {
+        handlers.pop(i - shift);
+        shift++;
+      }
     }
   }
 };
 
 HandlerManager SDHandlerManager;
-
 }
 }  // namespace WRAPPPER_NAMESPACE
