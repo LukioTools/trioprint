@@ -509,7 +509,7 @@ class WebDownloadfile : public Handler {
   AsyncWebServerRequestPtr requestPtr;
   FsFile file;
   AsyncClient* client;
-  uint8_t buffer[1000];
+  uint8_t buffer[5000];
   bool start = true;
   bool headersSent = false;
   String filename;
