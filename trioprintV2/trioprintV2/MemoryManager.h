@@ -520,6 +520,7 @@ public:
 
     if (start) {
       if (requestPtr.expired()) {
+        Serial.println("request expired");
         return true;
       }
       if (auto request = requestPtr.lock()) {
@@ -528,6 +529,7 @@ public:
           file = SDM::openFile(filename);
           if (!file || !file.available()) {
             request->send(500, "text/plain", "File not found");
+            Serial.println("file not found");
             return true;
           }
         }
@@ -539,13 +541,13 @@ public:
           Serial.println("client not found");
           return true;
         }
-
-        request->send(200, "application/octet-stream");
       }
     }
 
 
-    if (!(client->connected())) return true;
+    if (!(client->connected())) {
+      Serial.println("client disconnected");
+      return true;}
 
     int bytesRead = file.read(buffer, sizeof(buffer));
 
