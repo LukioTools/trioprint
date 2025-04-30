@@ -2,18 +2,18 @@
 #include "config.h"
 #include <optional>
 
-template<typename bufferType, uint8_t Tsize>
+template<typename bufferType, size_t Tsize>
 class FixedBuffer {
   bufferType event[Tsize];
-  uint8_t mBegin = 0;
-  uint8_t mEnd = 0;
+  size_t mBegin = 0;
+  size_t mEnd = 0;
 
 public:
   bool empty() const {
     return size() == 0;
   }
 
-  uint8_t size() const {
+  size_t size() const {
     return mEnd - mBegin;
   }
 
@@ -21,11 +21,21 @@ public:
     return event + mBegin;
   }
 
+  void advanceEnd(size_t n) {
+    if (n > available()) n = available();  // protect against overflow
+    mEnd += n;
+  }
+
+  void consume(uint8_t n) {
+    if (n > size()) n = size();  // safety
+    mBegin += n;
+  }
+
   bufferType* end() {
     return event + mEnd;
   }
 
-  void increase(uint8_t s) {
+  void increase(size_t s) {
     mEnd += s;
   }
 
@@ -51,7 +61,7 @@ public:
     return size() > 0;
   }
 
-  bool pop(uint8_t index) {
+  bool pop(size_t index) {
     if (index >= size()) return false;
 
     for (uint8_t i = index; i < size() - 1; ++i) {
@@ -65,7 +75,7 @@ public:
   void finalize() {
     if (mBegin == 0) return;
 
-    uint8_t s = size();
+    size_t s = size();
     for (int i = 0; i < s; i++) {
       event[i] = std::move(event[mBegin + i]);
     }
@@ -73,15 +83,15 @@ public:
     mEnd = s;
   }
 
-  int available() const {
+  size_t available() const {
     return Tsize - mEnd;
   }
 
-  int used() const {
+  size_t used() const {
     return capacity() - available();
   }
 
-  int write(bufferType data) {
+  size_t write(bufferType data) {
     finalize();
     if (size() == Tsize) return -1;
 
@@ -92,7 +102,7 @@ public:
     return 1;
   }
 
-  int push_back(bufferType data) {
+  size_t push_back(bufferType data) {
     finalize();
     if (size() == Tsize) return -1;
 
@@ -103,15 +113,15 @@ public:
     return 1;
   }
 
-  int capacity() const {
+  size_t capacity() const {
     return Tsize;
   }
 
-  bufferType& operator[](uint8_t index) {
+  bufferType& operator[](size_t index) {
     return event[mBegin + index];
   }
 
-  const bufferType& operator[](uint8_t index) const {
+  const bufferType& operator[](size_t index) const {
     return event[mBegin + index];
   }
 };

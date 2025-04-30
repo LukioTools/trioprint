@@ -509,7 +509,6 @@ class WebDownloadfile : public Handler {
   AsyncWebServerRequestPtr requestPtr;
   FsFile file;
   AsyncClient* client;
-  uint8_t buffer[20];
   bool start = true;
   bool headersSent = false;
   String filename;
@@ -518,6 +517,8 @@ class WebDownloadfile : public Handler {
   int count = 0;
 
   bool canSend;
+
+  FixedBuffer<uint, 5000> buffer;
 
 public:
   WebDownloadfile(AsyncWebServerRequestPtr r)
@@ -550,7 +551,6 @@ public:
         }
 
         client->onAck([this](void* arg, AsyncClient* c, size_t len, uint32_t time) {
-          Serial.println("ack");
           this->canSend = true;
         });
       }
@@ -582,7 +582,9 @@ public:
       return true;
     }
 
-    int bytesRead = file.read(buffer, sizeof(buffer));
+    if (!canSend) return false;
+
+    int bytesRead = file.read(buffer.end(), buffer.available());
 
     if (bytesRead == -1 || bytesRead == 0) {
       size_t filesize = file.size();
@@ -592,9 +594,26 @@ public:
       return true;
     }
 
-    Serial.printf("sending file: %d\n", bytesRead);
-    client->write((char*)buffer, bytesRead);
-    canSend = false;
+    buffer.advanceEnd(bytesRead);
+
+    while (!buffer.empty()) {
+      int sent = client->write((char*)buffer.begin(), buffer.used());
+
+      if (sent == 0) {
+        canSend = false;
+        buffer.finalize();
+        return false;
+      }
+
+      buffer.consume(sent);
+      bytesSent += sent;
+
+      if (sent != buffer.size()) {
+        Serial.printf("sending file: %d\n", sent);
+      }
+    }
+
+
     return false;
   }
 };
@@ -642,7 +661,6 @@ public:
     for (int i = 0; i < handlers.size(); i++) {
       auto handler = handlers.peek();
       bool stage = (*handler)->run();
-      Serial.println(stage);
       if (stage) {
         Serial.println("popping request");
         handlers.pop(i - shift);
