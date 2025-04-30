@@ -447,57 +447,48 @@ public:
 };
 
 class WebUploadfile : public Handler {
-  AsyncWebServerRequestPtr requestPtr;
   String filename;
   size_t index;
   uint8_t* data;
   size_t len;
   bool final;
-  TinyMap<String, std::shared_ptr<FsFile>, 10>& activeUploads;
+  TinyMap<String, std::shared_ptr<FsFile>, 100>& activeUploads;
+  String fullpath;
 
 public:
-  WebUploadfile(AsyncWebServerRequestPtr r, TinyMap<String, std::shared_ptr<FsFile>, 10>& au, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
-    : requestPtr(r), activeUploads(au), filename(fn), index(i), data(d), len(l), final(fi) {}
+  WebUploadfile(TinyMap<String, std::shared_ptr<FsFile>, 100>& au, String p, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
+    : activeUploads(au), fullpath(p), filename(fn), index(i), data(d), len(l), final(fi) {}
 
   bool run() override {
-    if (requestPtr.expired()) {
+
+    if (fullpath.isEmpty()) fullpath = "/";
+    fullpath += filename;
+
+    if (index == 0) {
+      FsFile file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
+
+      if (!file) {
+        return true;
+      }
+      Serial.printf("new: %d\n", activeUploads.insert(fullpath, std::make_shared<FsFile>(std::move(file))));
+    }
+
+    auto it = activeUploads.find(fullpath);
+    if (it == activeUploads.end()) {
       return true;
     }
 
-    if (auto request = requestPtr.lock()) {
-      String fullpath = request->arg("path");
-      if (fullpath.isEmpty()) fullpath = "/";
-      fullpath += filename;
+    std::shared_ptr<FsFile> file = it->second;
 
-      if (index == 0) {
-        FsFile file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
+    if (!(*file)) {
+      return true;
+    }
 
-        if (!file) {
-          request->send(500, "text/plain", "Failed to open file");
-          return true;
-        }
-        activeUploads[fullpath] = std::make_shared<FsFile>(std::move(file));
-      }
-
-      auto it = activeUploads.find(fullpath);
-      if (it == activeUploads.end()) {
-        request->send(500, "text/plain", "Upload session not found");
-        return true;
-      }
-
-      std::shared_ptr<FsFile> file = it->second;
-
-      if (!(*file)) {
-        request->send(500, "text/plain", "file object not found");
-        return true;
-      }
-
-      file->write(data, len);
-
-      if (final) {
-        file->close();
-        request->send(200, "text/plain", "Upload complete");
-      }
+    int amount = file->write(data, len);
+    file->flush();
+    //Serial.printf("wrote: %d/%d\n", amount,len);
+    if (final) {
+      file->close();
     }
     return true;
   }
@@ -635,12 +626,12 @@ public:
 };
 
 class HandlerManager {
-  FixedBuffer<std::unique_ptr<Handler>, 10> handlers;
+  FixedBuffer<std::unique_ptr<Handler>, 1000> handlers;
   int count = 0;
 
 public:
-  void addHandler(std::unique_ptr<Handler> h) {
-    handlers.push_back(std::move(h));
+  bool addHandler(std::unique_ptr<Handler> h) {
+    return handlers.push_back(std::move(h));
   }
 
   void removeHandler(uint8_t idx) {

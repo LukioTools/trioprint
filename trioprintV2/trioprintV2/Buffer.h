@@ -102,15 +102,15 @@ public:
     return 1;
   }
 
-  size_t push_back(bufferType data) {
+  bool push_back(bufferType data) {
     finalize();
-    if (size() == Tsize) return -1;
+    if (size() == Tsize) return false;
 
     auto temp = end();
     *temp = std::move(data);
     increase(1);
 
-    return 1;
+    return true;
   }
 
   size_t capacity() const {
