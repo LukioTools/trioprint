@@ -514,8 +514,12 @@ class WebDownloadfile : public Handler {
   bool headersSent = false;
   String filename;
 
+<<<<<<< HEAD
   int bytesSent = 0;
   int count = 0;
+=======
+  bool canSend = true;
+>>>>>>> 6bbbe60253c8efca3f0d3a50747841d2c4a43430
 
 public:
   WebDownloadfile(AsyncWebServerRequestPtr r)
@@ -546,6 +550,11 @@ public:
           Serial.println("client not found");
           return true;
         }
+
+        client->onAck([this](void* arg, AsyncClient* c, size_t len, uint32_t time) {
+          Serial.println("ack");
+          this->canSend = true;
+        });
       }
     }
 
@@ -586,10 +595,15 @@ public:
     }
 
     Serial.printf("sending file: %d\n", bytesRead);
+<<<<<<< HEAD
     int temp = client->write((char*)buffer, bytesRead);
     bytesSent += temp;
     Serial.printf("bytes sent: %d\n",temp);
     count++;
+=======
+    client->write((char*)buffer, bytesRead);
+    canSend = false;
+>>>>>>> 6bbbe60253c8efca3f0d3a50747841d2c4a43430
     return false;
   }
 };
