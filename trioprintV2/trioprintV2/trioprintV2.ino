@@ -109,4 +109,5 @@ void loop() {
   GM.Handle();
   OTAW::handle();
   SDM::HANDLER::SDHandlerManager.handle();
+  //Serial.printf("free ram: %d\n", esp_get_free_heap_size);
 }

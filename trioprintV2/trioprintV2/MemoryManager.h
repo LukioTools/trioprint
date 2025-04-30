@@ -509,10 +509,13 @@ class WebDownloadfile : public Handler {
   AsyncWebServerRequestPtr requestPtr;
   FsFile file;
   AsyncClient* client;
-  uint8_t buffer[5000];
+  uint8_t buffer[20];
   bool start = true;
   bool headersSent = false;
   String filename;
+
+  int bytesSent = 0;
+  int count = 0;
 
 public:
   WebDownloadfile(AsyncWebServerRequestPtr r)
@@ -575,14 +578,18 @@ public:
     int bytesRead = file.read(buffer, sizeof(buffer));
 
     if (bytesRead == -1 || bytesRead == 0) {
-      Serial.println("file sent");
+      size_t filesize = file.size();
+      Serial.printf("file sent: sent bytes %d and file size: %d, count:%d", bytesSent, filesize, count);
       file.close();
       client->close();
       return true;
     }
 
     Serial.printf("sending file: %d\n", bytesRead);
-    client->write((char*)buffer, bytesRead);
+    int temp = client->write((char*)buffer, bytesRead);
+    bytesSent += temp;
+    Serial.printf("bytes sent: %d\n",temp);
+    count++;
     return false;
   }
 };
