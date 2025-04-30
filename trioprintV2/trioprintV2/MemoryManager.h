@@ -552,7 +552,6 @@ public:
       client->write(meta.c_str(), meta.length());
       metaSent = true;
       Serial.println("Meta sent: " + meta);
-      return false;
     }
 
 
