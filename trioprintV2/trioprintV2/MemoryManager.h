@@ -517,44 +517,45 @@ public:
     : requestPtr(r) {}
 
   bool run() override {
-    if (requestPtr.expired()) {
-      return true;
-    }
 
-    if (auto request = requestPtr.lock()) {
-      if (!file) {
-        String filename = request->arg("filename");
-        file = SDM::openFile(filename);
-        if (!file || !file.available()) {
-          request->send(500, "text/plain", "File not found");
-          return true;
-        }
+    if (start) {
+      if (requestPtr.expired()) {
+        return true;
       }
+      if (auto request = requestPtr.lock()) {
+        if (!file) {
+          String filename = request->arg("filename");
+          file = SDM::openFile(filename);
+          if (!file || !file.available()) {
+            request->send(500, "text/plain", "File not found");
+            return true;
+          }
+        }
 
-      if (start) {
+
         start = false;
         client = request->client();
         if (!client) return true;
 
         request->send(200, "application/octet-stream");
       }
-
-      if (!(client->connected())) return true;
-
-      int bytesRead = file.read(buffer, sizeof(buffer));
-
-      if (bytesRead == 0) {
-        Serial.println("file sent");
-        file.close();
-        client->close();
-        return true;
-      }
-
-      Serial.printf("sending file: %d", bytesRead);
-      client->write((char*)buffer, bytesRead);
-      return false;
     }
-    return true;
+
+
+    if (!(client->connected())) return true;
+
+    int bytesRead = file.read(buffer, sizeof(buffer));
+
+    if (bytesRead == 0) {
+      Serial.println("file sent");
+      file.close();
+      client->close();
+      return true;
+    }
+
+    Serial.printf("sending file: %d", bytesRead);
+    client->write((char*)buffer, bytesRead);
+    return false;
   }
 };
 
