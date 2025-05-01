@@ -99,6 +99,17 @@ struct DynamicMemory {
   }
 
   template<uint index>
+  inline static void set(const char* data) {
+    using TargetType = typename type_at<index, args...>::type;
+    static_assert(std::is_array<TargetType>::value, "Target must be an array type");
+    static_assert(std::is_same<typename std::remove_extent<TargetType>::type, char>::value, "Target must be an array of char");
+
+    TargetType temp = { 0 };
+    strncpy((char*)temp, data, sizeof(temp) - 1);
+    EEPROM.put(begin() + offset_at<index>(), temp);
+  }
+
+  template<uint index>
   inline static void get(typename type_at<index, args...>::type& data) {
     EEPROM.get(begin() + offset_at<index>(), data);
   }
@@ -123,7 +134,6 @@ struct DynamicMemory {
 }
 
 namespace FLASH_MEMORY {
-
 enum NamesEeprom {
   WIFI_SSID,
   WIFI_PWD,
@@ -192,10 +202,8 @@ using flashMemory = EPRM::DynamicMemory<0,
 #define WRAPPPER_NAMESPACE SDM
 namespace WRAPPPER_NAMESPACE {
 
-
 SdFs SD;
 csd_t csd;
-
 
 template<bool dont_repeat = false>
 inline static bool init(SdCsPin_t chip_select_pin = PIN_SPI_SS) {
@@ -219,8 +227,6 @@ label:
   goto label;
 }
 
-
-
 //cache this
 using freebyte_t = uint64_t;
 using freebyte_return_t = const freebyte_t&;
@@ -241,7 +247,6 @@ freebyte_t cardSize() {  // full size in bytes
 void clearFreeSizeCache() {
   free_bytes = freebyte_invalid_state;
 }
-//takes fucking six seconds!
 void calculateFreeSizeCache() {
   free_bytes = SD.freeClusterCount() * SD.bytesPerCluster();
 }
