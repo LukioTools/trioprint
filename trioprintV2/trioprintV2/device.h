@@ -331,6 +331,7 @@ struct GCodeManager {
       deviceManager->print(line);
 
       currentStep++;
+      WSM.broadcastAllTXT("commands completed: " + String(currentStep) + "/"+String(steps));
       //Serial.printf("spaces left: %d, available bytes: %d, steps done: %d\n", deviceManager->spacesLeftInBuffer(), deviceManager->availableInBuffer(), currentStep);
 
       if (currentStep >= steps) {

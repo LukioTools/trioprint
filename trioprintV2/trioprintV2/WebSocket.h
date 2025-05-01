@@ -9,9 +9,7 @@ struct WebSocketManager {
   AsyncWebServer *server;
   AsyncWebSocket *ws;
 
-  WebSocketManager() {
-    // constructor body (if needed)
-  }
+  WebSocketManager() {}
 
   void onWebSocketEvent(AsyncWebSocket *server,
                         AsyncWebSocketClient *client,
@@ -21,15 +19,11 @@ struct WebSocketManager {
                         size_t len) {
     switch (type) {
       case WS_EVT_CONNECT:
-#if defined(DEBUG_SERIAL)
         Serial.printf("WebSocket client #%u connected from %s\n", client->id(), client->remoteIP().toString().c_str());
-#endif
         break;
       case WS_EVT_DISCONNECT:
-#if defined(DEBUG_SERIAL)
         Serial.printf("WebSocket client #%u disconnected\n", client->id());
-#endif
-        break;  
+        break;
       case WS_EVT_DATA:
         {
           AwsFrameInfo *info = (AwsFrameInfo *)arg;
@@ -38,10 +32,8 @@ struct WebSocketManager {
             for (size_t i = 0; i < len; i++) {
               msg += (char)data[i];
             }
-#if defined(DEBUG_SERIAL)
             Serial.printf("WebSocket data from client #%u: %s\n", client->id(), msg.c_str());
-#endif
-          }
+           }
           break;
         }
       default:
@@ -55,11 +47,11 @@ struct WebSocketManager {
     ws = new AsyncWebSocket("/");
 
     (*ws).onEvent([this](AsyncWebSocket *server,
-                      AsyncWebSocketClient *client,
-                      AwsEventType type,
-                      void *arg,
-                      uint8_t *data,
-                      size_t len) {
+                         AsyncWebSocketClient *client,
+                         AwsEventType type,
+                         void *arg,
+                         uint8_t *data,
+                         size_t len) {
       this->onWebSocketEvent(server, client, type, arg, data, len);
     });
 
@@ -79,4 +71,3 @@ struct WebSocketManager {
 };
 
 WebSocketManager WSM;
-
