@@ -77,7 +77,7 @@ void listFolder(AsyncWebServerRequest* request) {
 void remove(AsyncWebServerRequest* request) {
 
   if (!request->hasArg("path")) {
-    request->send(500, "text/plain", "failed: " + request->arg("path") + " " + String(status) + " " + String(exists));
+    request->send(500, "text/plain", "failed: " + request->arg("path"));
     return;
   }
 

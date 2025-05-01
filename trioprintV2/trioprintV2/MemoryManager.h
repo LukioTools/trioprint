@@ -123,85 +123,72 @@ struct DynamicMemory {
 }
 
 namespace FLASH_MEMORY {
-// --- DevSerialConfig Structure ---
+
+enum NamesEeprom {
+  WIFI_SSID,
+  WIFI_PWD,
+  OTA_PWD,
+  WEB_NAME,
+  WEB_SERVER_PORT,
+  WEB_SOCKET_PORT,
+  SD_SECTOR_SIZE,
+  FILE_CHUNK_SIZE,
+  SD_SPI_SPEED,
+  SD_CARD_MAX_ATTEMPTS,
+  DEVSERIAL,
+  DEBSERIAL,
+  PRINTER_BUFFER_SIZE,
+  PRINTER_COMMAND_SIZE,
+  PRINTER_TIMEOUT,
+};
+
+struct DebugSerialConfig {
+  uint baudRate, config;
+  u_char serial, rx, tx;
+  bool custom;
+  bool enabled;
+};
+
 struct DevSerialConfig {
-  uint32_t baudRate, config;
-  uint8_t serial, rx, tx;
+  uint baudRate, config;
+  u_char serial, rx, tx;
   bool custom;
 };
 
-// --- EEPROM Fields List ---
-#define EEPROM_SETTINGS_LIST \
-  X(WEB_SERVER_PORT, uint16_t) \
-  X(WEB_SOCKET_PORT, uint16_t) \
-  X(SD_SECTOR_SIZE, uint32_t) \
-  X(FILE_CHUNK_SIZE, uint32_t) \
-  X(SD_SPI_SPEED, uint8_t) \
-  X(SD_CARD_MAX_ATTEMPTS, uint8_t) \
-  X(DEVSERIAL, DevSerialConfig) \
-  X(PRINTER_BUFFER_SIZE, uint16_t) \
-  X(PRINTER_COMMAND_SIZE, uint16_t) \
-  X(WIFI_SSID, char[WIFI_SSID_SIZE]) \
-  X(WIFI_PWD, char[WIFI_PWD_SIZE]) \
-  X(OTA_PWD, char[OTA_PWD_SIZE]) \
-  X(WEB_NAME, char[WEB_NAME_SIZE]) \
-  X(PRINTER_TIMEOUT, uint16_t)
-
-// --- Enum of Settings ---
-enum NamesEeprom {
-#define X(name, type) name,
-  EEPROM_SETTINGS_LIST
-#undef X
-    NAMES_EEPROM_COUNT
-};
-
-// --- Type Mapping ---
-template<NamesEeprom Name>
-struct EpType;
-
-#define X(name, type) \
-  template<> struct EpType<name> { using Type = type; };
-EEPROM_SETTINGS_LIST
-#undef X
-
-template<NamesEeprom Name>
-using EpType_t = typename EpType<Name>::Type;
-
-// --- Build the flashMemory instance ---
-#define X(name, type) type
-using flashMemory = EPRM::DynamicMemory<0, EEPROM_SETTINGS_LIST>;
-#undef X
-
-// --- Enum-to-Index Mapping ---
-constexpr uint8_t EpIndex[] = {
-#define X(name, type) __COUNTER__,
-  EEPROM_SETTINGS_LIST
-#undef X
-};
-
-inline void init() {
-  flashMemory::init();
+using Ep_wifi_ssid = char[WIFI_SSID_SIZE];
+using Ep_wifi_pwd = char[WIFI_PWD_SIZE];
+using Ep_ota_pwd = char[OTA_PWD_SIZE];
+using Ep_web_name = char[WEB_NAME_SIZE];
+using Ep_web_server_port = ushort;
+using Ep_web_socket_port = ushort;
+using Ep_sd_sector_size = uint;
+using Ep_file_chunk_size = uint;
+using Ep_sd_spi_speed = u_char;
+using Ep_sd_card_max_attempts = u_char;
+using Ep_devserial = DevSerialConfig;
+using Ep_debserial = DebugSerialConfig;
+using Ep_printer_buffer_size = ushort;
+using Ep_printer_command_size = ushort;
+using Ep_printer_timout = ushort;
 }
 
-inline bool flush() {
-  return flashMemory::flush();
-}
+using flashMemory = EPRM::DynamicMemory<0,
+                                        FLASH_MEMORY::Ep_wifi_ssid,
+                                        FLASH_MEMORY::Ep_wifi_pwd,
+                                        FLASH_MEMORY::Ep_ota_pwd,
+                                        FLASH_MEMORY::Ep_web_name,
+                                        FLASH_MEMORY::Ep_web_server_port,
+                                        FLASH_MEMORY::Ep_web_socket_port,
+                                        FLASH_MEMORY::Ep_sd_sector_size,
+                                        FLASH_MEMORY::Ep_file_chunk_size,
+                                        FLASH_MEMORY::Ep_sd_spi_speed,
+                                        FLASH_MEMORY::Ep_sd_card_max_attempts,
+                                        FLASH_MEMORY::Ep_devserial,
+                                        FLASH_MEMORY::Ep_debserial,
+                                        FLASH_MEMORY::Ep_printer_buffer_size,
+                                        FLASH_MEMORY::Ep_printer_command_size,
+                                        FLASH_MEMORY::Ep_printer_timout>;
 
-template<NamesEeprom Name>
-inline void set(const EpType_t<Name>& value) {
-  flashMemory::template set<EpIndex[Name]>(value);
-}
-
-template<NamesEeprom Name>
-inline void get(EpType_t<Name>& value) {
-  flashMemory::template get<EpIndex[Name]>(value);
-}
-
-template<NamesEeprom Name>
-inline EpType_t<Name> get() {
-  return flashMemory::template get<EpIndex[Name]>();
-}
-}
 #define WRAPPPER_NAMESPACE SDM
 namespace WRAPPPER_NAMESPACE {
 
