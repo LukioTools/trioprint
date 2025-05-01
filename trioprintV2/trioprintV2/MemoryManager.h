@@ -110,16 +110,15 @@ struct DynamicMemory {
   }
 
   template<uint index>
-  inline static void get(typename type_at<index, args...>::type& data) {
-    EEPROM.get(begin() + offset_at<index>(), data);
-  }
-
-
-  template<uint index>
   inline static typename type_at<index, args...>::type get() {
     typename type_at<index, args...>::type v;
     EEPROM.get(begin() + offset_at<index>(), v);
     return v;
+  }
+
+  template<uint index>
+  inline static void get(typename type_at<index, args...>::type& data) {
+    EEPROM.get(begin() + offset_at<index>(), data);
   }
 
   inline static void init() {
@@ -150,6 +149,7 @@ enum NamesEeprom {
   PRINTER_BUFFER_SIZE,
   PRINTER_COMMAND_SIZE,
   PRINTER_TIMEOUT,
+  FIRMWARE_VERSION
 };
 
 struct DebugSerialConfig {
@@ -180,6 +180,7 @@ using Ep_debserial = DebugSerialConfig;
 using Ep_printer_buffer_size = ushort;
 using Ep_printer_command_size = ushort;
 using Ep_printer_timout = ushort;
+using Ep_firmware_version = char[FIRMWARE_VERSION_SIZE];
 }
 
 using flashMemory = EPRM::DynamicMemory<0,
@@ -197,7 +198,8 @@ using flashMemory = EPRM::DynamicMemory<0,
                                         FLASH_MEMORY::Ep_debserial,
                                         FLASH_MEMORY::Ep_printer_buffer_size,
                                         FLASH_MEMORY::Ep_printer_command_size,
-                                        FLASH_MEMORY::Ep_printer_timout>;
+                                        FLASH_MEMORY::Ep_printer_timout,
+                                        FLASH_MEMORY::Ep_firmware_version>;
 
 #define WRAPPPER_NAMESPACE SDM
 namespace WRAPPPER_NAMESPACE {

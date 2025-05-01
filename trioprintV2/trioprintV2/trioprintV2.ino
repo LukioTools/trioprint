@@ -13,13 +13,14 @@ DevM::DeviceManager DM;
 
 RuntimeBuffer<char>* testBuffer = nullptr;
 
-void setup() {
-  Serial.begin(250000);
+bool isNewFirmware() {
+  char firmwareVersion[8];
+  flashMemory::get<FLASH_MEMORY::FIRMWARE_VERSION>(firmwareVersion);
+  return strcmp(firmwareVersion, __TIME__) != 0;
+}
 
-  flashMemory::init();
 
-  testBuffer = new RuntimeBuffer<char>(10);
-
+void resetDynamicMemory() {
   flashMemory::set<FLASH_MEMORY::WEB_SERVER_PORT>((ushort)(80));
   flashMemory::set<FLASH_MEMORY::WEB_SOCKET_PORT>((ushort)(81));
 
@@ -43,14 +44,40 @@ void setup() {
   FLASH_MEMORY::Ep_sd_card_max_attempts attempts = 10;
   flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>((FLASH_MEMORY::Ep_sd_spi_speed)16);
 
-  FLASH_MEMORY::DevSerialConfig serialConfig;
-  serialConfig.baudRate = 250000;
-  serialConfig.custom = false;
-  serialConfig.serial = 2;
+  FLASH_MEMORY::DevSerialConfig devserialConfig;
+  devserialConfig.baudRate = 250000;
+  devserialConfig.custom = false;
+  devserialConfig.serial = 2;
+  flashMemory::set<FLASH_MEMORY::DEVSERIAL>(devserialConfig);
 
-  flashMemory::set<FLASH_MEMORY::DEVSERIAL>(serialConfig);
+  FLASH_MEMORY::DebugSerialConfig debugSerialConfig;
+  debugSerialConfig.baudRate = 250000;
+  debugSerialConfig.custom = false;
+  debugSerialConfig.serial = 1;
+  flashMemory::set<FLASH_MEMORY::DEBSERIAL>(debugSerialConfig);
+
+  flashMemory::set<FLASH_MEMORY::FIRMWARE_VERSION>(__TIME__);
 
   flashMemory::flush();
+}
+
+void setup() {
+
+  flashMemory::init();
+
+  testBuffer = new RuntimeBuffer<char>(10);
+
+
+  if (isNewFirmware()) {
+    resetDynamicMemory();
+  }
+
+  FLASH_MEMORY::DebugSerialConfig debugSerialConfig = flashMemory::get<FLASH_MEMORY::DEBSERIAL>();
+
+  if (!debugSerialConfig.custom)
+    if (debugSerialConfig.serial == 1)
+      Serial.begin(debugSerialConfig.baudRate);
+
 
   Serial.printf("save: %d\n", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>());
 

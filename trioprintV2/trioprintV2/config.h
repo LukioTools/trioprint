@@ -15,6 +15,7 @@
 #define WIFI_PWD_SIZE 16
 #define OTA_PWD_SIZE 16
 #define WEB_NAME_SIZE 10
+#define FIRMWARE_VERSION_SIZE 8
 
 //#define PORT 80
 //#define WEB_SOCKET_PORT 81

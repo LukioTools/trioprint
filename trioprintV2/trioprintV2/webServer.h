@@ -236,6 +236,13 @@ void setDynamic(AsyncWebServerRequest* request) {
       flashMemory::set<FLASH_MEMORY::PRINTER_TIMEOUT>(status.toInt());
       request->send(200, "text/plain", "saved");
       break;
+    case FLASH_MEMORY::FIRMWARE_VERSION:
+      if (WIFI_PWD_SIZE <= FIRMWARE_VERSION_SIZE) {
+        flashMemory::set<FLASH_MEMORY::FIRMWARE_VERSION>(status.c_str());
+        request->send(200, "text/plain", "saved");
+      } else
+        request->send(413, "text/plain", "too long");
+      break;
   }
 }
 
