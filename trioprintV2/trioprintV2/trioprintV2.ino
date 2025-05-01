@@ -34,12 +34,9 @@ void setup() {
   flashMemory::set<FLASH_MEMORY::WIFI_PWD>(pwd);
   flashMemory::set<FLASH_MEMORY::OTA_PWD>(ota_pwd);
 
-
   flashMemory::set<FLASH_MEMORY::PRINTER_TIMEOUT>(1000);
   flashMemory::set<FLASH_MEMORY::PRINTER_BUFFER_SIZE>(1152);
   flashMemory::set<FLASH_MEMORY::PRINTER_COMMAND_SIZE>(12);
-  
-  
 
   flashMemory::set<FLASH_MEMORY::SD_SECTOR_SIZE>(512);
   flashMemory::set<FLASH_MEMORY::FILE_CHUNK_SIZE>(1024);
@@ -81,31 +78,8 @@ void setup() {
 DevM::DeviceManager::PrinterStatus deviceOldStatus;
 
 void loop() {
-
-  
   DevM::DeviceManager::PrinterStatus deviceStatus = DM.read();
 
-/*
-  if(deviceStatus == DevM::DeviceManager::Offline && deviceStatus != deviceOldStatus) {
-    Serial.println("Printer is offline");
-    deviceOldStatus = deviceStatus;
-  } else if(deviceStatus == DevM::DeviceManager::Idle && deviceStatus != deviceOldStatus) {
-    Serial.println("Printer is idling");
-    deviceOldStatus = deviceStatus;
-  } else if(deviceStatus == DevM::DeviceManager::Busy && deviceStatus != deviceOldStatus) {
-    Serial.println("Printer is busy and can't handle input currently");
-    deviceOldStatus = deviceStatus;
-  } else if(deviceStatus == DevM::DeviceManager::CommandSuccess && deviceStatus != deviceOldStatus) {
-    Serial.println("Printer ran the command successfully");
-    deviceOldStatus = deviceStatus;
-  } else if(deviceStatus == DevM::DeviceManager::ColdExtrusion && deviceStatus != deviceOldStatus) {
-    Serial.println("Printer prevented cold extrusion. Turn off the printer!");
-    deviceOldStatus = deviceStatus;
-  } else if(deviceStatus == DevM::DeviceManager::Error && deviceStatus != deviceOldStatus) {
-    Serial.println("Error occured. (likely a unknown command!)");
-    deviceOldStatus = deviceStatus;
-  }
-  */
   GM.Handle();
   OTAW::handle();
   SDM::HANDLER::SDHandlerManager.handle();

@@ -18,8 +18,8 @@ namespace WiFiW{
         WiFi.mode(WIFI_STA);
         char ssid[WIFI_SSID_SIZE];
         char pwd[WIFI_PWD_SIZE];
-        flashMemory::get<FLASH_MEMORY::WIFI_SSID>(ssid);
-        flashMemory::get<FLASH_MEMORY::WIFI_PWD>(pwd);
+        FLASH_MEMORY::get<FLASH_MEMORY::WIFI_SSID>(ssid);
+        FLASH_MEMORY::get<FLASH_MEMORY::WIFI_PWD>(pwd);
 
         Serial.printf("ssid: %s, pwd: %s\n", ssid, pwd);
 

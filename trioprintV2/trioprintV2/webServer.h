@@ -75,12 +75,14 @@ void listFolder(AsyncWebServerRequest* request) {
 }
 
 void remove(AsyncWebServerRequest* request) {
-  bool status = SDM::remove(request->arg("path"));
-  if (status) request->send(200, "text/plain", "File removed successfully");
-  else {
-    bool exists = SDM::exists(request->arg("path"));
+
+  if (!request->hasArg("path")) {
     request->send(500, "text/plain", "failed: " + request->arg("path") + " " + String(status) + " " + String(exists));
+    return;
   }
+
+  auto SDRequest = std::make_unique<SDM::HANDLER::WebRemove>(request->pause(), request->arg("path"));
+  SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
 }
 
 void downloadFile(AsyncWebServerRequest* request) {
@@ -94,9 +96,11 @@ void downloadFile(AsyncWebServerRequest* request) {
 }
 
 void mkdir(AsyncWebServerRequest* request) {
-  if (SDM::mkdir(request->arg("path")))
-    request->send(200, "text/plain", "Directory created succesfully!");
-  else
+
+  if (request->hasArg("path")) {
+    auto SDRequest = std::make_unique<SDM::HANDLER::WebMakeDir>(request->pause(), request->arg("path"));
+    SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
+  } else
     request->send(500, "text/plain", "Failed to create a directory");
 }
 

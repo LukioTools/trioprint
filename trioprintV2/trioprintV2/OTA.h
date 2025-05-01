@@ -40,8 +40,8 @@ namespace OTAW{
 
     char name[WEB_NAME_SIZE];
     char pwd[OTA_PWD_SIZE];
-    flashMemory::get<FLASH_MEMORY::WEB_NAME>(name);
-    flashMemory::get<FLASH_MEMORY::OTA_PWD>(pwd);
+    FLASH_MEMORY::get<FLASH_MEMORY::WEB_NAME>(name);
+    FLASH_MEMORY::get<FLASH_MEMORY::OTA_PWD>(pwd);
     ArduinoOTA.setHostname(name);
     ArduinoOTA.setPassword(pwd);
 
