@@ -146,6 +146,7 @@ enum NamesEeprom {
   SD_SECTOR_SIZE,
   FILE_CHUNK_SIZE,
   SD_SPI_SPEED,
+  PIN_SPI_SS,
   SD_CARD_MAX_ATTEMPTS,
   DEVSERIAL,
   DEBSERIAL,
@@ -177,6 +178,7 @@ using Ep_web_socket_port = ushort;
 using Ep_sd_sector_size = uint;
 using Ep_file_chunk_size = uint;
 using Ep_sd_spi_speed = u_char;
+using Ep_sd_spi_ss = u_char;
 using Ep_sd_card_max_attempts = u_char;
 using Ep_devserial = DevSerialConfig;
 using Ep_debserial = DebugSerialConfig;
@@ -196,6 +198,7 @@ using flashMemory = EPRM::DynamicMemory<0,
                                         FLASH_MEMORY::Ep_sd_sector_size,
                                         FLASH_MEMORY::Ep_file_chunk_size,
                                         FLASH_MEMORY::Ep_sd_spi_speed,
+                                        FLASH_MEMORY::Ep_sd_spi_ss,
                                         FLASH_MEMORY::Ep_sd_card_max_attempts,
                                         FLASH_MEMORY::Ep_devserial,
                                         FLASH_MEMORY::Ep_debserial,
@@ -210,6 +213,8 @@ namespace WRAPPPER_NAMESPACE {
 SdFs SD;
 csd_t csd;
 
+bool sdCardInitialized = false;
+
 template<bool dont_repeat = false>
 inline static bool init(SdCsPin_t chip_select_pin = PIN_SPI_SS) {
   int count = 0;
@@ -218,10 +223,12 @@ label:
   if (SD.begin(chip_select_pin, SD_SCK_MHZ(flashMemory::get<FLASH_MEMORY::SD_SPI_SPEED>()))) {
 
     SD.card()->readCSD(&csd);
+    sdCardInitialized = true;
     return true;
   } else if (dont_repeat || stop_trying) {
     Serial.printf("max attempts: %d, current attempt: %d, select pin: %d, spi speed: %d", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(), count, chip_select_pin, flashMemory::get<FLASH_MEMORY::SD_SPI_SPEED>());
     SD.initErrorHalt();
+    sdCardInitialized = false;
     return false;
   }
   delay(15);
@@ -550,6 +557,7 @@ public:
     }
 
     int amount = file->write(data, len);
+
     file->flush();
     //Serial.printf("wrote: %d/%d\n", amount,len);
     if (final) {

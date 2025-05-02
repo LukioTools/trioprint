@@ -45,7 +45,10 @@ void resetDynamicMemory() {
 
   flashMemory::set<FLASH_MEMORY::SD_SECTOR_SIZE>(512);
   flashMemory::set<FLASH_MEMORY::FILE_CHUNK_SIZE>(1024);
+
   FLASH_MEMORY::Ep_sd_card_max_attempts attempts = SD_SPI_TRIES;
+  flashMemory::set<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>((FLASH_MEMORY::Ep_sd_card_max_attempts)SD_SPI_TRIES);
+
   flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>((FLASH_MEMORY::Ep_sd_spi_speed)16);
 
   FLASH_MEMORY::DevSerialConfig devserialConfig;
@@ -87,9 +90,6 @@ void setup() {
   Serial.print("\n");
   Serial.printf("needed reset: %d, current firmware version: %s, old version: %s\n", newFirmware, __TIME__, firmwareVersion);
 
-
-  SDM::init();
-
   Serial.printf("card size: %d\n", SDM::cardSize());
   Serial.printf("free size: %d\n", SDM::freeSize());
 
@@ -108,6 +108,10 @@ DevM::DeviceManager::PrinterStatus deviceOldStatus;
 
 void loop() {
   DevM::DeviceManager::PrinterStatus deviceStatus = DM.read();
+
+  if (!SDM::sdCardInitialized)
+    SDM::init(1);
+
 
   GM.Handle();
   OTAW::handle();

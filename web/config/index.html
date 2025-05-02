@@ -19,6 +19,10 @@
             color: #d1dae3;
         }
 
+        .error {
+            color: red;
+        }
+
         .container {
             background: #1f2333;
             padding: 20px;
@@ -303,7 +307,9 @@
         </div>
         <input type="number" id="web_socket_port" value="81" required>
 
+        
         <div class="section-title">SD Card Settings</div>
+        <div id="status">Checking...</div>
 
         <div class="label-wrapper">
             <label for="sd_sector_size" class="required">SD Sector Size</label>
@@ -337,6 +343,15 @@
         </div>
         <input type="number" id="sd_card_max_attempts" value="5" required>
 
+
+        <div class="label-wrapper">
+            <label for="sd_card_select_pin" class="required">SD Card select pin</label>
+            <span class="tooltip">?
+                <span class="tooltiptext">SPI select pin for SD card.</span>
+            </span>
+        </div>
+        <input type="number" id="sd_card_max_attempts" value="5" required>
+
         <div class="section-title">Device Serial Config</div>
 
         <div class="label-wrapper">
@@ -353,7 +368,7 @@
                 <span class="tooltiptext">Which serial port to use (1, 2, etc.).</span>
             </span>
         </div>
-        <input type="number" id="dev_serial" value="1" required>
+        <input type="number" id="dev_serial" value="2" required>
 
         <div id="dev_custom_fields" class="hidden">
             <div class="label-wrapper">
@@ -421,7 +436,7 @@
                 <span class="tooltiptext">Serial port for debug (1, 2, etc.).</span>
             </span>
         </div>
-        <input type="number" id="deb_serial" value="2" required>
+        <input type="number" id="deb_serial" value="1" required>
 
         <div id="deb_custom_fields" class="hidden">
             <div class="label-wrapper">
@@ -537,12 +552,13 @@
             sd_sector_size: 6,
             file_chunk_size: 7,
             sd_spi_speed: 8,
-            sd_card_max_attempts: 9,
-            dev_serial_group: 10, // group, handled manually
-            deb_serial_group: 11, // group, handled manually
-            printer_buffer_size: 12,
-            printer_command_size: 13,
-            printer_timeout: 14
+            sd_spi_ss: 9,
+            sd_card_max_attempts: 10,
+            dev_serial_group: 11, // group, handled manually
+            deb_serial_group: 12, // group, handled manually
+            printer_buffer_size: 13,
+            printer_command_size: 14,
+            printer_timeout: 15
         };
         // instant save on change
         const inputs = document.querySelectorAll('input, select');
@@ -694,7 +710,7 @@
         }
 
         function upload_file(file) {
-            cwd = '/'; 
+            cwd = '/';
             console.log(`uploading file: '${file.name}' to path '${cwd}'`);
             const formData = new FormData();
             formData.append("file", file);
@@ -715,6 +731,29 @@
                 statusDiv.style.color = 'red';
             });
         }
+
+        async function fetchStatus() {
+            try {
+                const response = await fetch('/sdCardStatus');
+                const data = await response.json();
+                const statusElement = document.getElementById('status');
+
+                if (data.cardStatus) {
+                    statusElement.textContent = 'SD Card is Initialized';
+                    statusElement.classList.remove('error');
+                } else {
+                    statusElement.textContent = 'SD Card is NOT Initialized';
+                    statusElement.classList.add('error');
+                }
+            } catch (error) {
+                document.getElementById('status').textContent = 'Error fetching status';
+                document.getElementById('status').classList.add('error');
+            }
+        }
+
+        fetchStatus();
+        // Optional: refresh status every 5 seconds
+        setInterval(fetchStatus, 500);
     </script>
 
 </body>

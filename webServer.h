@@ -62,8 +62,6 @@ void Root(AsyncWebServerRequest* request) {
     SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
   }
 }
-
-
 }
 
 void serverStatus(AsyncWebServerRequest* request) {
@@ -74,6 +72,11 @@ void serverStatus(AsyncWebServerRequest* request) {
     << "\"freeSpace\":" << String(SDM::freeSize()) << ","
     << "}";
   request->send(200, "text/plain", responce.str());
+}
+
+void sdCardStatus(AsyncWebServerRequest* request) {
+  String response = "{\"cardStatus\":" + String(SDM::sdCardInitialized ? "true" : "false") + "}";
+  request->send(200, "application/json", response);
 }
 
 void sendCommand(AsyncWebServerRequest* request) {
@@ -287,7 +290,6 @@ void setDynamic(AsyncWebServerRequest* request) {
   flashMemory::flush();
 }
 
-
 void getDynamic(AsyncWebServerRequest* request) {
 }
 
@@ -316,6 +318,7 @@ void begin(DevM::GCodeManager* dm) {
 
   server->on("/server/status", HTTP_GET, Handlers::serverStatus);
   server->on("/server/config", HTTP_GET, Handlers::Root::configRoot);
+  server->on("/server/SDCardStatus", HTTP_GET, Handlers::Root::configRoot);
 
   server->on("/device/print", HTTP_GET, Handlers::print);
   server->on("/device/pause", HTTP_GET, Handlers::pause);
