@@ -82,7 +82,7 @@ void setup() {
   SDM::init();
 
   Serial.printf("card size: %d\n", SDM::cardSize());
-  Serial.printf("free size: %d\n", SDM::freeSize());
+  Serial.printf("free size: %d\n", SDM::freeSize());s
 
   char carr[WIFI_SSID_SIZE];
   flashMemory::get<FLASH_MEMORY::WIFI_SSID>(carr);
