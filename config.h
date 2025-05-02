@@ -3,6 +3,7 @@
 
 // sd card select pin
 #define PIN_SPI_SS 5
+#define SD_SPI_TRIES 10;
 
 #if defined(ESP32)  //Hate to do these things but ig I have to. IDK why can't they be the same on esp8266 and esp32
 #define uint8 uint8_t

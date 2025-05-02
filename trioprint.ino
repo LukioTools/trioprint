@@ -43,7 +43,7 @@ void resetDynamicMemory() {
 
   flashMemory::set<FLASH_MEMORY::SD_SECTOR_SIZE>(512);
   flashMemory::set<FLASH_MEMORY::FILE_CHUNK_SIZE>(1024);
-  FLASH_MEMORY::Ep_sd_card_max_attempts attempts = 10;
+  FLASH_MEMORY::Ep_sd_card_max_attempts attempts = SD_SPI_TRIES;
   flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>((FLASH_MEMORY::Ep_sd_spi_speed)16);
 
   FLASH_MEMORY::DevSerialConfig devserialConfig;
