@@ -42,10 +42,15 @@ void RootReloadCache() {
   RootClearCache();
   RootLoadCache();
 }
+
+void configRoot(AsyncWebServerRequest* request) {
+  request->send(200, "text/html", CONFIGURATION_HTML_TEMPLATE);
+}
+
 void Root(AsyncWebServerRequest* request) {
   Serial.println("client");
   if (FLASH_MEMORY::isInNeedOfReconfiguration) {
-    request->send(200, "text/html", CONFIGURATION_HTML_TEMPLATE);
+    configRoot(request);
     return;
   }
   if (root_cache_data) {
@@ -57,6 +62,8 @@ void Root(AsyncWebServerRequest* request) {
     SDM::HANDLER::SDHandlerManager.addHandler(std::move(SDRequest));
   }
 }
+
+
 }
 
 void serverStatus(AsyncWebServerRequest* request) {
@@ -277,6 +284,7 @@ void setDynamic(AsyncWebServerRequest* request) {
       }
       break;
   }
+  flashMemory::flush();
 }
 
 
@@ -307,6 +315,7 @@ void begin(DevM::GCodeManager* dm) {
   server->on("/", HTTP_GET, Handlers::Root::Root);
 
   server->on("/server/status", HTTP_GET, Handlers::serverStatus);
+  server->on("/server/config", HTTP_GET, Handlers::Root::configRoot);
 
   server->on("/device/print", HTTP_GET, Handlers::print);
   server->on("/device/pause", HTTP_GET, Handlers::pause);

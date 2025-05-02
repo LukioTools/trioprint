@@ -12,9 +12,10 @@ DevM::DeviceManager DM;
 
 RuntimeBuffer<char>* testBuffer = nullptr;
 
-bool isNewFirmware() {
-  char firmwareVersion[8];
+bool isNewFirmware(char* firmware) {
+  char firmwareVersion[9];
   flashMemory::get<FLASH_MEMORY::FIRMWARE_VERSION>(firmwareVersion);
+  firmware = firmwareVersion;
   return strcmp(firmwareVersion, __TIME__) != 0;
 }
 
@@ -71,7 +72,8 @@ void setup() {
 
   testBuffer = new RuntimeBuffer<char>(10);
 
-  bool newFirmware = isNewFirmware(); 
+  char firmwareVersion[9];
+  bool newFirmware = isNewFirmware(firmwareVersion);
   if (newFirmware) {
     resetDynamicMemory();
   }
@@ -82,21 +84,14 @@ void setup() {
     if (debugSerialConfig.serial == 1)
       Serial.begin(debugSerialConfig.baudRate);
 
-  char firmwareVersion[9];
-  flashMemory::get<FLASH_MEMORY::FIRMWARE_VERSION>(firmwareVersion);
   Serial.print("\n");
-  Serial.printf("current firmware version: %s, old version: %s\n", __TIME__, firmwareVersion);
+  Serial.printf("needed reset: %d, current firmware version: %s, old version: %s\n", newFirmware, __TIME__, firmwareVersion);
 
 
   SDM::init();
 
   Serial.printf("card size: %d\n", SDM::cardSize());
   Serial.printf("free size: %d\n", SDM::freeSize());
-
-  char carr[WIFI_SSID_SIZE];
-  flashMemory::get<FLASH_MEMORY::WIFI_SSID>(carr);
-  Serial.println(carr);
-  Serial.println(flashMemory::flush() ? "EEPROM commit success" : "EEPROM commit failed");
 
   WiFiW::begin();
   OTAW::begin();
