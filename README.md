@@ -1,39 +1,57 @@
-# Project Name: TrioPrint
+# TrioPrint
 
 ## Overview
-TrioPrint is a 3D printing project designed to enhance the functionality and usability of 3D printers. It leverages embedded systems and custom firmware to provide advanced features and improved performance.
+Trioprint is a 3D printing project designed to enhance the capabilities of non-networked 3D printers. By utilizing an ESP32-based extension board and custom software, Trioprint adds features such as remote control, monitoring, and automation, improving the performance and user experience of your 3D printer.
 
 ## Features
-- **Custom Firmware**: Tailored for 3D printing applications.
-- **Device Integration**: Supports multiple hardware components.
-- **Optimized Performance**: Ensures smooth and efficient operation.
+- **ESP32 Extension Board**: Integrates seamlessly with your 3D printer, enabling network connectivity and remote control.
+- **Custom Software**: Offers advanced features like remote monitoring, automation, and real-time status updates.
+- **Optimized Printing**: Enhances the overall performance and efficiency of your 3D printer.
 
 ## File Structure
-- `device.h`: Hardware-specific definitions and configurations.
-- `trioprint.ino`: Core logic and application entry point.
-- `README.md`: Project documentation.
+- `web/`: Web interface files.
+  - `main/`: Contains core web files including `index.html`, `index.css`, and `compile.py`.
+  - `config/`: Configuration-related files and `compress.py` for web interface setup.
 
 ## Getting Started
-1. Navigate to the `web` folder and run `compile.py`.
-2. Upload `compiled.html.gz` to the SD card.
-3. Connect the SD card to the ESP32 and set `PIN_SPI_SS` in `config.h` to your SD card's chip select pin.
-4. Build and flash the firmware to the ESP32.
-5. Connect to the WiFi network `trioprint` (password: `trioprint`) and open a browser at `192.168.1.1`.
-6. Complete the necessary configuration.
-7. Test the setup by uploading a file to the SD card and ensuring all connections are correct.
-8. Connect the ESP32 to the printer's UART port (not USB). Locate the serial port on the motherboard and optionally connect 3.3V and ground to power the ESP32 when the printer is powered.
-9. Power up the printer and start using TrioPrint. A dedicated tablet can be used as the user interface.
-10. For updates, use the OTA feature.
+
+1. **Compile Web Interface**:
+   - Navigate to the `web/main` folder and run `compile.py` to generate the compiled HTML.
+   - Upload the `compiled.html.gz` file to your SD card.
+
+2. **Generate Config Files**:
+   - Navigate to `web/config` and run `compress.py` to generate the compiled configuration files.
+
+3. **Hardware Setup**:
+   - Insert the SD card into the ESP32 and configure `PIN_SPI_SS` in `config.h` to match the SD card's chip select pin.
+   - Set correct EMS and STOP commands in `config.h` default is for Ender 3 v3 SE
+   - Flash the firmware to the ESP32 using the Arduino IDE. Ensure you have the necessary libraries installed.
+
+4. **Network Configuration**:
+   - Connect to the Wi-Fi network `trioprint` (password: `trioprint`).
+   - Access the configuration page via a browser at `192.168.1.1`. If not prompted, navigate to `/server/config`.
+
+5. **Printer Connection**:
+   - Connect the ESP32 to the printer's UART port (not USB).
+   - Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
+
+6. **Testing and Operation**:
+   - Power up the printer and test the setup by uploading a file to the SD card and checking the printer's connectivity at `[IP]/`.
+   - Use a dedicated tablet or any device with a browser as the user interface.
+
+7. **Updates**:
+   - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer.
 
 ## Dependencies
-- [Dependency 1](#): Description of dependency.
-- [Dependency 2](#): Description of dependency.
+- [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.
+- [SdFat Library](https://github.com/greiman/SdFat): For SD card operations.
+- [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer): For handling web server requests.
 
 ## Contributing
-Contributions are welcome! Please follow the [contribution guidelines](CONTRIBUTING.md).
+Contributions are welcome! Feel free to open issues or submit pull requests.
 
 ## License
 This project is licensed under the [MIT License](LICENSE).
 
 ## Contact
-For questions or support, please contact [your-email@example.com].
+For questions or support, contact [your-email@example.com].
