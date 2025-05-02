@@ -129,6 +129,121 @@
             opacity: 1;
         }
     </style>
+
+    <style>
+        .upload-container {
+            background: #839499;
+            padding: 30px;
+            margin-top: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .custom-button {
+            background: #667485;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .custom-button:hover {
+            background: #6d84d1;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+            height: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: #4caf50;
+            width: 0%;
+            transition: width 0.3s;
+        }
+
+        .status-text {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #d1dae3;
+        }
+    </style>
+
+    <script>
+        function xhrFetch(url, options) {
+            options = options || {};
+            return new Promise(function (resolve, reject) {
+                var xhr = new XMLHttpRequest();
+
+                // Set up the method and URL
+                xhr.open(options.method || 'GET', url);
+
+                // Set request headers
+                if (options.headers) {
+                    for (var key in options.headers) {
+                        if (options.headers.hasOwnProperty(key)) {
+                            xhr.setRequestHeader(key, options.headers[key]);
+                        }
+                    }
+                }
+
+                // Set response type if defined in options
+                if (options.responseType) {
+                    xhr.responseType = options.responseType;
+                }
+
+                // Track upload progress
+                if (xhr.upload && options.onProgress) {
+                    xhr.upload.onprogress = function (event) {
+                        if (event.lengthComputable) {
+                            const progress = (event.loaded / event.total) * 100; // Percentage
+                            options.onProgress(progress, event.loaded, event.total);
+                        }
+                    };
+                }
+
+                // Handle the response
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve({
+                            ok: true,
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            json: function () {
+                                return Promise.resolve(JSON.parse(xhr.responseText));
+                            },
+                            text: function () {
+                                return Promise.resolve(xhr.responseText);
+                            }
+                        });
+                    } else {
+                        reject(new Error('HTTP Error: ' + xhr.status));
+                    }
+                };
+
+                // Handle errors
+                xhr.onerror = function () {
+                    reject(new Error('Network Error'));
+                };
+
+                // Send the request with the provided body (if any)
+                xhr.send(options.body || null);
+            });
+        }
+    </script>
 </head>
 
 <body>
@@ -396,6 +511,17 @@
         </div>
         <input type="number" id="printer_timeout" value="1000" required>
 
+        <div class="upload-container">
+            <h2 style="color: #d1dae3;">Upload Main web Page</h2>
+            <p>this is not required if file was uploaded into SD card beforehand</p>
+            <input type="file" id="fileInput" class="file-input">
+            <button class="custom-button" onclick="document.getElementById('fileInput').click()">Select File</button>
+            <div class="progress-bar-container" id="progressContainer" style="display: none;">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            <div class="status-text" id="statusText"></div>
+        </div>
+
         <div id="status"></div>
     </div>
 
@@ -482,9 +608,7 @@
                 saveField(input);
             });
         });
-    </script>
 
-    <script>
         // custom field show/hide logic
         const devCustomSelect = document.getElementById('dev_custom');
         const debCustomSelect = document.getElementById('deb_custom');
@@ -499,6 +623,98 @@
         // initialize
         devCustomFields.classList.toggle('hidden', devCustomSelect.value !== 'true');
         debCustomFields.classList.toggle('hidden', debCustomSelect.value !== 'true');
+
+        function updateProgress(progress, status) {
+            const progressBar = document.getElementById('progressBar');
+            const statusText = document.getElementById('statusText');
+            progressBar.style.width = progress + "%";
+            statusText.innerText = `${status}: ${progress}%`;
+        }
+
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('progressContainer').style.display = 'block';
+                upload_file(file);
+            }
+        });
+
+        function xhrFetch(url, options) {
+            options = options || {};
+            return new Promise(function (resolve, reject) {
+                var xhr = new XMLHttpRequest();
+
+                xhr.open(options.method || 'GET', url);
+
+                if (options.headers) {
+                    for (var key in options.headers) {
+                        if (options.headers.hasOwnProperty(key)) {
+                            xhr.setRequestHeader(key, options.headers[key]);
+                        }
+                    }
+                }
+
+                if (options.responseType) {
+                    xhr.responseType = options.responseType;
+                }
+
+                if (xhr.upload && options.onProgress) {
+                    xhr.upload.onprogress = function (event) {
+                        if (event.lengthComputable) {
+                            const progress = (event.loaded / event.total) * 100;
+                            options.onProgress(progress, event.loaded, event.total);
+                        }
+                    };
+                }
+
+                xhr.onload = function () {
+                    if (xhr.status >= 200 && xhr.status < 300) {
+                        resolve({
+                            ok: true,
+                            status: xhr.status,
+                            statusText: xhr.statusText,
+                            json: function () {
+                                return Promise.resolve(JSON.parse(xhr.responseText));
+                            },
+                            text: function () {
+                                return Promise.resolve(xhr.responseText);
+                            }
+                        });
+                    } else {
+                        reject(new Error('HTTP Error: ' + xhr.status));
+                    }
+                };
+
+                xhr.onerror = function () {
+                    reject(new Error('Network Error'));
+                };
+
+                xhr.send(options.body || null);
+            });
+        }
+
+        function upload_file(file) {
+            cwd = '/'; 
+            console.log(`uploading file: '${file.name}' to path '${cwd}'`);
+            const formData = new FormData();
+            formData.append("file", file);
+            xhrFetch(`/fm/uploadFile/?path=${cwd}`, {
+                method: "POST",
+                body: formData,
+                onProgress: function (progress, loaded, total) {
+                    console.log(`Progress: ${progress.toFixed(2)}% (${loaded}/${total} bytes)`);
+                    updateProgress(progress.toFixed(2), "UPLOAD STATUS");
+                }
+            }).then(function (respz) {
+                console.log(respz);
+                files(); // refresh files list if needed
+            }).catch(function (err) {
+                console.error(err);
+                const statusDiv = document.getElementById('statusText');
+                statusDiv.innerHTML = `Error uploading ${file.name}: ${err.message}`;
+                statusDiv.style.color = 'red';
+            });
+        }
     </script>
 
 </body>

@@ -1,5 +1,7 @@
 import re
 
+# this script is used to compress the configuration web page for initial configuration. When runned it will automatically make config_html__template.h into main folder that is included by the code. 
+
 def compress_html(html: str, remove_comments: bool = True) -> str:
     if remove_comments:
         # Remove HTML comments

@@ -1,6 +1,12 @@
 import requests
 import os
 
+#this script is used to upload files to a server using HTTP POST requests.
+# use this in case something goes wrong with the server and you are unable to see the web interface.
+
+#modify these variables to match your server settings
+ip = "192.168.2.200"
+
 def upload_file(file_path, cwd):
     """
     Uploads a file to the specified server endpoint.
@@ -10,7 +16,7 @@ def upload_file(file_path, cwd):
     """
     print(f"Uploading file: '{os.path.basename(file_path)}' to path '{cwd}'")
 
-    url = f"http://192.168.2.200/fm/uploadFile/?path={cwd}"  # Replace with the actual server URL
+    url = f"http:/{ip}/fm/uploadFile/?path={cwd}"  # Replace with the actual server URL
     with open(file_path, 'rb') as file:
         files = {'file': file}
         try:

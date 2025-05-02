@@ -1,7 +1,7 @@
 # TrioPrint
 
 ## Overview
-Trioprint is a 3D printing project designed to enhance the capabilities of non-networked 3D printers. By utilizing an ESP32-based extension board and custom software, Trioprint adds features such as remote control, monitoring, and automation, improving the performance and user experience of your 3D printer.
+Trioprint is a 3D printing project designed to enhance the capabilities of non-networked 3D printers. By utilizing an ESP32-based extension board and custom software, Trioprint adds features such as remote control, monitoring, and automation, improving the performance and user experience of your 3D printer. Trioprint includes usefull web interface. Files can be uploaded using drag & drop. Print can be monitored in real time and can be paused and stoped. An emergency stop functionality is included in case print fails.
 
 ## Features
 - **ESP32 Extension Board**: Integrates seamlessly with your 3D printer, enabling network connectivity and remote control.
@@ -19,7 +19,7 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 ## File Structure
 - `web/`: Web interface files.
   - `main/`: Contains core web files including `index.html`, `index.css`, and `compile.py`.
-  - `config/`: Configuration-related files and `compress.py` for web interface setup.
+  - `config/`: Configuration interface files and `compress.py` for web interface setup. This interface is stored localy on the esp thus even if you delete the main html page, you have way to recover.
 
 ## Getting Started
 
