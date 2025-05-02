@@ -149,7 +149,7 @@ enum NamesEeprom {
   PRINTER_BUFFER_SIZE,
   PRINTER_COMMAND_SIZE,
   PRINTER_TIMEOUT,
-  FIRMWARE_VERSION
+  FIRMWARE_VERSION,
 };
 
 struct DebugSerialConfig {
@@ -684,7 +684,7 @@ public:
 };
 
 class HandlerManager {
-  FixedBuffer<std::unique_ptr<Handler>, 1000> handlers;
+  FixedBuffer<std::unique_ptr<Handler>, WEB_REQUESTS> handlers;
   int count = 0;
 
 public:

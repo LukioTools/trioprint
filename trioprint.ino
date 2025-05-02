@@ -27,13 +27,15 @@ void resetDynamicMemory() {
   char ssid[WIFI_SSID_SIZE] = {};
   char pwd[WIFI_PWD_SIZE] = {};
   char ota_pwd[OTA_PWD_SIZE] = {};
-  strncpy(ssid, "WS-TIMI-NET", WIFI_SSID_SIZE);
-  strncpy(pwd, "Orava#19", WIFI_PWD_SIZE);
-  strncpy(ota_pwd, "12345678", OTA_PWD_SIZE);
+  char name[WEB_NAME_SIZE] = {};
+  strncpy(ssid, "", WIFI_SSID_SIZE);
+  strncpy(pwd, "", WIFI_PWD_SIZE);
+  strncpy(name, "", WEB_NAME_SIZE);
 
   flashMemory::set<FLASH_MEMORY::WIFI_SSID>(ssid);
   flashMemory::set<FLASH_MEMORY::WIFI_PWD>(pwd);
   flashMemory::set<FLASH_MEMORY::OTA_PWD>(ota_pwd);
+  flashMemory::set<FLASH_MEMORY::WEB_NAME>(name);
 
   flashMemory::set<FLASH_MEMORY::PRINTER_TIMEOUT>(1000);
   flashMemory::set<FLASH_MEMORY::PRINTER_BUFFER_SIZE>(1152);
