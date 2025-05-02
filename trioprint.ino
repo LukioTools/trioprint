@@ -71,8 +71,8 @@ void setup() {
 
   testBuffer = new RuntimeBuffer<char>(10);
 
-
-  if (isNewFirmware()) {
+  bool newFirmware = isNewFirmware(); 
+  if (newFirmware) {
     resetDynamicMemory();
   }
 
@@ -81,6 +81,11 @@ void setup() {
   if (!debugSerialConfig.custom)
     if (debugSerialConfig.serial == 1)
       Serial.begin(debugSerialConfig.baudRate);
+
+  char firmwareVersion[9];
+  flashMemory::get<FLASH_MEMORY::FIRMWARE_VERSION>(firmwareVersion);
+  Serial.print("\n");
+  Serial.printf("current firmware version: %s, old version: %s\n", __TIME__, firmwareVersion);
 
 
   SDM::init();

@@ -20,7 +20,7 @@
 
 // do not edit:
 #define ROOT_FILE_SIZE 16
-#define FIRMWARE_VERSION_SIZE 8
+#define FIRMWARE_VERSION_SIZE 9
 
 #define WIFI_CONNECTING_TIMEMOUT 5000
 

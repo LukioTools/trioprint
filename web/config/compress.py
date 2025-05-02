@@ -5,6 +5,12 @@ def compress_html(html: str, remove_comments: bool = True) -> str:
         # Remove HTML comments
         html = re.sub(r'<!--.*?-->', '', html, flags=re.DOTALL)
 
+        # Remove JavaScript/CSS single-line comments (// ...)
+        html = re.sub(r'//.*?$', '', html, flags=re.MULTILINE)
+
+        # Remove JavaScript/CSS multi-line comments (/* ... */)
+        html = re.sub(r'/\*.*?\*/', '', html, flags=re.DOTALL)
+
     # Clean up the HTML
     html = '\n'.join(line.strip() for line in html.splitlines())  # Strip empty lines
     html = re.sub(r'>\s+<', '><', html)  # Remove extra spaces between tags

@@ -43,7 +43,8 @@ void RootReloadCache() {
   RootLoadCache();
 }
 void Root(AsyncWebServerRequest* request) {
-  if(FLASH_MEMORY::isInNeedOfReconfiguration){
+  Serial.println("client");
+  if (FLASH_MEMORY::isInNeedOfReconfiguration) {
     request->send(200, "text/html", CONFIGURATION_HTML_TEMPLATE);
     return;
   }
@@ -151,105 +152,133 @@ void stop(AsyncWebServerRequest* request) {
 }
 
 void setDynamic(AsyncWebServerRequest* request) {
-  String config = request->arg("config");  // takes in the pos of the config in memory; can be found in dynammic_config.h
-  String status = request->arg("status");
+  String config = request->arg("config");  // Config identifier
+  String status = request->arg("status");  // Value to set
+
+  Serial.printf("config: %s saved: %s\n", config, status);
 
   switch (static_cast<FLASH_MEMORY::NamesEeprom>(config.toInt())) {
     case FLASH_MEMORY::WIFI_SSID:
       if (status.length() <= WIFI_SSID_SIZE) {
         flashMemory::set<FLASH_MEMORY::WIFI_SSID>(status.c_str());
         request->send(200, "text/plain", "saved");
-      } else
+      } else {
         request->send(413, "text/plain", "too long");
+      }
       break;
+
     case FLASH_MEMORY::WIFI_PWD:
-      if (WIFI_PWD_SIZE <= WIFI_SSID_SIZE) {
+      if (status.length() <= WIFI_PWD_SIZE) {
         flashMemory::set<FLASH_MEMORY::WIFI_PWD>(status.c_str());
         request->send(200, "text/plain", "saved");
-      } else
+      } else {
         request->send(413, "text/plain", "too long");
+      }
       break;
+
     case FLASH_MEMORY::OTA_PWD:
-      if (WIFI_PWD_SIZE <= OTA_PWD_SIZE) {
+      if (status.length() <= OTA_PWD_SIZE) {
         flashMemory::set<FLASH_MEMORY::OTA_PWD>(status.c_str());
         request->send(200, "text/plain", "saved");
-      } else
+      } else {
         request->send(413, "text/plain", "too long");
+      }
       break;
+
     case FLASH_MEMORY::WEB_NAME:
-      if (WIFI_PWD_SIZE <= WEB_NAME_SIZE) {
+      if (status.length() <= WEB_NAME_SIZE) {
         flashMemory::set<FLASH_MEMORY::WEB_NAME>(status.c_str());
         request->send(200, "text/plain", "saved");
-      } else
+      } else {
         request->send(413, "text/plain", "too long");
+      }
       break;
+
     case FLASH_MEMORY::WEB_SERVER_PORT:
-      flashMemory::set<FLASH_MEMORY::WEB_SERVER_PORT>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::WEB_SERVER_PORT>(static_cast<uint16_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::WEB_SOCKET_PORT:
-      flashMemory::set<FLASH_MEMORY::WEB_SOCKET_PORT>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::WEB_SOCKET_PORT>(static_cast<uint16_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::SD_SECTOR_SIZE:
-      flashMemory::set<FLASH_MEMORY::SD_SECTOR_SIZE>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::SD_SECTOR_SIZE>(static_cast<uint32_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::FILE_CHUNK_SIZE:
-      flashMemory::set<FLASH_MEMORY::FILE_CHUNK_SIZE>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::FILE_CHUNK_SIZE>(static_cast<uint32_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::SD_SPI_SPEED:
-      flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::SD_SPI_SPEED>(static_cast<uint8_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS:
-      flashMemory::set<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(static_cast<uint8_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::DEVSERIAL:
-      FLASH_MEMORY::DevSerialConfig devSerialConfig;
-      devSerialConfig.baudRate = request->arg("br").toInt();
-      devSerialConfig.config = request->arg("c").toInt();
-      devSerialConfig.serial = request->arg("s").toInt();
-      devSerialConfig.rx = request->arg("rx").toInt();
-      devSerialConfig.tx = request->arg("tx").toInt();
-      devSerialConfig.custom = request->arg("cm").toInt();
-      flashMemory::set<FLASH_MEMORY::DEVSERIAL>(devSerialConfig);
-      request->send(200, "text/plain", "saved");
-      break;
+      {
+        FLASH_MEMORY::DevSerialConfig devSerialConfig;
+        devSerialConfig.baudRate = request->arg("br").toInt();
+        devSerialConfig.config = request->arg("c").toInt();
+        devSerialConfig.serial = request->arg("s").toInt();
+        devSerialConfig.rx = request->arg("rx").toInt();
+        devSerialConfig.tx = request->arg("tx").toInt();
+        devSerialConfig.custom = request->arg("cm").toInt();
+        flashMemory::set<FLASH_MEMORY::DEVSERIAL>(devSerialConfig);
+        request->send(200, "text/plain", "saved");
+        break;
+      }
+
     case FLASH_MEMORY::DEBSERIAL:
-      FLASH_MEMORY::DebugSerialConfig debSerialConfig;
-      debSerialConfig.baudRate = request->arg("br").toInt();
-      debSerialConfig.config = request->arg("c").toInt();
-      debSerialConfig.serial = request->arg("s").toInt();
-      debSerialConfig.rx = request->arg("rx").toInt();
-      debSerialConfig.tx = request->arg("tx").toInt();
-      debSerialConfig.custom = request->arg("cm").toInt();
-      debSerialConfig.enabled = request->arg("e").toInt();
-      flashMemory::set<FLASH_MEMORY::DEBSERIAL>(debSerialConfig);
-      break;
+      {
+        FLASH_MEMORY::DebugSerialConfig debSerialConfig;
+        debSerialConfig.baudRate = request->arg("br").toInt();
+        debSerialConfig.config = request->arg("c").toInt();
+        debSerialConfig.serial = request->arg("s").toInt();
+        debSerialConfig.rx = request->arg("rx").toInt();
+        debSerialConfig.tx = request->arg("tx").toInt();
+        debSerialConfig.custom = request->arg("cm").toInt();
+        debSerialConfig.enabled = request->arg("e").toInt();
+        flashMemory::set<FLASH_MEMORY::DEBSERIAL>(debSerialConfig);
+        request->send(200, "text/plain", "saved");
+        break;
+      }
+
     case FLASH_MEMORY::PRINTER_BUFFER_SIZE:
-      flashMemory::set<FLASH_MEMORY::PRINTER_BUFFER_SIZE>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::PRINTER_BUFFER_SIZE>(static_cast<uint16_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::PRINTER_COMMAND_SIZE:
-      flashMemory::set<FLASH_MEMORY::PRINTER_COMMAND_SIZE>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::PRINTER_COMMAND_SIZE>(static_cast<uint16_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::PRINTER_TIMEOUT:
-      flashMemory::set<FLASH_MEMORY::PRINTER_TIMEOUT>(status.toInt());
+      flashMemory::set<FLASH_MEMORY::PRINTER_TIMEOUT>(static_cast<uint16_t>(status.toInt()));
       request->send(200, "text/plain", "saved");
       break;
+
     case FLASH_MEMORY::FIRMWARE_VERSION:
-      if (WIFI_PWD_SIZE <= FIRMWARE_VERSION_SIZE) {
+      if (status.length() <= FIRMWARE_VERSION_SIZE) {
         flashMemory::set<FLASH_MEMORY::FIRMWARE_VERSION>(status.c_str());
         request->send(200, "text/plain", "saved");
-      } else
+      } else {
         request->send(413, "text/plain", "too long");
+      }
       break;
   }
 }
+
 
 void getDynamic(AsyncWebServerRequest* request) {
 }
@@ -297,7 +326,7 @@ void begin(DevM::GCodeManager* dm) {
     },  // Send status 200 (OK) to tell the client we are ready to receive
     Handlers::Upload::uploadFile);
 
-  server->on("/config/setDynamicConfig", HTTP_GET, Handlers::notFound);
+  server->on("/config/setDynamicConfig", HTTP_POST, Handlers::setDynamic);
   server->on("/config/getDynamicConfig", HTTP_GET, Handlers::notFound);
 
   server->onNotFound(Handlers::notFound);
