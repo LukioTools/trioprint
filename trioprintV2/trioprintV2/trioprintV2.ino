@@ -79,8 +79,6 @@ void setup() {
       Serial.begin(debugSerialConfig.baudRate);
 
 
-  Serial.printf("save: %d\n", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>());
-
   SDM::init();
 
   Serial.printf("card size: %d\n", SDM::cardSize());
