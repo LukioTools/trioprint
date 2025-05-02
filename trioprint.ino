@@ -1,4 +1,3 @@
-
 #include "config.h"
 #include "MemoryManager.h"
 #include "WiFi.h"
@@ -28,9 +27,11 @@ void resetDynamicMemory() {
   char pwd[WIFI_PWD_SIZE] = {};
   char ota_pwd[OTA_PWD_SIZE] = {};
   char name[WEB_NAME_SIZE] = {};
-  strncpy(ssid, "", WIFI_SSID_SIZE);
-  strncpy(pwd, "", WIFI_PWD_SIZE);
-  strncpy(name, "", WEB_NAME_SIZE);
+
+  // you can change these to your home credentials. So everytime you reflash the esp you won't have to go trough the configuration phase.
+  strncpy(ssid, "trioprint", WIFI_SSID_SIZE);
+  strncpy(pwd, "trioprint", WIFI_PWD_SIZE);
+  strncpy(name, "trioprint", WEB_NAME_SIZE);
 
   flashMemory::set<FLASH_MEMORY::WIFI_SSID>(ssid);
   flashMemory::set<FLASH_MEMORY::WIFI_PWD>(pwd);
@@ -61,6 +62,7 @@ void resetDynamicMemory() {
   flashMemory::set<FLASH_MEMORY::FIRMWARE_VERSION>(__TIME__);
 
   flashMemory::flush();
+  FLASH_MEMORY::isInNeedOfReconfiguration = true;
 }
 
 void setup() {

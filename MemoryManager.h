@@ -133,6 +133,9 @@ struct DynamicMemory {
 }
 
 namespace FLASH_MEMORY {
+
+bool isInNeedOfReconfiguration = false;
+
 enum NamesEeprom {
   WIFI_SSID,
   WIFI_PWD,
@@ -423,7 +426,6 @@ public:
     : requestPtr(r), root_cache_data(rcd), root_cache_size(rcs) {}
 
   bool run() override {
-    if (requestPtr.expired()) return true;
     root_cache_data = readFile(ROOT_FILE, root_cache_size);
     if (requestPtr.expired()) return true;
 
@@ -431,7 +433,12 @@ public:
       if (!request) {
         return true;
       }
-      AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
+      if (root_cache_data == nullptr) {
+        FLASH_MEMORY::isInNeedOfReconfiguration = true;
+        AsyncWebServerResponse* response = request->beginResponse(500, "text/html", "reboot the device to configure the file");
+        return true;
+      }
+      AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);
       response->addHeader("Content-Encoding", "gzip");
       request->send(response);
     }

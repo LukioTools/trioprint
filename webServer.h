@@ -16,6 +16,7 @@
 #include "stdExtension.h"
 #include "config.h"
 #include "TinyMap.h"
+#include "config_html_template.h"
 
 namespace WBW {
 
@@ -42,6 +43,10 @@ void RootReloadCache() {
   RootLoadCache();
 }
 void Root(AsyncWebServerRequest* request) {
+  if(FLASH_MEMORY::isInNeedOfReconfiguration){
+    request->send(200, "text/html", CONFIGURATION_HTML_TEMPLATE);
+    return;
+  }
   if (root_cache_data) {
     AsyncWebServerResponse* response = request->beginResponse(200, "text/html", (uint8_t*)root_cache_data, root_cache_size);  //Sends 404 File Not Found
     response->addHeader("Content-Encoding", "gzip");

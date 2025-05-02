@@ -45,8 +45,8 @@ void begin() {
 
     WiFi.softAPConfig(apIP, gateway, subnet);
 
-    const char *ap_ssid = "MyDeviceAP";
-    const char *ap_password = "12345678";  // AP passwords must be at least 8 characters
+    char *ap_ssid = ssid;
+    char *ap_password = pwd; 
 
     if (WiFi.softAP(ap_ssid, ap_password)) {
       Serial.println("Access Point started!");
