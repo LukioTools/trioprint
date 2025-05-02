@@ -36,11 +36,11 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
    - Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
 
 6. **Testing and Operation**:
-   - Power up the printer and test the setup by uploading a file to the SD card and checking the printer's connectivity at `[IP]/`.
-   - Use a dedicated tablet or any device with a browser as the user interface.
+   - Power up the printer and test the setup by uploading a file to the SD card and checking the printer's connectivity at `[IP]/` or `http://[name].local`. You can check ip via serial if serial debug is enabled. (laptop, pc or Android phone can be used).
+   - Use a dedicated tablet or any device with a browser as the user interface. Personally I use old ipad. The only place where I allow Apple device to be used.
 
 7. **Updates**:
-   - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer.
+   - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used!
 
 ## Dependencies
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.
