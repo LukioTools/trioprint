@@ -54,7 +54,7 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.
 - [SdFat Library](https://github.com/greiman/SdFat): For SD card operations.
 - [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer): For handling web server requests.
-- [AsyncTCP] (https://github.com/ESP32Async/AsyncTCP): Required for handling web sockets
+- [AsyncTCP](https://github.com/ESP32Async/AsyncTCP): Required for handling web sockets
 
 ## Contributing
 Contributions are welcome! Feel free to open issues or submit pull requests.
