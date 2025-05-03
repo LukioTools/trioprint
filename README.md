@@ -50,6 +50,25 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 7. **Updates**:
    - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used! Currently versioning is based on time at compile. `__TIME__` And if new version is detected, your preferences are reseted because memory layout might have been changed.
 
+## Development and features
+| Feature            | ESP32 | ESP8266 |
+|--------------------|:-----:|:-------:|
+| Wi-Fi                    |   ✅  |   ✅   |
+| Bluetooth                |   🚧  |   ❌   |
+| Async                    |   ✅  |   ❌   |
+| UART                     |   ✅  |   ✅   |
+| USB Interface            |   🚧  |   🚧   |
+| WEB Interface            |   ✅  |   ✅   |
+| SD card support          |   ✅  |   ✅   |
+| Run Gcode from SD card   |   ✅  |   ✅   |
+
+---
+Legend:  
+✅ = Supported  
+🚫 = Not Supported  
+🛠️ = Under Development  
+🚧 = Planned
+
 ## Dependencies
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.
 - [SdFat Library](https://github.com/greiman/SdFat): For SD card operations.

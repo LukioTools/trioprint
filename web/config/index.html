@@ -302,7 +302,7 @@
         <div class="section-title">WiFi Settings</div>
 
             <div class="label-wrapper">
-                <label for="wifi_ssid" class="required">WiFi SSID</label>
+                <label for="wifi_ssid" >WiFi SSID</label>
                 <span class="tooltip">?
                     <span class="tooltiptext">Name of your WiFi network (case-sensitive). If not found. WiFI AP is
                         created</span>
@@ -311,9 +311,8 @@
             <input type="text" id="wifi_ssid" value="trioprint" required>
             <div id="configSuccess"></div>
 
-
         <div class="label-wrapper">
-            <label for="wifi_pwd" class="required">WiFi Password</label>
+            <label for="wifi_pwd" >WiFi Password</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Password for your WiFi network.</span>
             </span>
@@ -321,9 +320,8 @@
         <input type="text" id="wifi_pwd" value="trioprint" required>
         <div id="configSuccess"></div>
 
-
         <div class="label-wrapper">
-            <label for="ota_pwd" class="required">OTA Password</label>
+            <label for="ota_pwd" >OTA Password</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Password used for OTA (Over-The-Air) updates.</span>
             </span>
@@ -334,16 +332,16 @@
         <div class="section-title">Web Settings</div>
 
         <div class="label-wrapper">
-            <label for="web_name" class="required">mDNS Name</label>
+            <label for="web_name" >mDNS Name</label>
             <span class="tooltip">?
-/                <span class="tooltiptext">You can access the printer at http://[name].local</span>
+                <span class="tooltiptext">You can access the printer at http://[name].local</span>
             </span>
         </div>
         <input type="text" id="web_name" value="trioprint" required>
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="web_server_port" class="required">Web Server Port</label>
+            <label for="web_server_port" >Web Server Port</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Port used for the HTTP web server (default: 80).</span>
             </span>
@@ -352,7 +350,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="web_socket_port" class="required">Web Socket Port</label>
+            <label for="web_socket_port" >Web Socket Port</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Port used for the WebSocket server (default: 81).</span>
             </span>
@@ -365,7 +363,7 @@
         <div id="SdCardStatus">Checking...</div>
 
         <div class="label-wrapper">
-            <label for="sd_card_select_pin" class="required">SD Card select pin</label>
+            <label for="sd_card_select_pin" >SD Card select pin</label>
             <span class="tooltip">?
                 <span class="tooltiptext">SPI select pin for SD card.</span>
             </span>
@@ -374,7 +372,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="sd_spi_speed" class="required">SD SPI Speed (MHz)</label>
+            <label for="sd_spi_speed" >SD SPI Speed (MHz)</label>
             <span class="tooltip">?
                 <span class="tooltiptext">SPI bus speed for SD card communication.</span>
             </span>
@@ -383,7 +381,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="sd_card_max_attempts" class="required">SD Card Max Attempts</label>
+            <label for="sd_card_max_attempts" >SD Card Max Attempts</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Maximum attempts to initialize SD card.</span>
             </span>
@@ -392,7 +390,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="sd_sector_size" class="required">SD Sector Size</label>
+            <label for="sd_sector_size" >SD Sector Size</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Size of each SD card sector in bytes (typically 512).</span>
             </span>
@@ -401,7 +399,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="file_chunk_size" class="required">File Chunk Size (not used)</label>
+            <label for="file_chunk_size" >File Chunk Size (not used)</label>
             <span class="tooltip">?
                 <span class="tooltiptext">not used</span>
             </span>
@@ -412,7 +410,7 @@
         <div class="section-title">Device Serial Config</div>
 
         <div class="label-wrapper">
-            <label for="dev_baudrate" class="required">Baud Rate</label>
+            <label for="dev_baudrate" >Baud Rate</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Serial communication speed (e.g., 250000 baud).</span>
             </span>
@@ -421,7 +419,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="dev_serial" class="required">Serial Instance</label>
+            <label for="dev_serial" >Serial Instance</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Which serial port to use (1, 2, etc.). Please note that esp8266 does not have second serial port.</span>
             </span>
@@ -431,7 +429,7 @@
 
         <div id="dev_custom_fields" class="hidden">
             <div class="label-wrapper">
-                <label for="dev_config" class="required">Data Format</label>
+                <label for="dev_config" >Data Format</label>
                 <span class="tooltip">?
                     <span class="tooltiptext">Serial data format (e.g., 8N1 = 8 bits, No parity, 1 stop bit).</span>
                 </span>
@@ -453,7 +451,7 @@
             <div id="configSuccess"></div>
 
             <div class="label-wrapper">
-                <label for="dev_rx" class="required">RX Pin</label>
+                <label for="dev_rx" >RX Pin</label>
                 <span class="tooltip">?
                     <span class="tooltiptext">Pin number used for receiving data.</span>
                 </span>
@@ -462,7 +460,7 @@
             <div id="configSuccess"></div>
 
             <div class="label-wrapper">
-                <label for="dev_tx" class="required">TX Pin</label>
+                <label for="dev_tx" >TX Pin</label>
                 <span class="tooltip">?
                     <span class="tooltiptext">Pin number used for transmitting data.</span>
                 </span>
@@ -472,7 +470,7 @@
         </div>
 
         <div class="label-wrapper">
-            <label for="dev_custom" class="required">Custom Config</label>
+            <label for="dev_custom" >Custom Config</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Enable manual serial pin/config setup.</span>
             </span>
@@ -486,7 +484,7 @@
         <div class="section-title">Debug Serial Config</div>
 
         <div class="label-wrapper">
-            <label for="deb_baudrate" class="required">Baud Rate</label>
+            <label for="deb_baudrate" >Baud Rate</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Debug serial communication speed.</span>
             </span>
@@ -495,7 +493,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="deb_serial" class="required">Serial Instance</label>
+            <label for="deb_serial" >Serial Instance</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Serial port for debug (1, 2, etc.). Please note that esp8266 does not have second serial port.</span>
             </span>
@@ -505,7 +503,7 @@
 
         <div id="deb_custom_fields" class="hidden">
             <div class="label-wrapper">
-                <label for="deb_config" class="required">Data Format</label>
+                <label for="deb_config" >Data Format</label>
                 <span class="tooltip">?
                     <span class="tooltiptext">Debug serial data format.</span>
                 </span>
@@ -527,7 +525,7 @@
             <div id="configSuccess"></div>
 
             <div class="label-wrapper">
-                <label for="deb_rx" class="required">RX Pin</label>
+                <label for="deb_rx" >RX Pin</label>
                 <span class="tooltip">?
                     <span class="tooltiptext">Debug RX pin number.</span>
                 </span>
@@ -536,7 +534,7 @@
             <div id="configSuccess"></div>
 
             <div class="label-wrapper">
-                <label for="deb_tx" class="required">TX Pin</label>
+                <label for="deb_tx" >TX Pin</label>
                 <span class="tooltip">?
                     <span class="tooltiptext">Debug TX pin number.</span>
                 </span>
@@ -546,7 +544,7 @@
         </div>
 
         <div class="label-wrapper">
-            <label for="deb_custom" class="required">Custom Config</label>
+            <label for="deb_custom" >Custom Config</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Enable custom debug config.</span>
             </span>
@@ -558,7 +556,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="deb_enabled" class="required">Enabled</label>
+            <label for="deb_enabled" >Enabled</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Turn debug serial output ON or OFF.</span>
             </span>
@@ -572,7 +570,7 @@
         <div class="section-title">Printer Settings</div>
 
         <div class="label-wrapper">
-            <label for="printer_command_size" class="required">Printer Command buffer size</label>
+            <label for="printer_command_size" >Printer Command buffer size</label>
             <span class="tooltip">?
                 <span class="tooltiptext">How many commands can printers buffer hold.</span>
             </span>
@@ -581,7 +579,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="printer_buffer_size" class="required">Printer Buffer Size</label>
+            <label for="printer_buffer_size" >Printer Buffer Size</label>
             <span class="tooltip">?
                 <span class="tooltiptext">how many characters can printers buffer hold.</span>
             </span>
@@ -590,7 +588,7 @@
         <div id="configSuccess"></div>
 
         <div class="label-wrapper">
-            <label for="printer_timeout" class="required">Printer Timeout (ms)</label>
+            <label for="printer_timeout" >Printer Timeout (ms)</label>
             <span class="tooltip">?
                 <span class="tooltiptext">Timeout for printer responses (milliseconds). After that the esp considers its
                     being ofline</span>
