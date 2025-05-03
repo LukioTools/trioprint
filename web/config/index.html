@@ -23,6 +23,11 @@
             color: red;
         }
 
+        .success {
+            color: rgb(23, 186, 29);
+        }
+
+
         .container {
             background: #1f2333;
             padding: 20px;
@@ -90,6 +95,14 @@
 
         #SdCardStatus {
             font-weight: bold;
+        }
+
+        #rebootStatusText {
+            font-weight: bold;
+        }
+
+        #configSuccess{
+            margin-top: 8px;
         }
 
         .required::after {
@@ -288,13 +301,16 @@
 
         <div class="section-title">WiFi Settings</div>
 
-        <div class="label-wrapper">
-            <label for="wifi_ssid" class="required">WiFi SSID</label>
-            <span class="tooltip">?
-                <span class="tooltiptext">Name of your WiFi network (case-sensitive).</span>
-            </span>
-        </div>
-        <input type="text" id="wifi_ssid" value="trioprint" required>
+            <div class="label-wrapper">
+                <label for="wifi_ssid" class="required">WiFi SSID</label>
+                <span class="tooltip">?
+                    <span class="tooltiptext">Name of your WiFi network (case-sensitive). If not found. WiFI AP is
+                        created</span>
+                </span>
+            </div>
+            <input type="text" id="wifi_ssid" value="trioprint" required>
+            <div id="configSuccess"></div>
+
 
         <div class="label-wrapper">
             <label for="wifi_pwd" class="required">WiFi Password</label>
@@ -303,6 +319,8 @@
             </span>
         </div>
         <input type="text" id="wifi_pwd" value="trioprint" required>
+        <div id="configSuccess"></div>
+
 
         <div class="label-wrapper">
             <label for="ota_pwd" class="required">OTA Password</label>
@@ -311,16 +329,18 @@
             </span>
         </div>
         <input type="text" id="ota_pwd" value="trioprint" required>
+        <div id="configSuccess"></div>
 
         <div class="section-title">Web Settings</div>
 
         <div class="label-wrapper">
             <label for="web_name" class="required">mDNS Name</label>
             <span class="tooltip">?
-                <span class="tooltiptext">You can access the printer at http://[name].local</span>
+/                <span class="tooltiptext">You can access the printer at http://[name].local</span>
             </span>
         </div>
         <input type="text" id="web_name" value="trioprint" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="web_server_port" class="required">Web Server Port</label>
@@ -329,6 +349,7 @@
             </span>
         </div>
         <input type="number" id="web_server_port" value="80" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="web_socket_port" class="required">Web Socket Port</label>
@@ -337,6 +358,7 @@
             </span>
         </div>
         <input type="number" id="web_socket_port" value="81" required>
+        <div id="configSuccess"></div>
 
 
         <div class="section-title">SD Card Settings</div>
@@ -348,7 +370,8 @@
                 <span class="tooltiptext">SPI select pin for SD card.</span>
             </span>
         </div>
-        <input type="number" id="sd_card_max_attempts" value="5" required>
+        <input type="number" id="sd_card_select_pin" value="5" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="sd_spi_speed" class="required">SD SPI Speed (MHz)</label>
@@ -357,6 +380,7 @@
             </span>
         </div>
         <input type="number" id="sd_spi_speed" value="16" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="sd_card_max_attempts" class="required">SD Card Max Attempts</label>
@@ -365,6 +389,7 @@
             </span>
         </div>
         <input type="number" id="sd_card_max_attempts" value="5" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="sd_sector_size" class="required">SD Sector Size</label>
@@ -373,6 +398,7 @@
             </span>
         </div>
         <input type="number" id="sd_sector_size" value="512" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="file_chunk_size" class="required">File Chunk Size (not used)</label>
@@ -381,6 +407,7 @@
             </span>
         </div>
         <input type="number" id="file_chunk_size" value="1024" required>
+        <div id="configSuccess"></div>
 
         <div class="section-title">Device Serial Config</div>
 
@@ -391,6 +418,7 @@
             </span>
         </div>
         <input type="number" id="dev_baudrate" value="250000" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="dev_serial" class="required">Serial Instance</label>
@@ -399,6 +427,7 @@
             </span>
         </div>
         <input type="number" id="dev_serial" value="2" required>
+        <div id="configSuccess"></div>
 
         <div id="dev_custom_fields" class="hidden">
             <div class="label-wrapper">
@@ -421,6 +450,7 @@
                 <option value="52">7E1</option>
                 <option value="60">7E2</option>
             </select>
+            <div id="configSuccess"></div>
 
             <div class="label-wrapper">
                 <label for="dev_rx" class="required">RX Pin</label>
@@ -429,6 +459,7 @@
                 </span>
             </div>
             <input type="number" id="dev_rx">
+            <div id="configSuccess"></div>
 
             <div class="label-wrapper">
                 <label for="dev_tx" class="required">TX Pin</label>
@@ -437,6 +468,7 @@
                 </span>
             </div>
             <input type="number" id="dev_tx">
+            <div id="configSuccess"></div>
         </div>
 
         <div class="label-wrapper">
@@ -446,9 +478,10 @@
             </span>
         </div>
         <select id="dev_custom" required>
-            <option value="false">False</option>
-            <option value="true">True</option>
+            <option value="0">False</option>
+            <option value="1">True</option>
         </select>
+        <div id="configSuccess"></div>
 
         <div class="section-title">Debug Serial Config</div>
 
@@ -459,6 +492,7 @@
             </span>
         </div>
         <input type="number" id="deb_baudrate" value="250000" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="deb_serial" class="required">Serial Instance</label>
@@ -467,6 +501,7 @@
             </span>
         </div>
         <input type="number" id="deb_serial" value="1" required>
+        <div id="configSuccess"></div>
 
         <div id="deb_custom_fields" class="hidden">
             <div class="label-wrapper">
@@ -489,6 +524,7 @@
                 <option value="52">7E1</option>
                 <option value="60">7E2</option>
             </select>
+            <div id="configSuccess"></div>
 
             <div class="label-wrapper">
                 <label for="deb_rx" class="required">RX Pin</label>
@@ -497,6 +533,7 @@
                 </span>
             </div>
             <input type="number" id="deb_rx">
+            <div id="configSuccess"></div>
 
             <div class="label-wrapper">
                 <label for="deb_tx" class="required">TX Pin</label>
@@ -505,6 +542,7 @@
                 </span>
             </div>
             <input type="number" id="deb_tx">
+            <div id="configSuccess"></div>
         </div>
 
         <div class="label-wrapper">
@@ -514,9 +552,10 @@
             </span>
         </div>
         <select id="deb_custom" required>
-            <option value="false">False</option>
-            <option value="true">True</option>
+            <option value="0">False</option>
+            <option value="1">True</option>
         </select>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="deb_enabled" class="required">Enabled</label>
@@ -525,9 +564,10 @@
             </span>
         </div>
         <select id="deb_enabled" required>
-            <option value="true">True</option>
-            <option value="false">False</option>
+            <option value="1">True</option>
+            <option value="0">False</option>
         </select>
+        <div id="configSuccess"></div>
 
         <div class="section-title">Printer Settings</div>
 
@@ -538,6 +578,7 @@
             </span>
         </div>
         <input type="number" id="printer_command_size" value="12" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="printer_buffer_size" class="required">Printer Buffer Size</label>
@@ -546,6 +587,7 @@
             </span>
         </div>
         <input type="number" id="printer_buffer_size" value="1152" required>
+        <div id="configSuccess"></div>
 
         <div class="label-wrapper">
             <label for="printer_timeout" class="required">Printer Timeout (ms)</label>
@@ -555,6 +597,7 @@
             </span>
         </div>
         <input type="number" id="printer_timeout" value="1000" required>
+        <div id="configSuccess"></div>
 
         <div class="upload-container">
             <h2 style="color: #d1dae3;">Upload Main web Page</h2>
@@ -569,7 +612,7 @@
 
         <div class="restart-container">
             <button class="restart-button" onclick="reboot()">Reboot</button>
-            <div class="status-text" id="rebootStatusText"></div>
+            <div class="" id="rebootStatusText"></div>
         </div>
 
         <div id="status"></div>
@@ -587,7 +630,7 @@
             sd_sector_size: 6,
             file_chunk_size: 7,
             sd_spi_speed: 8,
-            sd_spi_ss: 9,
+            sd_card_select_pin: 9,
             sd_card_max_attempts: 10,
             dev_serial_group: 11, // group, handled manually
             deb_serial_group: 12, // group, handled manually
@@ -597,9 +640,9 @@
         };
         // instant save on change
         const inputs = document.querySelectorAll('input, select');
-        const statusDiv = document.getElementById('status');
         async function saveField(input) {
             const id = input.id;
+            statusDiv = input.nextElementSibling;
             let configId;
             const formData = new FormData();
             if (id.startsWith('dev_')) {
@@ -666,14 +709,14 @@
         const devCustomFields = document.getElementById('dev_custom_fields');
         const debCustomFields = document.getElementById('deb_custom_fields');
         devCustomSelect.addEventListener('change', function () {
-            devCustomFields.classList.toggle('hidden', this.value !== 'true');
+            devCustomFields.classList.toggle('hidden', this.value !== '1');
         });
         debCustomSelect.addEventListener('change', function () {
-            debCustomFields.classList.toggle('hidden', this.value !== 'true');
+            debCustomFields.classList.toggle('hidden', this.value !== '1');
         });
         // initialize
-        devCustomFields.classList.toggle('hidden', devCustomSelect.value !== 'true');
-        debCustomFields.classList.toggle('hidden', debCustomSelect.value !== 'true');
+        devCustomFields.classList.toggle('hidden', devCustomSelect.value !== '1');
+        debCustomFields.classList.toggle('hidden', debCustomSelect.value !== '1');
 
         function updateProgress(progress, status) {
             const progressBar = document.getElementById('progressBar');
@@ -776,8 +819,10 @@
                 if (data.cardStatus) {
                     sdCardStatusElement.textContent = 'SD Card is Initialized';
                     sdCardStatusElement.classList.remove('error');
+                    sdCardStatusElement.classList.add('success');
                 } else {
                     sdCardStatusElement.textContent = 'SD Card is NOT Initialized';
+                    sdCardStatusElement.classList.remove('success');
                     sdCardStatusElement.classList.add('error');
                 }
             } catch (error) {
@@ -806,15 +851,19 @@
 
             // Special cases: DevSerialConfig and DebugSerialConfig (complex, multiple fields)
             try {
-                const devResponse = await fetch(`/config/getDynamicConfig?config=10`);
-                const devText = await devResponse.text();
-                const [baudRate, config, serial, rx, tx, custom] = devText.split(',');
+                const devResponse = await fetch(`/config/getDynamicConfig?config=11`);
+                devText = await devResponse.text();
+                [baudRate, config, serial, rx, tx, custom] = devText.split(',');
 
                 document.getElementById('dev_baudrate').value = baudRate;
                 document.getElementById('dev_serial').value = serial;
                 document.getElementById('dev_custom').value = custom;
 
+                devCustomFields.classList.toggle('hidden', true);
+
+
                 if (custom === "true") {
+                    devCustomFields.classList.toggle('hidden', false);
                     document.getElementById('dev_custom_fields').classList.remove('hidden');
                     document.getElementById('dev_config').value = config;
                     document.getElementById('dev_rx').value = rx;
@@ -825,16 +874,21 @@
             }
 
             try {
-                const debResponse = await fetch(`/config/getDynamicConfig?config=11`);
-                const debText = await debResponse.text();
-                const [baudRate, config, serial, rx, tx, custom, enabled] = debText.split(',');
+                const debResponse = await fetch(`/config/getDynamicConfig?config=12`);
+                debText = await debResponse.text();
+                [baudRate, config, serial, rx, tx, custom, enabled] = debText.split(',');
 
                 document.getElementById('deb_baudrate').value = baudRate;
                 document.getElementById('deb_serial').value = serial;
                 document.getElementById('deb_custom').value = custom;
                 document.getElementById('deb_enabled').value = enabled;
 
+                console.log(serial);
+
+                debCustomFields.classList.toggle('hidden', true);
+
                 if (custom === "true") {
+                    debCustomFields.classList.toggle('hidden', false);
                     document.getElementById('deb_custom_fields').classList.remove('hidden');
                     document.getElementById('deb_config').value = config;
                     document.getElementById('deb_rx').value = rx;

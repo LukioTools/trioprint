@@ -86,12 +86,15 @@ void setup() {
     resetDynamicMemory();
   }
 
+  SDM::init(flashMemory::get<FLASH_MEMORY::PIN_SPI_SELECT_PIN>());
+
+
   FLASH_MEMORY::DebugSerialConfig debugSerialConfig = flashMemory::get<FLASH_MEMORY::DEBSERIAL>();
 
   //if (!debugSerialConfig.custom)
   //  if (debugSerialConfig.serial == 1)
 
-      Serial.print("\n");
+  Serial.print("\n");
   Serial.printf("needed reset: %d, current firmware version: %s, old version: %s\n", newFirmware, __TIME__, firmwareVersion);
 
   FLASH_MEMORY::DevSerialConfig devserialConfig = flashMemory::get<FLASH_MEMORY::DEVSERIAL>();
@@ -143,14 +146,13 @@ DevM::DeviceManager::PrinterStatus deviceOldStatus;
 void loop() {
 
   DevM::DeviceManager::PrinterStatus deviceStatus = DM.read();
-  /*
+
 
   if (!SDM::sdCardInitialized)
     SDM::init<true>(flashMemory::get<FLASH_MEMORY::PIN_SPI_SELECT_PIN>());
 
-*/
+
   GM.Handle();
   OTAW::handle();
   SDM::HANDLER::SDHandlerManager.handle();
-  
 }

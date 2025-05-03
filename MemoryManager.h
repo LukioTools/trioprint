@@ -226,8 +226,8 @@ label:
     sdCardInitialized = true;
     return true;
   } else if (dont_repeat || stop_trying) {
-    Serial.printf("max attempts: %d, current attempt: %d, select pin: %d, spi speed: %d", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(), count, chip_select_pin, flashMemory::get<FLASH_MEMORY::SD_SPI_SPEED>());
-    SD.initErrorHalt();
+    Serial.printf("max attempts: %d, current attempt: %d, select pin: %d, spi speed: %d\n", flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>(), count, chip_select_pin, flashMemory::get<FLASH_MEMORY::SD_SPI_SPEED>());
+    //SD.initErrorHalt();
     sdCardInitialized = false;
     return false;
   }
