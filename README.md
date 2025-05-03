@@ -32,7 +32,7 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
 3. **Hardware Setup**:
    - Insert the SD card into the ESP32 and configure `PIN_SPI_SS` in `config.h` to match the SD card's chip select pin.
-   - Set correct EMS and STOP commands in `config.h` default is for Ender 3 v3 SE
+   - Set correct EMS and STOP commands in `config.h`. default is for Ender 3 v3 SE
    - Flash the firmware to the ESP32 using the Arduino IDE. Ensure you have the necessary libraries installed.
 
 4. **Network Configuration**:
