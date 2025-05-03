@@ -68,7 +68,6 @@
 
         button {
             padding: 10px 20px;
-            margin-top: 20px;
             background: #007BFF;
             color: white;
             border: none;
@@ -135,6 +134,34 @@
     </style>
 
     <style>
+        .restart-container {
+
+            background: #839499;
+            padding: 10px;
+            max-width: 300px;
+            margin-top: 30px;
+            margin-left: auto;
+            margin-right: auto;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .restart-button {
+            background: #cc2f21;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        .restart-button:hover {
+            background: #ae0101;
+        }
+
         .upload-container {
             background: #839499;
             padding: 30px;
@@ -307,25 +334,17 @@
         </div>
         <input type="number" id="web_socket_port" value="81" required>
 
-        
+
         <div class="section-title">SD Card Settings</div>
         <div id="status">Checking...</div>
 
         <div class="label-wrapper">
-            <label for="sd_sector_size" class="required">SD Sector Size</label>
+            <label for="sd_card_select_pin" class="required">SD Card select pin</label>
             <span class="tooltip">?
-                <span class="tooltiptext">Size of each SD card sector in bytes (typically 512).</span>
+                <span class="tooltiptext">SPI select pin for SD card.</span>
             </span>
         </div>
-        <input type="number" id="sd_sector_size" value="512" required>
-
-        <div class="label-wrapper">
-            <label for="file_chunk_size" class="required">File Chunk Size (not used)</label>
-            <span class="tooltip">?
-                <span class="tooltiptext">not used</span>
-            </span>
-        </div>
-        <input type="number" id="file_chunk_size" value="1024" required>
+        <input type="number" id="sd_card_max_attempts" value="5" required>
 
         <div class="label-wrapper">
             <label for="sd_spi_speed" class="required">SD SPI Speed (MHz)</label>
@@ -343,14 +362,21 @@
         </div>
         <input type="number" id="sd_card_max_attempts" value="5" required>
 
-
         <div class="label-wrapper">
-            <label for="sd_card_select_pin" class="required">SD Card select pin</label>
+            <label for="sd_sector_size" class="required">SD Sector Size</label>
             <span class="tooltip">?
-                <span class="tooltiptext">SPI select pin for SD card.</span>
+                <span class="tooltiptext">Size of each SD card sector in bytes (typically 512).</span>
             </span>
         </div>
-        <input type="number" id="sd_card_max_attempts" value="5" required>
+        <input type="number" id="sd_sector_size" value="512" required>
+
+        <div class="label-wrapper">
+            <label for="file_chunk_size" class="required">File Chunk Size (not used)</label>
+            <span class="tooltip">?
+                <span class="tooltiptext">not used</span>
+            </span>
+        </div>
+        <input type="number" id="file_chunk_size" value="1024" required>
 
         <div class="section-title">Device Serial Config</div>
 
@@ -535,6 +561,11 @@
                 <div class="progress-bar" id="progressBar"></div>
             </div>
             <div class="status-text" id="statusText"></div>
+        </div>
+
+        <div class="restart-container">
+            <button class="restart-button" onclick="reboot()">Reboot</button>
+            <div class="status-text" id="rebootStatusText"></div>
         </div>
 
         <div id="status"></div>
@@ -734,7 +765,7 @@
 
         async function fetchStatus() {
             try {
-                const response = await fetch('/sdCardStatus');
+                const response = await fetch('/server/sdCardStatus');
                 const data = await response.json();
                 const statusElement = document.getElementById('status');
 
@@ -754,6 +785,26 @@
         fetchStatus();
         // Optional: refresh status every 5 seconds
         setInterval(fetchStatus, 500);
+
+        async function reboot() {
+            try {
+                const response = await fetch('/server/reboot');
+                const data = await response.json();
+                const statusElement = document.getElementById('rebootStatusText');
+
+                if (data.cardStatus) {
+                    statusElement.textContent = 'reboot successful';
+                    statusElement.classList.remove('error');
+                    location.reload()
+                } else {
+                    statusElement.textContent = 'reboot failed';
+                    statusElement.classList.add('error');
+                }
+            } catch (error) {
+                document.getElementById('rebootStatusText').textContent = 'Error fetching status';
+                document.getElementById('rebootStatusText').classList.add('error');
+            }
+        }
     </script>
 
 </body>

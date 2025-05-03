@@ -64,6 +64,12 @@ void Root(AsyncWebServerRequest* request) {
 }
 }
 
+void reboot(AsyncWebServerRequest* request) {
+  request->send(200, "text/plain", "rebooted");
+  delay(100);
+  ESP.restart();
+}
+
 void serverStatus(AsyncWebServerRequest* request) {
 
   StringStream responce = "{";
@@ -318,7 +324,8 @@ void begin(DevM::GCodeManager* dm) {
 
   server->on("/server/status", HTTP_GET, Handlers::serverStatus);
   server->on("/server/config", HTTP_GET, Handlers::Root::configRoot);
-  server->on("/server/SDCardStatus", HTTP_GET, Handlers::Root::configRoot);
+  server->on("/server/sdCardStatus", HTTP_GET, Handlers::sdCardStatus);
+  server->on("/server/reboot", HTTP_GET, Handlers::reboot);
 
   server->on("/device/print", HTTP_GET, Handlers::print);
   server->on("/device/pause", HTTP_GET, Handlers::pause);
