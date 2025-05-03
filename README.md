@@ -48,34 +48,31 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
    - Use a dedicated tablet or any device with a browser as the user interface. Personally I use old ipad. The only place where I allow Apple device to be used.
 
 7. **Updates**:
-   - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used! Currently versioning is based on time at compile. `__TIME__` And if new version is detected, your preferences are reseted because memory layout might have been changed.
+   - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used! Currently versioning is based on time at compile. (`__TIME__`) And if new version is detected, your preferences are reseted because memory layout might have been changed.
 
 ## Development and features
-| Feature            | ESP32 | ESP8266 |
-|--------------------|:-----:|:-------:|
+| Feature                  | ESP32 | ESP8266|
+|--------------------------|:-----:|:-------:|
 | Wi-Fi                    |   ✅  |   ✅   |
 | Bluetooth                |   🚧  |   ❌   |
 | Async                    |   ✅  |   ❌   |
 | UART                     |   ✅  |   ✅   |
 | USB Interface            |   🚧  |   🚧   |
+| USB Debug                |   ✅  |   ✅   |
 | WEB Interface            |   ✅  |   ✅   |
-| SD card support          |   ✅  |   ✅   |
-| Run Gcode from SD card   |   ✅  |   ✅   |
+| SD Card Support          |   ✅  |   ✅   |
+| Run Gcode From SD Card   |   ✅  |   ✅   |
 
----
-Legend:  
-✅ = Supported  
-🚫 = Not Supported  
-🛠️ = Under Development  
-🚧 = Planned
+**Note:** For ESP8266, compilation is successful but no testing has been done.
+**Note:** Bluetooth would require an app
 
 ## Dependencies
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.
 - [SdFat Library](https://github.com/greiman/SdFat): For SD card operations.
 - [ESPAsyncWebServer](https://github.com/me-no-dev/ESPAsyncWebServer): For handling web server requests.
 - [AsyncTCP](https://github.com/ESP32Async/AsyncTCP): Required for handling web sockets
--https://github.com/jwrw/ESP_EEPROM
--https://github.com/dvarrel/ESPAsyncTCP
+- [ESP_EEPROM](https://github.com/jwrw/ESP_EEPROM): Handling dynamic memory
+- [ESPAsyncTCP](https://github.com/dvarrel/ESPAsyncTCP): for websockets and server
 
 ## Contributing
 Contributions are welcome! Feel free to open issues or submit pull requests.
