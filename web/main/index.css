@@ -441,3 +441,14 @@ body{
     -ms-transform: rotate(45deg);
     transform: rotate(45deg);
   }
+
+  .upload-button {
+    background: #66748500;
+    color: white;
+    padding: 0px 3px;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background 0.3s;
+}

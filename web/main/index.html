@@ -89,11 +89,11 @@
         function remove(filename) {
             path = cwd + filename;
             xhrFetch(`/fm/remove/?path=${path}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/text'
-                    }
-                })
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/text'
+                }
+            })
                 .then(function (resp) {
                     if (resp.status == 200) console.log(`File '${path}' removed successfuly :3`)
                     else console.log(`Failed to remove file '${path}'`)
@@ -104,11 +104,11 @@
         function mkdir(dirname) {
             path = cwd + dirname;
             xhrFetch(`/fm/mkdir/?path=${path}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/text'
-                    }
-                })
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/text'
+                }
+            })
                 .then(function (resp) {
                     if (resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
                     else console.log(`Failed to make directory '${path}'`)
@@ -120,11 +120,11 @@
             path = cwd + dirname;
             console.log("kek");
             xhrFetch(`/device/print/?path=${path}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/text'
-                    }
-                })
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/text'
+                }
+            })
                 .then(function (resp) {
                     if (resp.status == 200) console.log(`Directory '${path}' created successfuly :3`)
                     else console.log(`Failed to make directory '${path}'`)
@@ -316,11 +316,11 @@
             return new Promise(function (resolve, reject) {
                 interval_id.push(rotate_file_load_icon());
                 xhrFetch(`/fm/ls/?path=${cwd}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/text'
-                        }
-                    })
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/text'
+                    }
+                })
                     .then(function (r) {
                         return r.json();
                     })
@@ -397,14 +397,14 @@
             dv = document.getElementById("dir-set-sep");
             st = document.getElementById("Status Bar");
             dv.setAttribute("style", `width: ${dir_status_percent}%;`);
-            st.setAttribute("style", `width: ${100-dir_status_percent}%;`);
+            st.setAttribute("style", `width: ${100 - dir_status_percent}%;`);
         }
 
         function refresh_dir_set() {
             dv = document.getElementById("Directory View");
             sc = document.getElementById("Settings Column Resizer");
             dv.setAttribute("style", `width: ${dir_settings_percent}%;`);
-            sc.setAttribute("style", `width: ${100-dir_settings_percent}%;`);
+            sc.setAttribute("style", `width: ${100 - dir_settings_percent}%;`);
         }
 
 
@@ -476,13 +476,13 @@
                 const element = sb.children[index];
                 const bar = bars[index];
                 barsize = Math.round(bar);
-                element.setAttribute("style", `width: ${barsize-total}px;`);
+                element.setAttribute("style", `width: ${barsize - total}px;`);
                 total += barsize;
                 if (index == bars.length - 1) {
                     last = barsize;
                 }
             }
-            sb.children[sb.children.length - 1].setAttribute("style", `width: ${sb.clientWidth-last}px;`);
+            sb.children[sb.children.length - 1].setAttribute("style", `width: ${sb.clientWidth - last}px;`);
         }
 
         var bar_resize_ongoing = false;
@@ -604,7 +604,7 @@
                 headers: {
                     'Content-Type': 'application/text'
                 }
-            }).then(function (respz) {}).catch(function (err) {
+            }).then(function (respz) { }).catch(function (err) {
                 alert("can't save settings: " + err);
                 console.error(err)
             });
@@ -617,7 +617,7 @@
                 headers: {
                     'Content-Type': 'application/text'
                 }
-            }).then(function (respz) {}).catch(function (err) {
+            }).then(function (respz) { }).catch(function (err) {
                 alert("can't save settings: " + err);
                 console.error(err)
             });
@@ -632,7 +632,7 @@
             <div class="status-item">
                 <div
                     style="display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; flex-direction: column;">
-                    <h1 id="Progress type" class="progress-type" >print status</h1>
+                    <h1 id="Progress type" class="progress-type">print status</h1>
                     <div class="circular-progress-skill">
                         <div id="circular-progress-number"> </div>
 
@@ -664,6 +664,9 @@
                         <div id="chart-temps-container" style="position: relative; width: 100%;">
                             <canvas id="temperatures"></canvas>
                         </div>
+                        <br>
+                        <div>print time: 6h 30 min</div>
+                        <div>printer status: offline</div>
                     </div>
                 </div>
             </div>
@@ -687,6 +690,13 @@
 
                 <button id="file-sync-icon" class="dir-pwd-item dirent-image unstyled-button"
                     onclick="files()">RF</button>
+
+                <div class="upload-button-container">
+                    <input type="file" id="fileInput" style="display: none;" class="file-input">
+                    <button id="fileInputButton" class="dir-pwd-item dirent-image unstyled-button" onclick="document.getElementById('fileInput').click()">Upload File</button>
+
+                </div>
+
 
 
                 <div id="cwd" class="dir-pwd-item">/</div>
@@ -716,54 +726,8 @@
         </div>
         <div id="Settings Column Resizer" class="resize-handle-setting" onmousedown="resize_dir_set(event)">
             <div id="Settings Column" class="bar settings-bar">
-                <div>Settings. Hover for more information</div>
-                <br>
-                <div>esp configuration</div>
-                <br>
-                <label class="setting-checkmark">
-                    <input type="checkbox" id="debugViaSerial" name="debugViaSerial" value="0"
-                        onchange="sendBooleanSetting(0, +this.checked)" />
-                    <div
-                        title="esp sends debugging messages via serial. If you dont have pc connected to usb output of esp disable this.">
-                        debug via serial</div>
-                    <span class="checkmark"></span>
-                </label>
-
-                <label class="setting-checkmark">
-                    <input type="checkbox" id="debugViaWeb" name="debugViaWeb" value="coding"
-                        onchange="sendBooleanSetting(1, +this.checked)" />
-                    <div title="esp sends debugging log via socket to web client.">debug via web interface</div>
-                    <span class="checkmark"></span>
-                </label>
-
-                <label class="setting-checkmark">
-                    <input type="checkbox" id="showSentCommands" name="showSentCommands" value="coding"
-                        onchange="sendBooleanSetting(2, +this.checked)" />
-                    <div title="When enabled esp is going to log sent commands via serial and/or socket">show sent
-                        commands</div>
-                    <span class="checkmark"></span>
-                </label>
-
-                <label class="setting-checkmark">
-                    <input type="checkbox" id="queueStatus" name="queueStatus" value="coding"
-                        onchange="sendBooleanSetting(3, + this.checked)" />
-                    <div title="Shows how many commands in queue">show queue status</div>
-                    <span class="checkmark"></span>
-                </label>
-
-
-                <label class="setting-checkmark">
-                    <input type="checkbox" id="showFailedComamnds" name="showFailedComamnds" value="coding"
-                        onchange="sendBooleanSetting(4, + this.checked)" />
-                    <div title="">show failed commands</div>
-                    <span class="checkmark"></span>
-                </label>
-
-                <label class="setting-number">
-                    <input type="number" , id="pullerFrequency" , name="pullerFrequency" , min="1" , max="100"
-                        onblur="sendCharSetting(1, this.value)">
-                    <div title="">puller frequency</div>
-                </label>
+                <h4>Settings</h4>
+                <p>visit this site <a href="server/config">esp configuration</a></p>
 
             </div>
         </div>
@@ -772,7 +736,15 @@
     <!-- circle bar animation -->
     <script>
 
-        function progressType(type){
+        document.getElementById('fileInput').addEventListener('change', function (event) {
+            const file = event.target.files[0];
+            if (file) {
+                document.getElementById('progressContainer').style.display = 'block';
+                upload_file(file);
+            }
+        });
+
+        function progressType(type) {
             const h = document.getElementById("Progress type");
             h.textContent = type;
         }
@@ -815,11 +787,11 @@
 
         function getSettings() {
             xhrFetch('/config/getDynamicConfig/', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/text'
-                    }
-                })
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/text'
+                }
+            })
                 .then(function (response) {
                     return response.text();
                 })
@@ -935,30 +907,30 @@
             data: {
                 labels: xValues,
                 datasets: [{
-                        data: nozzempData,
-                        borderColor: "#BD2D03",
-                        fill: false
-                    },
-                    {
-                        data: nozzempTargerData,
-                        borderColor: "#F68462",
-                        fill: false
-                    },
-                    {
-                        data: bedTempData,
-                        borderColor: "#107C99",
-                        fill: false
-                    },
-                    {
-                        data: bedTempTargetData,
-                        borderColor: "#22C3EF",
-                        fill: false
-                    },
-                    {
-                        data: fanSpeedData,
-                        borderColor: "#DDA512",
-                        fill: false
-                    },
+                    data: nozzempData,
+                    borderColor: "#BD2D03",
+                    fill: false
+                },
+                {
+                    data: nozzempTargerData,
+                    borderColor: "#F68462",
+                    fill: false
+                },
+                {
+                    data: bedTempData,
+                    borderColor: "#107C99",
+                    fill: false
+                },
+                {
+                    data: bedTempTargetData,
+                    borderColor: "#22C3EF",
+                    fill: false
+                },
+                {
+                    data: fanSpeedData,
+                    borderColor: "#DDA512",
+                    fill: false
+                },
                 ]
             },
             options: {
