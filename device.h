@@ -78,8 +78,11 @@ struct DeviceManager {
 
     if (serialConfig.serial == 1)
       serial = &Serial;
+      
+    #ifdef ESP32
     else if (serialConfig.serial == 2)
       serial = &Serial2;
+    #endif
 
     if (serialConfig.custom) {
       Serial.println("custom");
@@ -214,6 +217,7 @@ struct GCodeManager {
       *size = (*line).length();
       return true;
     }
+    return false;
   }
 
   void startPrint(String fn, bool sP = false, uint64_t cS = 0) {
@@ -302,6 +306,7 @@ struct GCodeManager {
       printState = PRINTING;
       return printState;
     }
+    return PAUSE;
   }
 
   void printFinished() {

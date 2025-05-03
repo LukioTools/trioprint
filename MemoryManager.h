@@ -40,6 +40,10 @@
 #endif
 
 #include "TinyMap.h"
+#include <ESPAsyncWebServer.h>
+#include "stdExtension.h"
+
+
 
 #define EEPROM_SIZE 512  // Define the EEPROM size for ESP32
 
@@ -240,7 +244,7 @@ csd_t csd;
 bool sdCardInitialized = false;
 
 template<bool dont_repeat = false>
-inline static bool init(SdCsPin_t chip_select_pin = PIN_SPI_SS) {
+inline static bool init(SdCsPin_t chip_select_pin = PIN_SPI_SS_SD) {
   int count = 0;
   bool stop_trying = false;
 label:
@@ -438,7 +442,8 @@ class Handler {
 public:
   virtual bool run() {  //return true when task is completed and can be removed
     Serial.println("kek should be handling sd card shit, but I aint doing that because the sauce was lost on the way");
-  };
+    return true;
+   };
 };
 
 class WebRootLoad : public Handler {
@@ -551,11 +556,7 @@ public:
   WebUploadfile(TinyMap<String, std::shared_ptr<FsFile>, 100>& au, String p, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
     : activeUploads(au), fullpath(p), filename(fn), index(i), final(fi), buflen(l) {
     buffer = std::make_unique<uint8_t[]>(l);
-    memcpy(buffer.get(), d, l); t
-  }
-
-  ~WebUploadfile() {
-    if (buffer) delete[] buffer;
+    memcpy(buffer.get(), d, l);
   }
 
   bool run() override {
@@ -582,7 +583,7 @@ public:
       return true;
     }
 
-    int amount = file->write(buffer, buflen);  // write from local buffer
+    int amount = file->write(buffer.get(), buflen);  // write from local buffer
     Serial.printf("writing file idx:%d, wrote:%d bytes\n", index, amount);
 
     file->flush();

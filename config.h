@@ -2,10 +2,10 @@
 #include "SdFat.h"
 
 // sd card select pin
-#define PIN_SPI_SS 5
-#define SD_SPI_TRIES 10
+#define PIN_SPI_SS_SD 5  // this is default value. Can be edited from web interface
+#define SD_SPI_TRIES 10  // this is default value. Can be edited from web interface
 
-#if defined(ESP32)  //Hate to do these things but ig I have to. IDK why can't they be the same on esp8266 and esp32
+#ifdef ESP32  //Hate to do these things but ig I have to. IDK why can't they be the same on esp8266 and esp32
 #define uint8 uint8_t
 #define uint32 uint32_t
 #elif defined(ESP8266)
@@ -22,7 +22,7 @@
 #define ROOT_FILE_SIZE 16
 #define FIRMWARE_VERSION_SIZE 9
 
-#define WIFI_CONNECTING_TIMEMOUT 5000
+#define WIFI_CONNECTING_TIMEMOUT 5000  // this is default value. Can be edited from web interface
 
 // how many web server request can be handled at once
 #define WEB_REQUESTS 1000

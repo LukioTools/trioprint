@@ -72,7 +72,7 @@ void begin() {
     WiFi.softAPConfig(apIP, gateway, subnet);
 
     char *ap_ssid = ssid;
-    char *ap_password = pwd; 
+    char *ap_password = pwd;
 
     if (WiFi.softAP(ap_ssid, ap_password)) {
       Serial.println("Access Point started!");
@@ -85,10 +85,20 @@ void begin() {
 }
 
 IPAddress localIP() {
+#if defined(ESP32)
   if (WiFi.getMode() == WIFI_MODE_AP || WiFi.getMode() == WIFI_AP) {
     return WiFi.softAPIP();
   } else {
     return WiFi.localIP();
   }
+#elif defined(ESP8266)
+  if (WiFi.getMode() == WIFI_AP || WiFi.getMode() == WIFI_AP_STA) {
+    return WiFi.softAPIP();
+  } else {
+    return WiFi.localIP();
+  }
+#else
+#error "Unsupported platform"
+#endif
 }
 }

@@ -94,7 +94,7 @@ struct WebSocketManager {
     Serial.println("socket server started");
   }
 
-  bool broadcastAllTXT(String &data) {
+  bool broadcastAllTXT(const String &data) {
     return (*ws).textAll(data);
   }
 
