@@ -28,7 +28,7 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
    - Upload the `compiled.html.gz` file to your SD card.
 
 2. **Generate Config Files**:
-   - Navigate to `web/config` and run `compress.py` to generate the compiled configuration files.
+   - Navigate to `web/config` and run `compress.py` to generate the  configurator html files.
 
 3. **Hardware Setup**:
    - Insert the SD card into the ESP32 and configure `PIN_SPI_SS` in `config.h` to match the SD card's chip select pin.
