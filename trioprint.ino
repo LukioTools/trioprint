@@ -84,6 +84,7 @@ void setup() {
   bool newFirmware = isNewFirmware(firmwareVersion);
   if (newFirmware) {
     resetDynamicMemory();
+    FLASH_MEMORY::isInNeedOfReconfiguration = true;
   }
 
   SDM::init(flashMemory::get<FLASH_MEMORY::PIN_SPI_SELECT_PIN>());
