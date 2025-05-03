@@ -142,18 +142,15 @@ DevM::DeviceManager::PrinterStatus deviceOldStatus;
 
 void loop() {
 
-  Serial.println("kek");
   DevM::DeviceManager::PrinterStatus deviceStatus = DM.read();
   /*
 
   if (!SDM::sdCardInitialized)
     SDM::init<true>(flashMemory::get<FLASH_MEMORY::PIN_SPI_SELECT_PIN>());
 
-
+*/
   GM.Handle();
   OTAW::handle();
   SDM::HANDLER::SDHandlerManager.handle();
-  //Serial.printf("free ram: %d\n", esp_get_free_heap_size);
-  */
   
 }
