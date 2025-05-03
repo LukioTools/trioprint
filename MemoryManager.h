@@ -39,8 +39,6 @@
 #include <EEPROM.h>
 #endif
 
-#include <ESPAsyncWebServer.h>
-#include <AsyncTCP.h>
 #include "TinyMap.h"
 
 #define EEPROM_SIZE 512  // Define the EEPROM size for ESP32
@@ -275,11 +273,7 @@ freebyte_t free_bytes = freebyte_invalid_state;
 //constexpr uint_t SdSectorSize = 512;
 
 freebyte_t cardSize() {  // full size in bytes
-#if defined(ESP8266)
-  return sdCardCapacity(&csd) * SD_SECTOR_SIZE;
-#elif defined(ESP32)
   return SD.clusterCount() * SD.sectorsPerCluster() * flashMemory::get<FLASH_MEMORY::SD_SECTOR_SIZE>();
-#endif
 }
 
 void clearFreeSizeCache() {
@@ -300,7 +294,7 @@ freebyte_return_t refreshFreeSizeCache() {
 String listDir(String path) {
   FsFile folder = SD.open(path);
   if (!folder) {
-    return "Failed to open directory";
+    return "Failed to open directory: " + path;
   };
   if (!folder.isDirectory()) return "Not a directory";
 
@@ -481,10 +475,10 @@ public:
 
 class WebListDir : public Handler {
   AsyncWebServerRequestPtr requestPtr;
-  const String& filename;
+  const String filename;
 
 public:
-  WebListDir(AsyncWebServerRequestPtr r, const String& fn)
+  WebListDir(AsyncWebServerRequestPtr r, const String fn)
     : requestPtr(r), filename(fn) {}
 
   bool run() override {
@@ -502,10 +496,10 @@ public:
 
 class WebMakeDir : public Handler {
   AsyncWebServerRequestPtr requestPtr;
-  const String& path;
+  const String path;
 
 public:
-  WebMakeDir(AsyncWebServerRequestPtr r, const String& p)
+  WebMakeDir(AsyncWebServerRequestPtr r, const String p)
     : requestPtr(r), path(p) {}
 
   bool run() override {
@@ -524,10 +518,10 @@ public:
 
 class WebRemove : public Handler {
   AsyncWebServerRequestPtr requestPtr;
-  const String& path;
+  const String path;
 
 public:
-  WebRemove(AsyncWebServerRequestPtr r, const String& p)
+  WebRemove(AsyncWebServerRequestPtr r, const String p)
     : requestPtr(r), path(p) {}
 
   bool run() override {
@@ -547,24 +541,29 @@ public:
 class WebUploadfile : public Handler {
   String filename;
   size_t index;
-  uint8_t* data;
-  size_t len;
+  std::unique_ptr<uint8_t[]> buffer;
+  size_t buflen;
   bool final;
   TinyMap<String, std::shared_ptr<FsFile>, 100>& activeUploads;
   String fullpath;
 
 public:
   WebUploadfile(TinyMap<String, std::shared_ptr<FsFile>, 100>& au, String p, const String& fn, size_t i, uint8_t* d, size_t l, bool fi)
-    : activeUploads(au), fullpath(p), filename(fn), index(i), data(d), len(l), final(fi) {}
+    : activeUploads(au), fullpath(p), filename(fn), index(i), final(fi), buflen(l) {
+    buffer = std::make_unique<uint8_t[]>(l);
+    memcpy(buffer.get(), d, l); t
+  }
+
+  ~WebUploadfile() {
+    if (buffer) delete[] buffer;
+  }
 
   bool run() override {
-
     if (fullpath.isEmpty()) fullpath = "/";
     fullpath += filename;
 
     if (index == 0) {
       FsFile file = SDM::SD.open(fullpath.c_str(), O_CREAT | O_WRITE | O_TRUNC);
-
       if (!file) {
         return true;
       }
@@ -573,20 +572,22 @@ public:
 
     auto it = activeUploads.find(fullpath);
     if (it == activeUploads.end()) {
+      Serial.println("file instance was not found in map");
       return true;
     }
 
     std::shared_ptr<FsFile> file = it->second;
-
     if (!(*file)) {
+      Serial.println("file instance was not found");
       return true;
     }
 
-    int amount = file->write(data, len);
+    int amount = file->write(buffer, buflen);  // write from local buffer
+    Serial.printf("writing file idx:%d, wrote:%d bytes\n", index, amount);
 
     file->flush();
-    //Serial.printf("wrote: %d/%d\n", amount,len);
     if (final) {
+      Serial.println("final, closing file");
       file->close();
     }
     return true;
@@ -707,12 +708,12 @@ class GCodeInit : public Handler {
   char& stage;
   FsFile& file;
   const size_t BUFFER_SIZE;
-  size_t& bufferPos;
-  size_t& bufferLength;
+  size_t bufferPos;
+  size_t bufferLength;
   char* buffer;  // still raw pointer because it is a dynamic array
 
 public:
-  GCodeInit(char& d, FsFile& f, size_t bs, size_t& bp, size_t& bl, char* b)
+  GCodeInit(char& d, FsFile& f, size_t bs, size_t bp, size_t bl, char* b)
     : stage(d), file(f), BUFFER_SIZE(bs), bufferPos(bp), bufferLength(bl), buffer(b) {
     stage = 0;
   }

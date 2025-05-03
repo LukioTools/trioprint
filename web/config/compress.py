@@ -1,5 +1,4 @@
 
-
 '''
  Copyright (c) <2025> <Vili Kervinen>
  
@@ -77,6 +76,7 @@ def generate_html_header_file(input_file_path: str, output_file_path: str, var_n
 
     # Create the header content with proper inclusion guards
     header_content = f"""\
+    #pragma once
 #ifndef HTML_TEMPLATE_H
 #define HTML_TEMPLATE_H
 

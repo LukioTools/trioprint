@@ -36,7 +36,7 @@ with open('index.html', 'r') as f:
 
 with open('compiled.html', 'w+') as um:
     um.write(s)
-with gzip.open('compiled-large.html.gz', 'wb') as f:
+with gzip.open('compiled.html.gz', 'wb') as f:
     f.write(s.encode('utf-8'))
 s = re.sub(r"//.*", '', s)
 s = re.sub(r"/\*[\s\S]*?\*/", '', s)
@@ -48,7 +48,7 @@ print(s)
 with open('compiled.html', 'w+') as o:
     o.write(s)
 
-with gzip.open('compiled.html.gz', 'wb') as f:
+with gzip.open('compiled-small.html.gz', 'wb') as f:
     f.write(s.encode('utf-8'))
 
 

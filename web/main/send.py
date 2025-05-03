@@ -40,7 +40,7 @@ def upload_file(file_path, cwd):
     """
     print(f"Uploading file: '{os.path.basename(file_path)}' to path '{cwd}'")
 
-    url = f"http:/{ip}/fm/uploadFile/?path={cwd}"  # Replace with the actual server URL
+    url = f"http://{ip}/fm/uploadFile/?path={cwd}"  # Replace with the actual server URL
     with open(file_path, 'rb') as file:
         files = {'file': file}
         try:

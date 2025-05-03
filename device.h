@@ -25,7 +25,10 @@
 */
 
 #pragma once
+
+#if defined(ESP32)
 #include "esp32-hal.h"
+#endif
 
 #include "config.h"
 #include "MemoryManager.h"

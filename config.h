@@ -25,9 +25,7 @@
 */
 
 #pragma once
-#include "SdFat.h"
 
-// sd card select pin
 #define PIN_SPI_SS 5
 #define SD_SPI_TRIES 10
 
