@@ -74,9 +74,11 @@ void resetDynamicMemory() {
 
 void setup() {
 
+  Serial.begin(250000);
+  Serial.println("kek");
+
   flashMemory::init();
 
-  testBuffer = new RuntimeBuffer<char>(10);
 
   char firmwareVersion[9];
   bool newFirmware = isNewFirmware(firmwareVersion);
@@ -86,11 +88,10 @@ void setup() {
 
   FLASH_MEMORY::DebugSerialConfig debugSerialConfig = flashMemory::get<FLASH_MEMORY::DEBSERIAL>();
 
-  if (!debugSerialConfig.custom)
-    if (debugSerialConfig.serial == 1)
-      Serial.begin(debugSerialConfig.baudRate);
+  //if (!debugSerialConfig.custom)
+  //  if (debugSerialConfig.serial == 1)
 
-  Serial.print("\n");
+      Serial.print("\n");
   Serial.printf("needed reset: %d, current firmware version: %s, old version: %s\n", newFirmware, __TIME__, firmwareVersion);
 
   FLASH_MEMORY::DevSerialConfig devserialConfig = flashMemory::get<FLASH_MEMORY::DEVSERIAL>();
@@ -125,10 +126,6 @@ void setup() {
     debugSerialConfig.serial,
     debugSerialConfig.enabled);
 
-
-  Serial.printf("card size: %d\n", SDM::cardSize());
-  Serial.printf("free size: %d\n", SDM::freeSize());
-
   WiFiW::begin();
   OTAW::begin();
   WSM.begin();
@@ -140,19 +137,23 @@ void setup() {
   WBW::begin(&GM);
 }
 
+
 DevM::DeviceManager::PrinterStatus deviceOldStatus;
 
 void loop() {
 
-  Serial.println("test");
+  Serial.println("kek");
   DevM::DeviceManager::PrinterStatus deviceStatus = DM.read();
+  /*
 
   if (!SDM::sdCardInitialized)
-    SDM::init(1);
+    SDM::init<true>(flashMemory::get<FLASH_MEMORY::PIN_SPI_SELECT_PIN>());
 
 
   GM.Handle();
   OTAW::handle();
   SDM::HANDLER::SDHandlerManager.handle();
   //Serial.printf("free ram: %d\n", esp_get_free_heap_size);
+  */
+  
 }

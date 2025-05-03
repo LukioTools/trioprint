@@ -55,9 +55,9 @@ struct DeviceManager {
     if (serialConfig.custom) {
       Serial.println("custom");
 
-      serial->begin(serialConfig.baudRate, serialConfig.config, serialConfig.rx, serialConfig.tx);
+      //serial->begin(serialConfig.baudRate, serialConfig.config, serialConfig.rx, serialConfig.tx);
     } else {
-      serial->begin(serialConfig.baudRate);
+      //serial->begin(serialConfig.baudRate);
     }
   }
 

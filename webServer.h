@@ -297,6 +297,141 @@ void setDynamic(AsyncWebServerRequest* request) {
 }
 
 void getDynamic(AsyncWebServerRequest* request) {
+  String config = request->arg("config"); // Config identifier
+  
+  Serial.printf("config: %s read\n", config.c_str());
+
+  switch (static_cast<FLASH_MEMORY::NamesEeprom>(config.toInt())) {
+    case FLASH_MEMORY::WIFI_SSID:
+    {
+      char ssid[WIFI_SSID_SIZE] = {0};
+      flashMemory::get<FLASH_MEMORY::WIFI_SSID>(ssid);
+      request->send(200, "text/plain", ssid);
+      break;
+    }
+
+    case FLASH_MEMORY::WIFI_PWD:
+    {
+      char pwd[WIFI_PWD_SIZE] = {0};
+      flashMemory::get<FLASH_MEMORY::WIFI_PWD>(pwd);
+      request->send(200, "text/plain", pwd);
+      break;
+    }
+
+    case FLASH_MEMORY::OTA_PWD:
+    {
+      char pwd[OTA_PWD_SIZE] = {0};
+      flashMemory::get<FLASH_MEMORY::OTA_PWD>(pwd);
+      request->send(200, "text/plain", pwd);
+      break;
+    }
+
+    case FLASH_MEMORY::WEB_NAME:
+    {
+      char webName[WEB_NAME_SIZE] = {0};
+      flashMemory::get<FLASH_MEMORY::WEB_NAME>(webName);
+      request->send(200, "text/plain", webName);
+      break;
+    }
+
+    case FLASH_MEMORY::WEB_SERVER_PORT:
+    {
+      uint16_t port = flashMemory::get<FLASH_MEMORY::WEB_SERVER_PORT>();
+      request->send(200, "text/plain", String(port));
+      break;
+    }
+
+    case FLASH_MEMORY::WEB_SOCKET_PORT:
+    {
+      uint16_t port = flashMemory::get<FLASH_MEMORY::WEB_SOCKET_PORT>();
+      request->send(200, "text/plain", String(port));
+      break;
+    }
+
+    case FLASH_MEMORY::SD_SECTOR_SIZE:
+    {
+      uint32_t sectorSize = flashMemory::get<FLASH_MEMORY::SD_SECTOR_SIZE>();
+      request->send(200, "text/plain", String(sectorSize));
+      break;
+    }
+
+    case FLASH_MEMORY::FILE_CHUNK_SIZE:
+    {
+      uint32_t chunkSize = flashMemory::get<FLASH_MEMORY::FILE_CHUNK_SIZE>();
+      request->send(200, "text/plain", String(chunkSize));
+      break;
+    }
+
+    case FLASH_MEMORY::SD_SPI_SPEED:
+    {
+      uint8_t spiSpeed = flashMemory::get<FLASH_MEMORY::SD_SPI_SPEED>();
+      request->send(200, "text/plain", String(spiSpeed));
+      break;
+    }
+
+    case FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS:
+    {
+      uint8_t maxAttempts = flashMemory::get<FLASH_MEMORY::SD_CARD_MAX_ATTEMPTS>();
+      request->send(200, "text/plain", String(maxAttempts));
+      break;
+    }
+
+    case FLASH_MEMORY::DEVSERIAL:
+    {
+      FLASH_MEMORY::DevSerialConfig devSerialConfig;
+      flashMemory::get<FLASH_MEMORY::DEVSERIAL>(devSerialConfig);
+      String response = String(devSerialConfig.baudRate) + "," + String(devSerialConfig.config) + "," +
+                        String(devSerialConfig.serial) + "," + String(devSerialConfig.rx) + "," +
+                        String(devSerialConfig.tx) + "," + String(devSerialConfig.custom);
+      request->send(200, "text/plain", response);
+      break;
+    }
+
+    case FLASH_MEMORY::DEBSERIAL:
+    {
+      FLASH_MEMORY::DebugSerialConfig debSerialConfig;
+      flashMemory::get<FLASH_MEMORY::DEBSERIAL>(debSerialConfig);
+      String response = String(debSerialConfig.baudRate) + "," + String(debSerialConfig.config) + "," +
+                        String(debSerialConfig.serial) + "," + String(debSerialConfig.rx) + "," +
+                        String(debSerialConfig.tx) + "," + String(debSerialConfig.custom) + "," +
+                        String(debSerialConfig.enabled);
+      request->send(200, "text/plain", response);
+      break;
+    }
+
+    case FLASH_MEMORY::PRINTER_BUFFER_SIZE:
+    {
+      uint16_t bufferSize = flashMemory::get<FLASH_MEMORY::PRINTER_BUFFER_SIZE>();
+      request->send(200, "text/plain", String(bufferSize));
+      break;
+    }
+
+    case FLASH_MEMORY::PRINTER_COMMAND_SIZE:
+    {
+      uint16_t cmdSize = flashMemory::get<FLASH_MEMORY::PRINTER_COMMAND_SIZE>();
+      request->send(200, "text/plain", String(cmdSize));
+      break;
+    }
+
+    case FLASH_MEMORY::PRINTER_TIMEOUT:
+    {
+      uint16_t timeout = flashMemory::get<FLASH_MEMORY::PRINTER_TIMEOUT>();
+      request->send(200, "text/plain", String(timeout));
+      break;
+    }
+
+    case FLASH_MEMORY::FIRMWARE_VERSION:
+    {
+      char firmware[FIRMWARE_VERSION_SIZE] = {0};
+      flashMemory::get<FLASH_MEMORY::FIRMWARE_VERSION>(firmware);
+      request->send(200, "text/plain", firmware);
+      break;
+    }
+
+    default:
+      request->send(400, "text/plain", "Invalid config");
+      break;
+  }
 }
 
 namespace Upload {
@@ -346,7 +481,7 @@ void begin(DevM::GCodeManager* dm) {
     Handlers::Upload::uploadFile);
 
   server->on("/config/setDynamicConfig", HTTP_POST, Handlers::setDynamic);
-  server->on("/config/getDynamicConfig", HTTP_GET, Handlers::notFound);
+  server->on("/config/getDynamicConfig", HTTP_GET, Handlers::getDynamic);
 
   server->onNotFound(Handlers::notFound);
 

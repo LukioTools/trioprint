@@ -88,6 +88,10 @@
             font-weight: bold;
         }
 
+        #SdCardStatus {
+            font-weight: bold;
+        }
+
         .required::after {
             content: " *";
             color: red;
@@ -336,7 +340,7 @@
 
 
         <div class="section-title">SD Card Settings</div>
-        <div id="status">Checking...</div>
+        <div id="SdCardStatus">Checking...</div>
 
         <div class="label-wrapper">
             <label for="sd_card_select_pin" class="required">SD Card select pin</label>
@@ -763,42 +767,99 @@
             });
         }
 
-        async function fetchStatus() {
+        async function fetchSDCardStatus() {
             try {
                 const response = await fetch('/server/sdCardStatus');
                 const data = await response.json();
-                const statusElement = document.getElementById('status');
+                const sdCardStatusElement = document.getElementById('SdCardStatus');
 
                 if (data.cardStatus) {
-                    statusElement.textContent = 'SD Card is Initialized';
-                    statusElement.classList.remove('error');
+                    sdCardStatusElement.textContent = 'SD Card is Initialized';
+                    sdCardStatusElement.classList.remove('error');
                 } else {
-                    statusElement.textContent = 'SD Card is NOT Initialized';
-                    statusElement.classList.add('error');
+                    sdCardStatusElement.textContent = 'SD Card is NOT Initialized';
+                    sdCardStatusElement.classList.add('error');
                 }
             } catch (error) {
-                document.getElementById('status').textContent = 'Error fetching status';
-                document.getElementById('status').classList.add('error');
+                document.getElementById('SdCardStatus').textContent = 'Error fetching status';
+                document.getElementById('SdCardStatus').classList.add('error');
             }
         }
 
-        fetchStatus();
+        fetchSDCardStatus();
         // Optional: refresh status every 5 seconds
-        setInterval(fetchStatus, 500);
+        setInterval(fetchSDCardStatus, 500);
+
+        async function fetchFlashStorage() {
+            for (const [id, configNum] of Object.entries(configMap)) {
+                try {
+                    const response = await fetch(`/config/getDynamicConfig?config=${configNum}`);
+                    const text = await response.text();
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.value = text.trim();
+                    }
+                } catch (error) {
+                    console.error(`Failed to fetch config ${configNum} for ${id}`, error);
+                }
+            }
+
+            // Special cases: DevSerialConfig and DebugSerialConfig (complex, multiple fields)
+            try {
+                const devResponse = await fetch(`/config/getDynamicConfig?config=10`);
+                const devText = await devResponse.text();
+                const [baudRate, config, serial, rx, tx, custom] = devText.split(',');
+
+                document.getElementById('dev_baudrate').value = baudRate;
+                document.getElementById('dev_serial').value = serial;
+                document.getElementById('dev_custom').value = custom;
+
+                if (custom === "true") {
+                    document.getElementById('dev_custom_fields').classList.remove('hidden');
+                    document.getElementById('dev_config').value = config;
+                    document.getElementById('dev_rx').value = rx;
+                    document.getElementById('dev_tx').value = tx;
+                }
+            } catch (error) {
+                console.error('Failed to fetch DevSerialConfig', error);
+            }
+
+            try {
+                const debResponse = await fetch(`/config/getDynamicConfig?config=11`);
+                const debText = await debResponse.text();
+                const [baudRate, config, serial, rx, tx, custom, enabled] = debText.split(',');
+
+                document.getElementById('deb_baudrate').value = baudRate;
+                document.getElementById('deb_serial').value = serial;
+                document.getElementById('deb_custom').value = custom;
+                document.getElementById('deb_enabled').value = enabled;
+
+                if (custom === "true") {
+                    document.getElementById('deb_custom_fields').classList.remove('hidden');
+                    document.getElementById('deb_config').value = config;
+                    document.getElementById('deb_rx').value = rx;
+                    document.getElementById('deb_tx').value = tx;
+                }
+            } catch (error) {
+                console.error('Failed to fetch DebugSerialConfig', error);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', fetchFlashStorage);
 
         async function reboot() {
             try {
                 const response = await fetch('/server/reboot');
                 const data = await response.json();
-                const statusElement = document.getElementById('rebootStatusText');
+                const rebootStatusElement = document.getElementById('rebootStatusText');
 
                 if (data.cardStatus) {
-                    statusElement.textContent = 'reboot successful';
-                    statusElement.classList.remove('error');
+                    rebootStatusElement.textContent = 'reboot successful';
+                    rebootStatusElement.classList.remove('error');
                     location.reload()
                 } else {
-                    statusElement.textContent = 'reboot failed';
-                    statusElement.classList.add('error');
+                    rebootStatusElement.textContent = 'reboot failed';
+                    rebootStatusElement.classList.add('error');
                 }
             } catch (error) {
                 document.getElementById('rebootStatusText').textContent = 'Error fetching status';
