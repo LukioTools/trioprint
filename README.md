@@ -48,7 +48,7 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
    - Use a dedicated tablet or any device with a browser as the user interface. Personally I use old ipad. The only place where I allow Apple device to be used.
 
 7. **Updates**:
-   - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used! Currently versioning is based on time at compile. And if new version is detected, your preferenses are reseted. 
+   - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used! Currently versioning is based on time at compile. `__TIME__` And if new version is detected, your preferences are reseted. 
 
 ## Dependencies
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.
