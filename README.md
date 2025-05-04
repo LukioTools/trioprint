@@ -35,7 +35,7 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
    if your esp does not sd card slot you can solder wires into micro SD to SD adapter. THis way you can still use the sd card on computer. Or you can also buy one of those development boards.
    <p align="center">
-      <img src="Images/SD_CARD_ADAPTER.jpg" width="">
+      <img src="Images/SD_CARD_ADAPTER.jpg" width="400px">
    </p>
 
    - Set correct EMS and STOP commands in `config.h`. Default is for Ender 3 v3 SE
@@ -50,17 +50,17 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
    Ender 3 V3 SE includes CH340T chip as USB to UART bridge. Solder to the TX and RX pins. Connect the other wires to esp Serial lines. You might have to swap the RX and TX pins.
    <p align="center">
-      <img src="Images/CH340-PIN.jpg" width="">
+      <img src="Images/CH340-PIN.jpg" width="400px">
    </p>
 
    on Ender 3 V3 SE the chip is located there:
    <p align="center">
-      <img src="Images/ENDER3V3SE_serial_pins.jpg" width="">
+      <img src="Images/ENDER3V3SE_serial_pins.jpg" width="400px">
    </p>
 
    Connect power wires as shown in image:
       <p align="center">
-      <img src="Images/ENDER3V3SE_3V3_PINS.jpg" width="">
+      <img src="Images/ENDER3V3SE_3V3_PINS.jpg" width="400px">
    </p>
    - Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
 
