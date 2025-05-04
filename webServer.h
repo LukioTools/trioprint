@@ -69,7 +69,9 @@ void RootReloadCache() {
 }
 
 void configRoot(AsyncWebServerRequest* request) {
-  request->send(200, "text/html", CONFIGURATION_HTML_TEMPLATE);
+  AsyncWebServerResponse* response = request->beginResponse(200, "text/html", CONFIGURATION_HTML_TEMPLATE);  //Sends 404 File Not Found
+  response->addHeader("Content-Encoding", "gzip");
+  request->send(response);
 }
 
 void Root(AsyncWebServerRequest* request) {
@@ -110,7 +112,7 @@ void sdCardStatus(AsyncWebServerRequest* request) {
   request->send(200, "application/json", response);
 }
 
-void serverFirmwareVersion(AsyncWebServerRequest* request){
+void serverFirmwareVersion(AsyncWebServerRequest* request) {
   char version[FIRMWARE_VERSION_SIZE];
   flashMemory::get<FLASH_MEMORY::FIRMWARE_VERSION>(version);
   request->send(200, "text/plain", String(version));

@@ -46,9 +46,9 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
    - Access the configuration page via a browser at `192.168.1.1`. If not prompted, navigate to `/server/config`.
 
 5. **Printer Connection**:
-   - Connect the ESP32 to the printer's UART port (not USB).
+   - After verifying that all functionality works, connect the ESP32 to the printer's UART port (not the USB port). If the SD card is not detected or the device cannot connect to the network, double-check all wiring connections and ensure the Wi-Fi credentials are correct. 
 
-   Ender 3 V3 SE includes CH340T chip as USB to UART bridge. Solder to the TX and RX pins. Connect the other wires to esp Serial lines. You might have to swap the RX and TX pins.
+   Ender 3 V3 SE includes CH340T chip as USB to UART bridge. Solder to the TX and RX pins. Connect the other end of wires to ESP serial lines. You might have to swap the RX and TX pins.
    <p align="center">
       <img src="Images/CH340-PIN.jpg" width="400px">
    </p>
@@ -58,11 +58,10 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
       <img src="Images/ENDER3V3SE_serial_pins.jpg" width="400px">
    </p>
 
-   Connect power wires as shown in image:
+   Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
       <p align="center">
       <img src="Images/ENDER3V3SE_3V3_PINS.jpg" width="400px">
    </p>
-   - Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
 
 6. **Testing and Operation**:
    - Power up the printer and test the setup by uploading a file to the SD card and checking the printer's connectivity at `[IP]/` or `http://[name].local`. You can check ip via serial if serial debug is enabled. (laptop, pc or Android phone can be used).
@@ -92,6 +91,8 @@ This project uses an asynchronous web server to provide a smooth user experience
 The codebase is currently kinda messy — refactoring is in progress.
 
 A custom debug interface should be added to make debugging easier via serial and web interface. Currently, it's just Serial prints...
+
+Compress the main user interface always to keep memory usage down. In web serve code correct headers are sent always.
 
 ## Dependencies
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.

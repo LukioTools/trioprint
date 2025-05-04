@@ -1,31 +1,9 @@
-
-'''
- Copyright (c) <2025> <Vili Kervinen>
- 
- Permission is hereby granted, free of charge, to any person obtaining
- a copy of this software and associated documentation files (the
- "Software"), to deal in the Software without restriction, including
- without limitation the rights to use, copy, modify, merge, publish,
- distribute, sublicense, and/or sell copies of the Software, and to
- permit persons to whom the Software is furnished to do so, subject to
- the following conditions:
- 
- The above copyright notice and this permission notice shall be included
- in all copies or substantial portions of the Software.
- 
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
- EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-'''
-
 import re
+import gzip
+import base64
 
-
-# this script is used to compress the configuration web page for initial configuration. When runned it will automatically make config_html__template.h into main folder that is included by the code. 
+# this script is used to compress the configuration web page for initial configuration.
+# When run, it will automatically make config_html__template.h into the main folder that is included by the code.
 
 def compress_html(html: str, remove_comments: bool = True) -> str:
     if remove_comments:
@@ -45,24 +23,22 @@ def compress_html(html: str, remove_comments: bool = True) -> str:
     html = html.replace('\n', '')  # Remove newline characters to make it one long string
     return html
 
-def escape_for_cpp(html: str) -> str:
-    # Escape special characters for C++ string literals
-    html = html.replace('\\', '\\\\')  # Escape backslashes
-    html = html.replace('"', '\\"')    # Escape double quotes
-    html = html.replace("'", "\\'")    # Escape single quotes
-    html = html.replace('\n', '\\n')   # Escape newlines for readability
-    html = html.replace('\r', '')      # Remove carriage returns
-    return html
+def gzip_compress(html: str) -> bytes:
+    # Convert the string to bytes and gzip it
+    html_bytes = html.encode('utf-8')
+    compressed_html = gzip.compress(html_bytes)
+    return compressed_html
 
-def html_to_c_string(html: str, max_line_length: int = 100) -> str:
-    # Split the HTML content into manageable lines first
-    lines = [html[i:i+max_line_length] for i in range(0, len(html), max_line_length)]
-    
-    # Escape each line separately for C++ syntax
-    escaped_lines = [escape_for_cpp(line) for line in lines]
+def base64_encode(compressed_html: bytes) -> str:
+    # Base64 encode the gzipped HTML
+    return base64.b64encode(compressed_html).decode('utf-8')
+
+def html_to_c_string(base64_encoded_html: str, max_line_length: int = 100) -> str:
+    # Split the base64 encoded string into manageable lines first
+    lines = [base64_encoded_html[i:i+max_line_length] for i in range(0, len(base64_encoded_html), max_line_length)]
     
     # Wrap each line in double quotes for C++ syntax
-    return '\n'.join([f'"{line}"' for line in escaped_lines])
+    return '\n'.join([f'"{line}"' for line in lines])
 
 def generate_html_header_file(input_file_path: str, output_file_path: str, var_name: str = "html_page"):
     with open(input_file_path, 'r', encoding='utf-8') as f:
@@ -71,8 +47,14 @@ def generate_html_header_file(input_file_path: str, output_file_path: str, var_n
     # Compress the HTML
     compressed_html = compress_html(html_content)
     
+    # Gzip compress the HTML
+    gzipped_html = gzip_compress(compressed_html)
+
+    # Base64 encode the gzipped HTML
+    base64_encoded_html = base64_encode(gzipped_html)
+
     # Convert it to C++ string format with escaping
-    c_string_html = html_to_c_string(compressed_html)
+    c_string_html = html_to_c_string(base64_encoded_html)
 
     # Create the header content with proper inclusion guards
     header_content = f"""\
