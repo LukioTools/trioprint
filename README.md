@@ -31,7 +31,7 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
    - Navigate to the `web/main` folder and run `compile.py` to generate the compiled HTML.
    - Upload the `compiled.html.gz` file to your SD card.
 
-2. **Generate Config Files**:
+2. **Generate Config html Files**:
    - Navigate to `web/config` and run `compress.py` to generate the  configurator html files.
 
 3. **Hardware Setup**:
@@ -51,8 +51,6 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
    </p>
 
    #### Default SPI pins:
-   Note that SPI pins can be configured by using `SPI.begin(sck, miso, mosi, cs);` alternatively, you can change only the CS pin with `SD.begin(CSpin)`
-
    | SPI Pin Name | ESP8266 | ESP32 | ESP32‑S2 | ESP32‑S3 | ESP32‑C3 | ESP32‑C6 | ESP32‑H2 |
    |--------------|---------|-------|----------|----------|----------|----------|----------|
    | CS (SS)      | GPIO15  | GPIO5 | GPIO34   | GPIO10   | GPIO7    | GPIO18   | GPIO0    |
@@ -94,9 +92,6 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
 7. **Updates**:
    - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used! Currently versioning is based on time at compile. (`__TIME__`) And if new version is detected, your preferences are reseted because memory layout might have been changed.
-
-### Note for ESP32 Without SD Card
-If your ESP32 does not have an SD card, you can still use TrioPrint by uploading the necessary files directly to the ESP32's flash memory. Ensure you configure the firmware accordingly to access the files from flash instead of an SD card.
 
 ## Development and features
 | Feature                  | ESP32 | ESP8266|
