@@ -1,6 +1,5 @@
 <p align="center">
-   <img src="Images/logo.svg
-   " width="100px">
+   <img src="Images/logo.svg" width="100px">
 </p>
 
 # Trioprint
