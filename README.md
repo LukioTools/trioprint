@@ -33,13 +33,34 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 3. **Hardware Setup**:
    - Insert the SD card into the ESP32 and configure `PIN_SPI_SS_SD` in `config.h` to match the SD card's chip select pin.
 
-   if your esp does not sd card slot you can solder wires into micro SD to SD adapter. THis way you can still use the sd card on computer. Or you can also buy one of those development boards.
+      if your esp does not sd card slot you can solder wires into micro SD to SD adapter. THis way you can still use the sd card on computer. Or you can also buy one of those development boards.
    <p align="center">
-      <img src="Images/SD_CARD_ADAPTER.jpg" width="400px">
+      <img src="Images/SD_CARD_ADAPTER.jpg" width="200px">
    </p>
 
+   <p align="center">
+      <img src="Images/sd_card_esp_pinout.png" width="200px">
+   </p>
+
+   <p align="center">
+      <img src="Images/sd_card_pinouts.gif" width="200px">
+   </p>
+
+   #### Default SPI pins:
+   Note that SPI pins can be configured by using `SPI.begin(sck, miso, mosi, cs);` alternatively, you can change only the CS pin with `SD.begin(CSpin)`
+
+   | SPI Pin Name | ESP8266 | ESP32 | ESP32‑S2 | ESP32‑S3 | ESP32‑C3 | ESP32‑C6 | ESP32‑H2 |
+   |--------------|---------|-------|----------|----------|----------|----------|----------|
+   | CS (SS)      | GPIO15  | GPIO5 | GPIO34   | GPIO10   | GPIO7    | GPIO18   | GPIO0    |
+   | DI (MOSI)    | GPIO13  | GPIO23| GPIO35   | GPIO11   | GPIO6    | GPIO19   | GPIO25    |
+   | DO (MISO)    | GPIO12  | GPIO19| GPIO37   | GPIO13   | GPIO5    | GPIO20   | GPIO11    |
+   | SCK (SCLK)   | GPIO14  | GPIO18| GPIO36   | GPIO12   | GPIO4    | GPIO21   | GPIO10    |
+
+   ---
+
    - Set correct EMS and STOP commands in `config.h`. Default is for Ender 3 v3 SE
-   - Flash the firmware to the ESP32 using the Arduino IDE. Ensure you have the necessary libraries installed.
+   
+   Flash the firmware to the ESP32 using the Arduino IDE. Ensure you have the necessary libraries installed.
 
 4. **Network Configuration**:
    - Connect to the Wi-Fi network `trioprint` (password: `trioprint`).
@@ -50,17 +71,17 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
    Ender 3 V3 SE includes CH340T chip as USB to UART bridge. Solder to the TX and RX pins. Connect the other end of wires to ESP serial lines. You might have to swap the RX and TX pins.
    <p align="center">
-      <img src="Images/CH340-PIN.jpg" width="400px">
+      <img src="Images/CH340-PIN.jpg" width="200px">
    </p>
 
    on Ender 3 V3 SE the chip is located there:
    <p align="center">
-      <img src="Images/ENDER3V3SE_serial_pins.jpg" width="400px">
+      <img src="Images/ENDER3V3SE_serial_pins.jpg" width="200px">
    </p>
 
    Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
       <p align="center">
-      <img src="Images/ENDER3V3SE_3V3_PINS.jpg" width="400px">
+      <img src="Images/ENDER3V3SE_3V3_PINS.jpg" width="200px">
    </p>
 
 6. **Testing and Operation**:
@@ -69,6 +90,9 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
 7. **Updates**:
    - For firmware updates, use the OTA feature or connect via USB to the ESP32 for updates after assembling the printer. Printers own USB port can't be used! Currently versioning is based on time at compile. (`__TIME__`) And if new version is detected, your preferences are reseted because memory layout might have been changed.
+
+### Note for ESP32 Without SD Card
+If your ESP32 does not have an SD card, you can still use TrioPrint by uploading the necessary files directly to the ESP32's flash memory. Ensure you configure the firmware accordingly to access the files from flash instead of an SD card.
 
 ## Development and features
 | Feature                  | ESP32 | ESP8266|
