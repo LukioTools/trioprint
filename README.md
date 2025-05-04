@@ -32,6 +32,12 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
 3. **Hardware Setup**:
    - Insert the SD card into the ESP32 and configure `PIN_SPI_SS_SD` in `config.h` to match the SD card's chip select pin.
+
+   if your esp does not sd card slot you can solder wires into micro SD to SD adapter. THis way you can still use the sd card on computer. Or you can also buy one of those development boards.
+   <p align="center">
+      <img src="Images/SD_CARD_ADAPTER.jpg" width="">
+   </p>
+
    - Set correct EMS and STOP commands in `config.h`. Default is for Ender 3 v3 SE
    - Flash the firmware to the ESP32 using the Arduino IDE. Ensure you have the necessary libraries installed.
 
@@ -41,8 +47,20 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
 5. **Printer Connection**:
    - Connect the ESP32 to the printer's UART port (not USB).
+
+   Ender 3 V3 SE includes CH340T chip as USB to UART bridge. Solder to the TX and RX pins. Connect the other wires to esp Serial lines. You might have to swap the RX and TX pins.
    <p align="center">
       <img src="Images/CH340-PIN.jpg" width="">
+   </p>
+
+   on Ender 3 V3 SE the chip is located there:
+   <p align="center">
+      <img src="Images/ENDER3V3SE_serial_pins.jpg" width="">
+   </p>
+
+   Connect power wires as shown in image:
+      <p align="center">
+      <img src="Images/ENDER3V3SE_3V3_PINS.jpg" width="">
    </p>
    - Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
 
