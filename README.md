@@ -41,6 +41,9 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 
 5. **Printer Connection**:
    - Connect the ESP32 to the printer's UART port (not USB).
+   <p align="center">
+      <img src="Images/CH340-PIN.jpg" width="">
+   </p>
    - Optionally, connect 3.3V and ground to power the ESP32 from the printer when powered on.
 
 6. **Testing and Operation**:
@@ -55,7 +58,6 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 |--------------------------|:-----:|:-------:|
 | Wi-Fi                    |   ✅  |   ✅   |
 | Bluetooth                |   🚧  |   ❌   |
-| Async                    |   ✅  |   ❌   |
 | UART                     |   ✅  |   ✅   |
 | USB Interface            |   🚧  |   🚧   |
 | USB Debug                |   ✅  |   ✅   |
@@ -64,7 +66,14 @@ Trioprint is a 3D printing project designed to enhance the capabilities of non-n
 | Run Gcode From SD Card   |   ✅  |   ✅   |
 
 **Note:** For ESP8266, compilation is successful but no testing has been done.
+
 **Note:** Bluetooth would require an app
+
+This project uses an asynchronous web server to provide a smooth user experience, ensuring that activities like loading the website or downloading files do not block ongoing print jobs. Developing this system is somewhat complex, as SD card operations must be carefully synchronized to prevent conflicts. If SD card access is required during development, it is important to review and understand the web server code thoroughly to maintain proper synchronization.
+
+The codebase is currently kinda messy — refactoring is in progress.
+
+A custom debug interface should be added to make debugging easier via serial and web interface. Currently, it's just Serial prints...
 
 ## Dependencies
 - [ESP32 Arduino Core](https://github.com/espressif/arduino-esp32): Required for ESP32 development.
