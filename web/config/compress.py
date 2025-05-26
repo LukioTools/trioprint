@@ -1,9 +1,5 @@
 import re
 import gzip
-import base64
-
-# this script is used to compress the configuration web page for initial configuration.
-# When run, it will automatically make config_html__template.h into the main folder that is included by the code.
 
 def compress_html(html: str, remove_comments: bool = True) -> str:
     if remove_comments:
@@ -29,18 +25,12 @@ def gzip_compress(html: str) -> bytes:
     compressed_html = gzip.compress(html_bytes)
     return compressed_html
 
-def base64_encode(compressed_html: bytes) -> str:
-    # Base64 encode the gzipped HTML
-    return base64.b64encode(compressed_html).decode('utf-8')
+def html_to_c_array(gzipped_html: bytes) -> str:
+    # Convert the gzipped bytes into a C++ array declaration
+    hex_bytes = ", ".join(f"0x{byte:02X}" for byte in gzipped_html)
+    return f"const uint8_t CONFIGURATION_HTML_TEMPLATE[] PROGMEM = {{ {hex_bytes} }};"
 
-def html_to_c_string(base64_encoded_html: str, max_line_length: int = 100) -> str:
-    # Split the base64 encoded string into manageable lines first
-    lines = [base64_encoded_html[i:i+max_line_length] for i in range(0, len(base64_encoded_html), max_line_length)]
-    
-    # Wrap each line in double quotes for C++ syntax
-    return '\n'.join([f'"{line}"' for line in lines])
-
-def generate_html_header_file(input_file_path: str, output_file_path: str, var_name: str = "html_page"):
+def generate_html_header_file(input_file_path: str, output_file_path: str):
     with open(input_file_path, 'r', encoding='utf-8') as f:
         html_content = f.read()
 
@@ -50,21 +40,16 @@ def generate_html_header_file(input_file_path: str, output_file_path: str, var_n
     # Gzip compress the HTML
     gzipped_html = gzip_compress(compressed_html)
 
-    # Base64 encode the gzipped HTML
-    base64_encoded_html = base64_encode(gzipped_html)
-
-    # Convert it to C++ string format with escaping
-    c_string_html = html_to_c_string(base64_encoded_html)
+    # Convert the gzipped HTML into a C++ array
+    c_array = html_to_c_array(gzipped_html)
 
     # Create the header content with proper inclusion guards
     header_content = f"""\
-    #pragma once
+#pragma once
 #ifndef HTML_TEMPLATE_H
 #define HTML_TEMPLATE_H
 
-const char {var_name}[] PROGMEM = 
-{c_string_html}
-;
+{c_array}
 
 #endif // HTML_TEMPLATE_H
 """
@@ -76,5 +61,5 @@ const char {var_name}[] PROGMEM =
 if __name__ == "__main__":
     input_path = 'index.html'
     output_path = '../../config_html_template.h'
-    generate_html_header_file(input_path, output_path, "CONFIGURATION_HTML_TEMPLATE")
+    generate_html_header_file(input_path, output_path)
     print(f"Header file generated at {output_path}")

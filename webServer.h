@@ -69,10 +69,12 @@ void RootReloadCache() {
 }
 
 void configRoot(AsyncWebServerRequest* request) {
-  AsyncWebServerResponse* response = request->beginResponse(200, "text/html", CONFIGURATION_HTML_TEMPLATE);  //Sends 404 File Not Found
+  size_t html_size = sizeof(CONFIGURATION_HTML_TEMPLATE);
+  AsyncWebServerResponse* response = request->beginResponse_P(200, "text/html", CONFIGURATION_HTML_TEMPLATE, html_size);
   response->addHeader("Content-Encoding", "gzip");
   request->send(response);
 }
+
 
 void Root(AsyncWebServerRequest* request) {
   Serial.println("client");
